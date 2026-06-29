@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   },
   markAllRead: {
     fontSize: 14,
-    color: colors.accent.cyan,
+    color: '#FFFFFF',
   },
   badgeContainer: {
     paddingHorizontal: spacing.lg,

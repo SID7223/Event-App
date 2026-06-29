@@ -72,28 +72,28 @@ const TABS = [
     label: 'Home',
     activeIcon: 'home' as const,
     inactiveIcon: 'home-outline' as const,
-    activeColor: '#E43414',
+    activeColor: '#FFFFFF',
   },
   {
     name: 'ExploreTab' as const,
     label: 'Explore',
     activeIcon: 'search' as const,
     inactiveIcon: 'search-outline' as const,
-    activeColor: '#99E1D9',
+    activeColor: '#FFFFFF',
   },
   {
     name: 'MyEventsTab' as const,
     label: 'My Events',
     activeIcon: 'calendar' as const,
     inactiveIcon: 'calendar-outline' as const,
-    activeColor: '#99E1D9',
+    activeColor: '#FFFFFF',
   },
   {
     name: 'ProfileTab' as const,
     label: 'Profile',
     activeIcon: 'person' as const,
     inactiveIcon: 'person-outline' as const,
-    activeColor: '#99E1D9',
+    activeColor: '#FFFFFF',
   },
 ];
 

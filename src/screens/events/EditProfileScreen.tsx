@@ -260,6 +260,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.07)',
+    outlineWidth: 0,
+    outlineColor: 'transparent',
+    outlineStyle: 'none',
   },
   fieldInputError: {
     borderColor: '#E43414',
@@ -283,8 +286,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.1)',
   },
   interestChipActive: {
-    backgroundColor: '#99E1D9',
-    borderColor: '#99E1D9',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
   },
   interestText: {
     fontSize: 14,

@@ -82,6 +82,8 @@ const LoginScreen: React.FC = () => {
                   onChangeText={setEmail}
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  autoComplete="off"
+                  textContentType="none"
                 />
               </View>
               {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
@@ -96,6 +98,8 @@ const LoginScreen: React.FC = () => {
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
+                  autoComplete="off"
+                  textContentType="none"
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
                   <Ionicons
@@ -217,6 +221,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#FFFFFF',
     height: '100%',
+    outlineWidth: 0,
+    outlineColor: 'transparent',
+    outlineStyle: 'none',
   },
   eyeBtn: {
     padding: 4,
@@ -235,7 +242,7 @@ const styles = StyleSheet.create({
   },
   forgotText: {
     fontSize: 14,
-    color: '#99E1D9',
+    color: '#FFFFFF',
     fontWeight: '500',
   },
   loginBtn: {
@@ -305,7 +312,7 @@ const styles = StyleSheet.create({
   },
   signupLink: {
     fontSize: 15,
-    color: '#99E1D9',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
 });

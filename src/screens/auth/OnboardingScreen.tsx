@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Dimensions,
   Animated,
   StatusBar,
   TouchableOpacity,
@@ -12,8 +11,6 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-
-const { width, height } = Dimensions.get('window');
 
 const SLIDES = [
   {
@@ -170,8 +167,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0A0C12',
   },
   card: {
-    width,
-    height,
+    flex: 1,
     overflow: 'hidden',
   },
   bg: {
@@ -266,7 +262,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   loginLinkBold: {
-    color: '#99E1D9',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
 });

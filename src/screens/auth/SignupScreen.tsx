@@ -88,6 +88,8 @@ const SignupScreen: React.FC = () => {
                   placeholderTextColor="rgba(255,255,255,0.35)"
                   value={firstName}
                   onChangeText={setFirstName}
+                  autoComplete="off"
+                  textContentType="none"
                 />
               </View>
               <View style={[styles.inputWrapper, styles.halfInput, errors.lastName ? styles.inputError : null]}>
@@ -97,6 +99,8 @@ const SignupScreen: React.FC = () => {
                   placeholderTextColor="rgba(255,255,255,0.35)"
                   value={lastName}
                   onChangeText={setLastName}
+                  autoComplete="off"
+                  textContentType="none"
                 />
               </View>
             </View>
@@ -114,6 +118,8 @@ const SignupScreen: React.FC = () => {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                autoComplete="off"
+                textContentType="none"
               />
             </View>
             {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
@@ -127,6 +133,8 @@ const SignupScreen: React.FC = () => {
                 value={phone}
                 onChangeText={setPhone}
                 keyboardType="phone-pad"
+                autoComplete="off"
+                textContentType="none"
               />
             </View>
             {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
@@ -140,6 +148,8 @@ const SignupScreen: React.FC = () => {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
+                autoComplete="off"
+                textContentType="none"
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
                 <Ionicons
@@ -261,6 +271,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#FFFFFF',
     height: '100%',
+    outlineWidth: 0,
+    outlineColor: 'transparent',
+    outlineStyle: 'none',
   },
   eyeBtn: {
     padding: 4,
@@ -288,8 +301,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkboxChecked: {
-    backgroundColor: '#99E1D9',
-    borderColor: '#99E1D9',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
   },
   termsText: {
     fontSize: 14,
@@ -298,7 +311,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   termsLink: {
-    color: '#99E1D9',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   signupBtn: {
@@ -325,7 +338,7 @@ const styles = StyleSheet.create({
   },
   loginLink: {
     fontSize: 15,
-    color: '#99E1D9',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
 });

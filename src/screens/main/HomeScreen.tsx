@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   },
   seeAll: {
     fontSize: 14,
-    color: '#99E1D9',
+    color: '#FFFFFF',
     fontWeight: '500',
   },
   cardGrid: {

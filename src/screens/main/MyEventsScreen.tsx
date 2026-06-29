@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   tabActive: {
-    borderBottomColor: '#99E1D9',
+    borderBottomColor: '#FFFFFF',
   },
   tabText: {
     fontSize: 15,

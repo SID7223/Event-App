@@ -175,6 +175,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FFFFFF',
     height: '100%',
+    outlineWidth: 0,
+    outlineColor: 'transparent',
+    outlineStyle: 'none',
   },
 
   /* ── Filter chips ── */
@@ -194,8 +197,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.18)',
   },
   filterChipActive: {
-    backgroundColor: '#99E1D9',
-    borderColor: '#99E1D9',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
   },
   filterText: {
     fontSize: 14,
