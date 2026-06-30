@@ -139,7 +139,7 @@ const LoginScreen: React.FC = () => {
             {/* Social Buttons — side by side */}
             <View style={styles.socialRow}>
               <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
-                <Text style={styles.googleG}>G</Text>
+                <Ionicons name="logo-google" size={20} color="#FFFFFF" />
                 <Text style={styles.socialBtnText}>Google</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   },
   loginBtn: {
     height: 56,
-    borderRadius: 28,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 28,
@@ -289,12 +289,6 @@ const styles = StyleSheet.create({
     gap: 10,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
-  },
-  googleG: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    fontStyle: 'italic',
   },
   socialBtnText: {
     fontSize: 15,

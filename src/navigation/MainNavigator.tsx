@@ -1,11 +1,9 @@
-import React from 'react';
-// Triggering TS Server re-evaluation of imports
+import React, { useState, useCallback } from 'react';
 import {
   View,
-  Text,
+  Image,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
 } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -20,11 +18,13 @@ import CalendarScreen from '../screens/events/CalendarScreen';
 import EventDetailScreen from '../screens/events/EventDetailScreen';
 import EditProfileScreen from '../screens/events/EditProfileScreen';
 import SettingsScreen from '../screens/main/SettingsScreen';
+import Sidebar from '../components/layout/Sidebar';
 
 export type MainTabParamList = {
   HomeTab: undefined;
   ExploreTab: undefined;
   MyEventsTab: undefined;
+  BookingsTab: undefined;
   ProfileTab: undefined;
 };
 
@@ -34,9 +34,11 @@ const ExploreStack = createStackNavigator();
 const MyEventsStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
 
-const HomeStackNavigator: React.FC = () => (
+const HomeStackNavigator: React.FC<{ onToggleSidebar: () => void; sidebarVisible: boolean }> = ({ onToggleSidebar, sidebarVisible }) => (
   <HomeStack.Navigator screenOptions={{ headerShown: false }}>
-    <HomeStack.Screen name="Home" component={HomeScreen} />
+    <HomeStack.Screen name="Home">
+      {(props) => <HomeScreen {...props} onOpenSidebar={onToggleSidebar} sidebarVisible={sidebarVisible} />}
+    </HomeStack.Screen>
     <HomeStack.Screen name="Notifications" component={NotificationsScreen} />
     <HomeStack.Screen name="Calendar" component={CalendarScreen} />
     <HomeStack.Screen name="EventDetail" component={EventDetailScreen} />
@@ -50,11 +52,20 @@ const ExploreStackNavigator: React.FC = () => (
   </ExploreStack.Navigator>
 );
 
+const BookingsStack = createStackNavigator();
+
 const MyEventsStackNavigator: React.FC = () => (
   <MyEventsStack.Navigator screenOptions={{ headerShown: false }}>
     <MyEventsStack.Screen name="MyEvents" component={MyEventsScreen} />
     <MyEventsStack.Screen name="EventDetail" component={EventDetailScreen} />
   </MyEventsStack.Navigator>
+);
+
+const BookingsStackNavigator: React.FC = () => (
+  <BookingsStack.Navigator screenOptions={{ headerShown: false }}>
+    <BookingsStack.Screen name="MyEvents" component={MyEventsScreen} />
+    <BookingsStack.Screen name="EventDetail" component={EventDetailScreen} />
+  </BookingsStack.Navigator>
 );
 
 const ProfileStackNavigator: React.FC = () => (
@@ -65,104 +76,107 @@ const ProfileStackNavigator: React.FC = () => (
   </ProfileStack.Navigator>
 );
 
-// ─── Tab config ────────────────────────────────────────────────────────────────
 const TABS = [
   {
     name: 'HomeTab' as const,
-    label: 'Home',
-    activeIcon: 'home' as const,
-    inactiveIcon: 'home-outline' as const,
-    activeColor: '#FFFFFF',
+    icon: 'home' as const,
+    iconOutline: 'home-outline' as const,
+    activeColor: '#E43414',
   },
   {
     name: 'ExploreTab' as const,
-    label: 'Explore',
-    activeIcon: 'search' as const,
-    inactiveIcon: 'search-outline' as const,
-    activeColor: '#FFFFFF',
+    icon: 'search' as const,
+    iconOutline: 'search-outline' as const,
+    activeColor: '#E43414',
   },
   {
     name: 'MyEventsTab' as const,
-    label: 'My Events',
-    activeIcon: 'calendar' as const,
-    inactiveIcon: 'calendar-outline' as const,
-    activeColor: '#FFFFFF',
+    icon: 'map' as const,
+    iconOutline: 'map-outline' as const,
+    activeColor: '#E43414',
+  },
+  {
+    name: 'BookingsTab' as const,
+    icon: 'calendar' as const,
+    iconOutline: 'calendar-outline' as const,
+    activeColor: '#E43414',
   },
   {
     name: 'ProfileTab' as const,
-    label: 'Profile',
-    activeIcon: 'person' as const,
-    inactiveIcon: 'person-outline' as const,
-    activeColor: '#FFFFFF',
+    icon: 'settings' as const,
+    iconOutline: 'settings-outline' as const,
+    activeColor: '#E43414',
   },
 ];
 
 const MainNavigator: React.FC = () => {
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarVisible((prev) => !prev);
+  }, []);
+  const closeSidebar = useCallback(() => setSidebarVisible(false), []);
+
   return (
-    <Tab.Navigator
-      screenOptions={{ headerShown: false }}
-      tabBar={({ state, navigation }) => {
-        return (
-          <View style={styles.tabBarContainer}>
-            <View style={styles.tabBar}>
-              {TABS.map((tab, index) => {
-                const isActive = state.index === index;
-                const color = isActive ? tab.activeColor : 'rgba(255,255,255,0.4)';
+    <View style={{ flex: 1 }}>
+      <Tab.Navigator
+        screenOptions={{ headerShown: false }}
+        tabBar={({ state, navigation }) => {
+          return (
+            <View style={styles.tabBarContainer}>
+              <View style={styles.tabBar}>
+                {TABS.map((tab, index) => {
+                  const isActive = state.index === index;
+                  const iconName = isActive ? tab.icon : tab.iconOutline;
+                  const color = isActive ? tab.activeColor : 'rgba(255,255,255,0.4)';
 
-                const onPress = () => {
-                  const event = navigation.emit({
-                    type: 'tabPress',
-                    target: state.routes[index].key,
-                    canPreventDefault: true,
-                  });
-                  if (!isActive && !event.defaultPrevented) {
-                    navigation.navigate(tab.name);
-                  }
-                };
+                  const onPress = () => {
+                    const event = navigation.emit({
+                      type: 'tabPress',
+                      target: state.routes[index].key,
+                      canPreventDefault: true,
+                    });
+                    if (!isActive && !event.defaultPrevented) {
+                      navigation.navigate(tab.name);
+                    }
+                  };
 
-                return (
-                  <TouchableOpacity
-                    key={tab.name}
-                    style={styles.tabItem}
-                    onPress={onPress}
-                    activeOpacity={0.7}
-                  >
-                    {/* Active indicator dot above icon */}
-                    {isActive && tab.name === 'HomeTab' && (
-                      <View style={[styles.activeDot, { backgroundColor: tab.activeColor }]} />
-                    )}
-
-                    <Ionicons
-                      name={isActive ? tab.activeIcon : tab.inactiveIcon}
-                      size={24}
-                      color={color}
-                    />
-                    <Text
-                      style={[
-                        styles.tabLabel,
-                        { color, fontWeight: isActive ? '600' : '400' },
-                      ]}
+                  return (
+                    <TouchableOpacity
+                      key={tab.name}
+                      style={styles.tabItem}
+                      onPress={onPress}
+                      activeOpacity={0.7}
                     >
-                      {tab.label}
-                    </Text>
-
-                    {/* Underline for Explore when active */}
-                    {isActive && tab.name === 'ExploreTab' && (
-                      <View style={[styles.underline, { backgroundColor: tab.activeColor }]} />
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
+                      {tab.name === 'ProfileTab' ? (
+                        <View style={[styles.avatarRing, isActive && styles.avatarRingActive]}>
+                          <Image
+                            source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }}
+                            style={styles.tabAvatar}
+                          />
+                        </View>
+                      ) : (
+                        <Ionicons name={iconName} size={24} color={color} />
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
-          </View>
-        );
-      }}
-    >
-      <Tab.Screen name="HomeTab" component={HomeStackNavigator} />
-      <Tab.Screen name="ExploreTab" component={ExploreStackNavigator} />
-      <Tab.Screen name="MyEventsTab" component={MyEventsStackNavigator} />
-      <Tab.Screen name="ProfileTab" component={ProfileStackNavigator} />
-    </Tab.Navigator>
+          );
+        }}
+      >
+        <Tab.Screen name="HomeTab">
+          {() => <HomeStackNavigator onToggleSidebar={toggleSidebar} sidebarVisible={sidebarVisible} />}
+        </Tab.Screen>
+        <Tab.Screen name="ExploreTab" component={ExploreStackNavigator} />
+        <Tab.Screen name="MyEventsTab" component={MyEventsStackNavigator} />
+        <Tab.Screen name="BookingsTab" component={BookingsStackNavigator} />
+        <Tab.Screen name="ProfileTab" component={ProfileStackNavigator} />
+      </Tab.Navigator>
+
+      <Sidebar visible={sidebarVisible} onClose={closeSidebar} />
+    </View>
   );
 };
 
@@ -170,43 +184,42 @@ const styles = StyleSheet.create({
   tabBarContainer: {
     backgroundColor: '#12161D',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.07)',
+    borderTopColor: 'rgba(255,255,255,0.06)',
     paddingBottom: 24,
-    paddingTop: 10,
+    paddingTop: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 20,
+    shadowOffset: { width: 0, height: -6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 24,
   },
   tabBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
   tabItem: {
     flex: 1,
     alignItems: 'center',
-    gap: 4,
-    position: 'relative',
-    paddingTop: 4,
+    justifyContent: 'center',
+    paddingVertical: 4,
   },
-  tabLabel: {
-    fontSize: 11,
+  avatarRing: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  activeDot: {
-    position: 'absolute',
-    top: -10,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+  avatarRingActive: {
+    borderColor: '#E43414',
   },
-  underline: {
-    position: 'absolute',
-    bottom: -4,
+  tabAvatar: {
     width: 24,
-    height: 2,
-    borderRadius: 1,
+    height: 24,
+    borderRadius: 12,
   },
 });
 

@@ -47,12 +47,6 @@ const SplashScreen: React.FC = () => {
         useNativeDriver: true,
       }).start();
     }, 1400);
-
-    const timer = setTimeout(() => {
-      navigation.replace('Onboarding');
-    }, 5000);
-
-    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -60,7 +54,7 @@ const SplashScreen: React.FC = () => {
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
       <ImageBackground
-        source={{ uri: 'https://images.unsplash.com/photo-1540039155733-5bb30b4b5080?w=800' }}
+        source={require('../../../assets/splash-bg.jpg')}
         style={styles.bg}
         resizeMode="cover"
       >
@@ -180,16 +174,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonSection: {
+    width: '100%',
     paddingHorizontal: 24,
     paddingBottom: 52,
     alignItems: 'center',
   },
   getStartedBtn: {
+    width: 220,
     height: 56,
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'stretch',
   },
   getStartedText: {
     color: '#FFFFFF',

@@ -169,7 +169,7 @@ const SignupScreen: React.FC = () => {
             >
               <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
                 {agreedToTerms && (
-                  <Ionicons name="checkmark" size={14} color="#FFFFFF" />
+                  <Ionicons name="checkmark" size={14} color="#0A0C12" />
                 )}
               </View>
               <Text style={styles.termsText}>

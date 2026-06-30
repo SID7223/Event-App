@@ -1,11 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  FlatList,
-  Animated,
   TouchableOpacity,
   Dimensions,
   Image,
@@ -15,41 +13,72 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { mockEvents } from '../../services/mockData';
+import AnimatedHamburger from '../../components/ui/AnimatedHamburger';
 
 const { width } = Dimensions.get('window');
 
-const CARD_WIDTH = (width - 48 - 12) / 2;
-
 const CATEGORIES = [
-  { id: 'music', label: 'Music', icon: '🎵' },
-  { id: 'art', label: 'Art', icon: '🎨' },
-  { id: 'tech', label: 'Tech', icon: '💻' },
-  { id: 'festival', label: 'Festival', icon: '🎉' },
-  { id: 'more', label: 'More', icon: '···' },
+  { id: 'feed', label: 'My feed', icon: 'flame' as const, active: true },
+  { id: 'food', label: 'Food', icon: 'restaurant' as const, active: false },
+  { id: 'concerts', label: 'Concerts', icon: 'musical-notes' as const, active: false },
+  { id: 'art', label: 'Art', icon: 'color-palette' as const, active: false },
+  { id: 'tech', label: 'Tech', icon: 'laptop' as const, active: false },
+  { id: 'sports', label: 'Sports', icon: 'football' as const, active: false },
 ];
 
 const getMonth = (dateStr: string) => {
-  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-  const d = new Date(dateStr);
-  return months[d.getMonth()];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return months[new Date(dateStr).getMonth()];
 };
 const getDay = (dateStr: string) => new Date(dateStr).getDate();
+const formatTime = (time: string) => {
+  const [h, m] = time.split(':');
+  const hour = parseInt(h);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const h12 = hour % 12 || 12;
+  return `${h12}:${m} ${ampm}`;
+};
 
-const HomeScreen: React.FC = () => {
+interface HomeScreenProps {
+  onOpenSidebar?: () => void;
+  sidebarVisible?: boolean;
+}
+
+const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible = false }) => {
   const navigation = useNavigation<any>();
-  const headerAnim = useRef(new Animated.Value(0)).current;
-  const sectionAnim1 = useRef(new Animated.Value(0)).current;
-  const sectionAnim2 = useRef(new Animated.Value(0)).current;
+  const [activeCategory, setActiveCategory] = useState('feed');
+  const [iconOpen, setIconOpen] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Sync icon state when sidebar closes externally (overlay tap, menu item)
   useEffect(() => {
-    Animated.stagger(120, [
-      Animated.timing(headerAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
-      Animated.timing(sectionAnim1, { toValue: 1, duration: 500, useNativeDriver: true }),
-      Animated.timing(sectionAnim2, { toValue: 1, duration: 500, useNativeDriver: true }),
-    ]).start();
+    if (!sidebarVisible && iconOpen) {
+      setIconOpen(false);
+    }
+  }, [sidebarVisible]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, []);
 
-  const popularEvents = mockEvents.slice(0, 6);
+  const handleHamburgerPress = useCallback(() => {
+    if (iconOpen) {
+      // Stairs → close sidebar immediately
+      setIconOpen(false);
+      onOpenSidebar?.();
+    } else {
+      // Fries → Stairs transition (0.3s), then open sidebar
+      setIconOpen(true);
+      timerRef.current = setTimeout(() => {
+        onOpenSidebar?.();
+      }, 300);
+    }
+  }, [iconOpen, onOpenSidebar]);
+
+  const upcomingEvents = mockEvents.slice(0, 4);
 
   const renderEventCard = ({ item, index }: { item: typeof mockEvents[0]; index: number }) => (
     <TouchableOpacity
@@ -59,13 +88,9 @@ const HomeScreen: React.FC = () => {
     >
       <Image source={{ uri: item.image }} style={styles.eventCardImage} />
       <LinearGradient
-        colors={['transparent', 'rgba(10,12,18,0.92)']}
+        colors={['transparent', 'rgba(10,12,18,0.85)']}
         style={styles.eventCardGradient}
       />
-      {/* Heart icon */}
-      <TouchableOpacity style={styles.heartBtn}>
-        <Ionicons name="heart-outline" size={18} color="#fff" />
-      </TouchableOpacity>
       {/* Date badge */}
       <View style={styles.dateBadge}>
         <Text style={styles.dateDay}>{getDay(item.date)}</Text>
@@ -73,8 +98,15 @@ const HomeScreen: React.FC = () => {
       </View>
       {/* Info */}
       <View style={styles.eventCardInfo}>
-        <Text style={styles.eventCardTitle} numberOfLines={2}>{item.title}</Text>
-        <Text style={styles.eventCardLocation} numberOfLines={1}>{item.location}</Text>
+        <Text style={styles.eventCardTitle} numberOfLines={1}>{item.title}</Text>
+        <View style={styles.eventCardMeta}>
+          <Ionicons name="location-outline" size={12} color="rgba(255,255,255,0.6)" />
+          <Text style={styles.eventCardLocation} numberOfLines={1}>
+            {item.location.split(',')[1]?.trim() || item.location} - {formatTime(item.time)}
+          </Text>
+        </View>
+      </View>
+      <View style={styles.priceTag}>
         <Text style={styles.eventCardPrice}>${item.price}</Text>
       </View>
     </TouchableOpacity>
@@ -87,18 +119,25 @@ const HomeScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
       >
         {/* Header */}
-        <Animated.View style={[styles.header, { opacity: headerAnim }]}>
-          <View style={styles.headerLeft}>
-            <Text style={styles.greeting}>Hi, John 👋</Text>
-            <Text style={styles.subGreeting}>Discover events{'\n'}just for you</Text>
+        <View style={styles.header}>
+          <AnimatedHamburger
+            isOpen={iconOpen}
+            onPress={handleHamburgerPress}
+          />
+
+          <View style={styles.locationContainer}>
+            <Ionicons name="location" size={14} color="#E43414" />
+            <Text style={styles.locationText}>Jakarta, Ina</Text>
           </View>
-          <TouchableOpacity style={styles.avatarBtn}>
-            <Image
-              source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }}
-              style={styles.avatar}
-            />
+
+          <TouchableOpacity
+            style={styles.notifBtn}
+            onPress={() => navigation.navigate('Notifications')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="notifications-outline" size={20} color="#FFFFFF" />
           </TouchableOpacity>
-        </Animated.View>
+        </View>
 
         {/* Search Bar */}
         <TouchableOpacity
@@ -107,54 +146,56 @@ const HomeScreen: React.FC = () => {
           activeOpacity={0.85}
         >
           <Ionicons name="search-outline" size={18} color="rgba(255,255,255,0.4)" />
-          <Text style={styles.searchPlaceholder}>Search events, artists, locations...</Text>
+          <Text style={styles.searchPlaceholder}>Search all events...</Text>
+          <TouchableOpacity style={styles.filterBtn} activeOpacity={0.7}>
+            <Ionicons name="options-outline" size={18} color="rgba(255,255,255,0.5)" />
+          </TouchableOpacity>
         </TouchableOpacity>
 
-        {/* Popular Events */}
-        <Animated.View style={{ opacity: sectionAnim1 }}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Popular Events</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('ExploreTab')}>
-              <Text style={styles.seeAll}>See All</Text>
-            </TouchableOpacity>
-          </View>
+        {/* Upcoming Events */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Upcoming events</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('ExploreTab')}>
+            <Text style={styles.seeAll}>See All</Text>
+          </TouchableOpacity>
+        </View>
 
-          <FlatList
-            data={popularEvents}
-            renderItem={renderEventCard}
-            keyExtractor={(item) => item.id}
-            numColumns={2}
-            columnWrapperStyle={styles.cardRow}
-            scrollEnabled={false}
-            contentContainerStyle={styles.cardGrid}
-          />
-        </Animated.View>
-
-        {/* Categories */}
-        <Animated.View style={[styles.categoriesSection, { opacity: sectionAnim2 }]}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Categories</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAll}>See All</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.categoriesRow}>
-            {CATEGORIES.map((cat) => (
+        {/* Category Chips */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoriesContainer}
+        >
+          {CATEGORIES.map((cat) => {
+            const isActive = activeCategory === cat.id;
+            return (
               <TouchableOpacity
                 key={cat.id}
-                style={styles.categoryItem}
-                onPress={() => navigation.navigate('ExploreTab')}
-                activeOpacity={0.8}
+                style={[styles.categoryChip, isActive && styles.categoryChipActive]}
+                onPress={() => setActiveCategory(cat.id)}
+                activeOpacity={0.7}
               >
-                <View style={styles.categoryIcon}>
-                  <Text style={styles.categoryEmoji}>{cat.icon}</Text>
-                </View>
-                <Text style={styles.categoryLabel}>{cat.label}</Text>
+                <Ionicons
+                  name={cat.icon}
+                  size={16}
+                  color={isActive ? '#FFFFFF' : 'rgba(255,255,255,0.6)'}
+                />
+                <Text style={[styles.categoryLabel, isActive && styles.categoryLabelActive]}>
+                  {cat.label}
+                </Text>
               </TouchableOpacity>
-            ))}
-          </View>
-        </Animated.View>
+            );
+          })}
+        </ScrollView>
+
+        {/* Event Cards */}
+        <View style={styles.eventsContainer}>
+          {upcomingEvents.map((item, index) => (
+            <React.Fragment key={item.id}>
+              {renderEventCard({ item, index })}
+            </React.Fragment>
+          ))}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -171,58 +212,71 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 20,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 16,
   },
-  headerLeft: {
-    flex: 1,
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
-  greeting: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.65)',
-    marginBottom: 4,
-  },
-  subGreeting: {
-    fontSize: 24,
-    fontWeight: '700',
+  locationText: {
+    fontSize: 15,
+    fontWeight: '600',
     color: '#FFFFFF',
-    lineHeight: 32,
+  },
+  notifBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   avatarBtn: {
-    marginLeft: 16,
-    marginTop: 4,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#E43414',
   },
   avatar: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    borderWidth: 2,
-    borderColor: '#99E1D9',
+    width: '100%',
+    height: '100%',
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#161B24',
-    borderRadius: 14,
-    height: 50,
-    marginHorizontal: 24,
-    marginBottom: 28,
+    borderRadius: 16,
+    height: 52,
+    marginHorizontal: 20,
+    marginBottom: 24,
     paddingHorizontal: 16,
     gap: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.07)',
+    borderColor: 'rgba(255,255,255,0.06)',
   },
   searchPlaceholder: {
+    flex: 1,
     fontSize: 14,
     color: 'rgba(255,255,255,0.35)',
+  },
+  filterBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     marginBottom: 16,
   },
   sectionTitle: {
@@ -232,20 +286,46 @@ const styles = StyleSheet.create({
   },
   seeAll: {
     fontSize: 14,
-    color: '#FFFFFF',
+    color: 'rgba(255,255,255,0.5)',
     fontWeight: '500',
   },
-  cardGrid: {
-    paddingHorizontal: 24,
+  categoriesContainer: {
+    paddingHorizontal: 20,
+    gap: 10,
+    marginBottom: 24,
   },
-  cardRow: {
-    justifyContent: 'space-between',
-    marginBottom: 12,
+  categoryChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 24,
+    backgroundColor: '#1A1F2B',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+  },
+  categoryChipActive: {
+    backgroundColor: '#E43414',
+    borderColor: '#E43414',
+  },
+  categoryLabel: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.6)',
+    fontWeight: '500',
+  },
+  categoryLabelActive: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  eventsContainer: {
+    paddingHorizontal: 20,
+    gap: 16,
   },
   eventCard: {
-    width: CARD_WIDTH,
-    height: 200,
-    borderRadius: 16,
+    width: '100%',
+    height: 260,
+    borderRadius: 20,
     overflow: 'hidden',
     backgroundColor: '#161B24',
   },
@@ -260,95 +340,68 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 130,
-  },
-  heartBtn: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    height: 140,
   },
   dateBadge: {
     position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: 'rgba(10,12,18,0.8)',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    top: 14,
+    right: 14,
+    backgroundColor: 'rgba(10,12,18,0.7)',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     alignItems: 'center',
+    backdropFilter: 'blur(10px)',
   },
   dateDay: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: '700',
     color: '#FFFFFF',
-    lineHeight: 18,
+    lineHeight: 22,
   },
   dateMonth: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '500',
     color: 'rgba(255,255,255,0.6)',
     textTransform: 'uppercase',
-    lineHeight: 13,
+    lineHeight: 14,
   },
   eventCardInfo: {
     position: 'absolute',
-    bottom: 0,
+    bottom: -10,
     left: 0,
     right: 0,
-    padding: 12,
+    padding: 16,
   },
   eventCardTitle: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
     color: '#FFFFFF',
     marginBottom: 2,
-    lineHeight: 18,
+  },
+  eventCardMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 10,
   },
   eventCardLocation: {
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.55)',
-    marginBottom: 4,
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.6)',
+  },
+  priceTag: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
   },
   eventCardPrice: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '700',
-    color: '#E43414',
-  },
-  categoriesSection: {
-    marginTop: 8,
-  },
-  categoriesRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-  },
-  categoryItem: {
-    alignItems: 'center',
-    gap: 8,
-  },
-  categoryIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 18,
-    backgroundColor: '#161B24',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.07)',
-  },
-  categoryEmoji: {
-    fontSize: 22,
-  },
-  categoryLabel: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.65)',
-    fontWeight: '500',
+    color: '#0A0C12',
   },
 });
 
