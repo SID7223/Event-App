@@ -7,10 +7,13 @@ import {
   Animated,
   TouchableOpacity,
   Image,
+  Alert,
+  Share,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../store';
 
 const MENU_ITEMS = [
   { id: 'personal', label: 'Personal Information', icon: 'person-outline' as const },
@@ -22,6 +25,7 @@ const MENU_ITEMS = [
 
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { user } = useAuth();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const menuAnims = useRef(MENU_ITEMS.map(() => new Animated.Value(0))).current;
 
@@ -45,8 +49,27 @@ const ProfileScreen: React.FC = () => {
   }, []);
 
   const handleNavigate = (id: string) => {
-    if (id === 'personal') navigation.navigate('EditProfile');
-    else if (id === 'help' || id === 'preferences') navigation.navigate('Settings');
+    if (id === 'personal') {
+      navigation.navigate('EditProfile');
+    } else if (id === 'payment') {
+      Alert.alert('Payment Methods', 'Manage your credit cards, GoPay, OVO, and other payment options.', [
+        { text: 'Add Card', onPress: () => Alert.alert('Coming Soon', 'Card management coming soon!') },
+        { text: 'OK', style: 'cancel' },
+      ]);
+    } else if (id === 'preferences') {
+      navigation.navigate('Settings');
+    } else if (id === 'help') {
+      Alert.alert('Help & Support', 'Need help? Contact us at support@zyntr.com or call +62 812 3456 7890.', [
+        { text: 'Email Us', onPress: () => {} },
+        { text: 'Call Us', onPress: () => {} },
+        { text: 'Cancel', style: 'cancel' },
+      ]);
+    } else if (id === 'invite') {
+      Share.share({
+        message: 'Hey! Check out Zyntr - discover and book amazing events. Download it now!',
+        title: 'Invite Friends',
+      });
+    }
   };
 
   return (
@@ -74,8 +97,8 @@ const ProfileScreen: React.FC = () => {
               <Ionicons name="camera" size={14} color="#fff" />
             </TouchableOpacity>
           </View>
-          <Text style={styles.name}>John Doe</Text>
-          <Text style={styles.handle}>@johndoe.events</Text>
+          <Text style={styles.name}>{user?.firstName} {user?.lastName}</Text>
+          <Text style={styles.handle}>@{user?.firstName?.toLowerCase()}{user?.lastName?.toLowerCase()}.events</Text>
 
           {/* Stats */}
           <View style={styles.statsRow}>

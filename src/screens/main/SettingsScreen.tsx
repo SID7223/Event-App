@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Switch,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -79,18 +80,30 @@ const SettingsScreen: React.FC = () => {
         {/* Account Section */}
         <Text style={styles.sectionLabel}>Account</Text>
         <View style={styles.card}>
-          <View style={[styles.row, styles.rowBorder]}>
+          <TouchableOpacity
+            style={[styles.row, styles.rowBorder]}
+            onPress={() => navigation.navigate('ProfileTab', { screen: 'EditProfile' })}
+            activeOpacity={0.7}
+          >
             <Text style={styles.rowLabel}>Edit Profile</Text>
             <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
-          </View>
-          <View style={[styles.row, styles.rowBorder]}>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.row, styles.rowBorder]}
+            onPress={() => Alert.alert('Change Password', 'A password reset link has been sent to your email.')}
+            activeOpacity={0.7}
+          >
             <Text style={styles.rowLabel}>Change Password</Text>
             <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
-          </View>
-          <View style={styles.row}>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.row}
+            onPress={() => Alert.alert('Privacy Settings', 'Privacy settings saved.')}
+            activeOpacity={0.7}
+          >
             <Text style={styles.rowLabel}>Privacy Settings</Text>
             <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* Preferences Section */}

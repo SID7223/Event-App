@@ -21,7 +21,7 @@ const INTERESTS = ['Music', 'Art', 'Tech', 'Festival'];
 
 const EditProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const [firstName, setFirstName] = useState(user?.firstName || 'John');
   const [lastName, setLastName] = useState(user?.lastName || 'Doe');
   const [email, setEmail] = useState(user?.email || 'johndoe@example.com');
@@ -49,7 +49,18 @@ const EditProfileScreen: React.FC = () => {
 
   const handleSave = () => {
     if (validate()) {
-      Alert.alert('Success', 'Profile updated successfully!');
+      const updatedUser = {
+        ...user!,
+        firstName,
+        lastName,
+        email,
+        phone,
+        interests: selectedInterests,
+      };
+      setUser(updatedUser);
+      Alert.alert('Success', 'Profile updated successfully!', [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
     }
   };
 
