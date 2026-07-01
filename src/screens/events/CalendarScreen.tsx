@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   calendarBtn: {
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   },
   monthText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   daysHeader: {
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
   },
   eventsDateLabel: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 4,
   },
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   },
   eventBadgeDay: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   eventBadgeMonth: {
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   },
   eventName: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 4,
     lineHeight: 19,

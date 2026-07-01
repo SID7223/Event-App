@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   initials: {
     color: '#fff',
-    fontWeight: '700',
+    fontWeight: '500',
   },
 });
 

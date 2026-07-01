@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { mockEvents } from '../../services/mockData';
+import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
 
@@ -100,6 +101,78 @@ const ExploreScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Explore</Text>
+        <Text style={styles.headerSubtitle}>Your city directory</Text>
+      </View>
+
+      {/* City Directory Hub Grid */}
+      <View style={styles.hubSection}>
+        <Text style={styles.hubSectionTitle}>What are you looking for?</Text>
+        <View style={styles.hubGrid}>
+          {/* Cinema Card */}
+          <TouchableOpacity
+            style={styles.hubCard}
+            onPress={() => navigation.navigate('Cinema')}
+            activeOpacity={0.85}
+          >
+            <Image
+              source={{ uri: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400' }}
+              style={styles.hubCardImage}
+            />
+            <View style={styles.hubCardOverlay} />
+            <View style={styles.hubCardContent}>
+              <View style={[styles.hubIconWrap, { backgroundColor: 'rgba(228,52,20,0.85)' }]}>
+                <Ionicons name="film" size={20} color="#FFFFFF" />
+              </View>
+              <Text style={styles.hubCardTitle}>Cinema</Text>
+              <Text style={styles.hubCardSub}>Movies & showtimes</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Dining Card */}
+          <TouchableOpacity
+            style={styles.hubCard}
+            onPress={() => navigation.navigate('Dining')}
+            activeOpacity={0.85}
+          >
+            <Image
+              source={{ uri: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400' }}
+              style={styles.hubCardImage}
+            />
+            <View style={styles.hubCardOverlay} />
+            <View style={styles.hubCardContent}>
+              <View style={[styles.hubIconWrap, { backgroundColor: 'rgba(153,225,217,0.85)' }]}>
+                <Ionicons name="restaurant" size={20} color="#0A0C12" />
+              </View>
+              <Text style={styles.hubCardTitle}>Dining</Text>
+              <Text style={styles.hubCardSub}>Restaurants & cafes</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Play & Sports Card */}
+          <TouchableOpacity
+            style={styles.hubCard}
+            onPress={() => navigation.navigate('PlaySports')}
+            activeOpacity={0.85}
+          >
+            <Image
+              source={{ uri: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600&q=80' }}
+              style={styles.hubCardImage}
+            />
+            <View style={styles.hubCardOverlay} />
+            <View style={styles.hubCardContent}>
+              <View style={[styles.hubIconWrap, { backgroundColor: 'rgba(255,184,0,0.85)' }]}>
+                <Ionicons name="football" size={20} color="#0A0C12" />
+              </View>
+              <Text style={styles.hubCardTitle}>Play & Sports</Text>
+              <Text style={styles.hubCardSub}>Venues & courts</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
+
       {/* Search Bar */}
       <View style={styles.searchWrapper}>
         <Ionicons name="search-outline" size={17} color="rgba(255,255,255,0.4)" />
@@ -155,6 +228,82 @@ const styles = StyleSheet.create({
     backgroundColor: '#0A0C12',
   },
 
+  /* ── Header ── */
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 12,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '500',
+    color: '#FFFFFF',
+    marginBottom: 2,
+    fontFamily: fonts.heading,
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.45)',
+    fontFamily: fonts.body,
+  },
+
+  /* ── Hub Grid ── */
+  hubSection: {
+    paddingHorizontal: 20,
+    marginBottom: 12,
+  },
+  hubSectionTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#FFFFFF',
+    marginBottom: 12,
+  },
+  hubGrid: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  hubCard: {
+    flex: 1,
+    height: 140,
+    borderRadius: 14,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  hubCardImage: {
+    ...StyleSheet.absoluteFill,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  hubCardOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(10,12,18,0.55)',
+  },
+  hubCardContent: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    padding: 12,
+  },
+  hubIconWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  hubCardTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#FFFFFF',
+    marginBottom: 1,
+    fontFamily: fonts.heading,
+  },
+  hubCardSub: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.6)',
+  },
+
   /* ── Search ── */
   searchWrapper: {
     flexDirection: 'row',
@@ -204,10 +353,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.65)',
     fontWeight: '500',
+    fontFamily: fonts.bodyBold,
   },
   filterTextActive: {
     color: '#0A0C12',
-    fontWeight: '700',
+    fontWeight: '500',
+    fontFamily: fonts.bodyBold,
   },
 
   /* ── List ── */
@@ -253,13 +404,13 @@ const styles = StyleSheet.create({
   },
   badgeDay: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     lineHeight: 16,
   },
   badgeMonth: {
     fontSize: 9,
-    fontWeight: '600',
+    fontWeight: '500',
     color: 'rgba(255,255,255,0.65)',
     textTransform: 'uppercase',
     lineHeight: 12,
@@ -271,7 +422,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     lineHeight: 21,
     marginBottom: 5,
@@ -299,7 +450,7 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#E43414',
   },
 });

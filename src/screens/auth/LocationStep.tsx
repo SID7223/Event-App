@@ -19,6 +19,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { useAuth } from '../../store';
 import { UserLocation } from '../../types';
+import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
 
@@ -427,13 +428,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 8,
+    fontFamily: fonts.heading,
   },
   subtitle: {
     fontSize: 16,
     color: 'rgba(255,255,255,0.5)',
+    fontFamily: fonts.body,
   },
   iconContainer: {
     alignItems: 'center',
@@ -474,7 +477,7 @@ const styles = StyleSheet.create({
   },
   detectBtnText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   selectedContainer: {
@@ -495,7 +498,7 @@ const styles = StyleSheet.create({
   },
   selectedCity: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   selectedAddress: {
@@ -553,6 +556,7 @@ const styles = StyleSheet.create({
     outlineWidth: 0,
     outlineColor: 'transparent',
     outlineStyle: 'none' as any,
+    fontFamily: fonts.body,
   },
   clearBtn: {
     padding: 4,
@@ -641,8 +645,11 @@ const styles = StyleSheet.create({
   },
   continueBtnText: {
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.bodyBold,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
   },
 });
 

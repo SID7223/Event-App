@@ -14,6 +14,7 @@ import ExploreScreen from '../screens/main/ExploreScreen';
 import MyPlansScreen from '../screens/main/MyPlansScreen';
 import CinemaScreen from '../screens/main/CinemaScreen';
 import DiningScreen from '../screens/main/DiningScreen';
+import PlaySportsScreen from '../screens/main/PlaySportsScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
 import NotificationsScreen from '../screens/main/NotificationsScreen';
 import EventDetailScreen from '../screens/events/EventDetailScreen';
@@ -25,8 +26,6 @@ export type MainTabParamList = {
   HomeTab: undefined;
   ExploreTab: undefined;
   PlansTab: undefined;
-  CinemaTab: undefined;
-  DiningTab: undefined;
   ProfileTab: undefined;
 };
 
@@ -34,8 +33,6 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 const HomeStack = createStackNavigator();
 const ExploreStack = createStackNavigator();
 const PlansStack = createStackNavigator();
-const CinemaStack = createStackNavigator();
-const DiningStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
 
 const HomeStackNavigator: React.FC<{ onToggleSidebar: () => void; sidebarVisible: boolean }> = ({ onToggleSidebar, sidebarVisible }) => (
@@ -52,6 +49,9 @@ const ExploreStackNavigator: React.FC = () => (
   <ExploreStack.Navigator screenOptions={{ headerShown: false }}>
     <ExploreStack.Screen name="Explore" component={ExploreScreen} />
     <ExploreStack.Screen name="EventDetail" component={EventDetailScreen} />
+    <ExploreStack.Screen name="Cinema" component={CinemaScreen} />
+    <ExploreStack.Screen name="Dining" component={DiningScreen} />
+    <ExploreStack.Screen name="PlaySports" component={PlaySportsScreen} />
   </ExploreStack.Navigator>
 );
 
@@ -60,18 +60,6 @@ const PlansStackNavigator: React.FC = () => (
     <PlansStack.Screen name="PlansMain" component={MyPlansScreen} />
     <PlansStack.Screen name="EventDetail" component={EventDetailScreen} />
   </PlansStack.Navigator>
-);
-
-const CinemaStackNavigator: React.FC = () => (
-  <CinemaStack.Navigator screenOptions={{ headerShown: false }}>
-    <CinemaStack.Screen name="CinemaMain" component={CinemaScreen} />
-  </CinemaStack.Navigator>
-);
-
-const DiningStackNavigator: React.FC = () => (
-  <DiningStack.Navigator screenOptions={{ headerShown: false }}>
-    <DiningStack.Screen name="DiningMain" component={DiningScreen} />
-  </DiningStack.Navigator>
 );
 
 const ProfileStackNavigator: React.FC = () => (
@@ -99,18 +87,6 @@ const TABS = [
     name: 'PlansTab' as const,
     icon: 'list' as const,
     iconOutline: 'list-outline' as const,
-    activeColor: '#E43414',
-  },
-  {
-    name: 'CinemaTab' as const,
-    icon: 'film' as const,
-    iconOutline: 'film-outline' as const,
-    activeColor: '#E43414',
-  },
-  {
-    name: 'DiningTab' as const,
-    icon: 'restaurant' as const,
-    iconOutline: 'restaurant-outline' as const,
     activeColor: '#E43414',
   },
   {
@@ -183,8 +159,6 @@ const MainNavigator: React.FC = () => {
         </Tab.Screen>
         <Tab.Screen name="ExploreTab" component={ExploreStackNavigator} />
         <Tab.Screen name="PlansTab" component={PlansStackNavigator} />
-        <Tab.Screen name="CinemaTab" component={CinemaStackNavigator} />
-        <Tab.Screen name="DiningTab" component={DiningStackNavigator} />
         <Tab.Screen name="ProfileTab" component={ProfileStackNavigator} />
       </Tab.Navigator>
 

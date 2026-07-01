@@ -9,6 +9,7 @@ import OrganizerProfileScreen from '../screens/events/OrganizerProfileScreen';
 import BookingScreen from '../screens/events/BookingScreen';
 import EditProfileScreen from '../screens/events/EditProfileScreen';
 import FollowingScreen from '../screens/main/FollowingScreen';
+import FriendsScreen from '../screens/social/FriendsScreen';
 import HostEventScreen from '../screens/events/HostEventScreen';
 
 export type RootStackParamList = {
@@ -20,6 +21,7 @@ export type RootStackParamList = {
   Booking: { eventId: string };
   EditProfile: undefined;
   Following: undefined;
+  Friends: undefined;
   HostEvent: undefined;
 };
 
@@ -60,6 +62,11 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen
             name="Following"
             component={FollowingScreen}
+            options={{ presentation: 'card' }}
+          />
+          <Stack.Screen
+            name="Friends"
+            component={FriendsScreen}
             options={{ presentation: 'card' }}
           />
           <Stack.Screen

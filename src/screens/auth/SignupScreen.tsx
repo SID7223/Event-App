@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 30,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 8,
   },
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
   },
   termsLink: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '500',
   },
   signupBtn: {
     height: 56,
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
   signupBtnText: {
     color: '#FFFFFF',
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: 0.3,
   },
   loginRow: {
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
   loginLink: {
     fontSize: 15,
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '500',
   },
 });
 

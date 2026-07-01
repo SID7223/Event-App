@@ -17,6 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { getMoviesWithShowtimes } from '../../services/mockData';
 import { MovieWithShowtimes, Cinema, MovieShowtime } from '../../types';
+import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
 const POSTER_WIDTH = (width - 60) / 2;
@@ -284,8 +285,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.heading,
   },
   headerRight: {
     width: 40,
@@ -299,8 +301,9 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: 'rgba(255,255,255,0.6)',
+    fontFamily: fonts.body,
   },
   movieCount: {
     fontSize: 14,
@@ -345,7 +348,7 @@ const styles = StyleSheet.create({
   },
   formatBadgeText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     letterSpacing: 0.5,
   },
@@ -358,10 +361,11 @@ const styles = StyleSheet.create({
   },
   posterTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 6,
     lineHeight: 20,
+    fontFamily: fonts.subheading,
   },
   posterMeta: {
     flexDirection: 'row',
@@ -371,6 +375,7 @@ const styles = StyleSheet.create({
   posterGenre: {
     fontSize: 12,
     color: 'rgba(255,255,255,0.7)',
+    fontFamily: fonts.body,
   },
   posterDot: {
     fontSize: 12,
@@ -400,10 +405,11 @@ const styles = StyleSheet.create({
   modalHeaderTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
     textAlign: 'center',
     marginHorizontal: 12,
+    fontFamily: fonts.heading,
   },
   modalScroll: {
     flex: 1,
@@ -433,7 +439,7 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 10,
   },
@@ -454,7 +460,7 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFD700',
   },
   heroDuration: {
@@ -463,7 +469,7 @@ const styles = StyleSheet.create({
   },
   heroAgeRating: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
     color: 'rgba(255,255,255,0.5)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
@@ -493,7 +499,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 12,
   },
@@ -536,9 +542,10 @@ const styles = StyleSheet.create({
   },
   cinemaName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 6,
+    fontFamily: fonts.subheading,
   },
   cinemaMeta: {
     flexDirection: 'row',
@@ -549,6 +556,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#99E1D9',
     fontWeight: '500',
+    fontFamily: fonts.body,
   },
   cinemaDot: {
     fontSize: 13,
@@ -573,9 +581,10 @@ const styles = StyleSheet.create({
   },
   showtimeTime: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#0A0C12',
     marginBottom: 4,
+    fontFamily: fonts.bodyBold,
   },
   showtimeTimeInactive: {
     color: '#FFFFFF',
@@ -588,7 +597,7 @@ const styles = StyleSheet.create({
   },
   showtimeFormat: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#0A0C12',
     opacity: 0.7,
   },
@@ -598,7 +607,7 @@ const styles = StyleSheet.create({
   },
   showtimePrice: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#0A0C12',
     opacity: 0.7,
   },

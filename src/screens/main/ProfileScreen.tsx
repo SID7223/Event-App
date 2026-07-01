@@ -16,10 +16,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store';
+import { fonts } from '../../theme/fonts';
 
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { user, location, settings, updateSettings, logout, followedVenues, followedOrganizers } = useAuth();
+  const { user, location, settings, updateSettings, logout, followedVenues, followedOrganizers, friendsList } = useAuth();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const followingCount = followedVenues.length + followedOrganizers.length;
@@ -70,6 +71,18 @@ const ProfileScreen: React.FC = () => {
     navigation.navigate('Following');
   };
 
+  const handleFriendsPress = () => {
+    navigation.navigate('Friends');
+  };
+
+  const handleQRCode = () => {
+    Alert.alert(
+      'My QR Code',
+      'Show this QR code to let friends add you instantly.',
+      [{ text: 'Got it' }]
+    );
+  };
+
   const CustomSwitch = ({
     value,
     onValueChange,
@@ -100,6 +113,10 @@ const ProfileScreen: React.FC = () => {
               <Ionicons name="camera" size={14} color="#fff" />
             </TouchableOpacity>
           </View>
+          <TouchableOpacity style={styles.qrButton} onPress={handleQRCode} activeOpacity={0.7}>
+            <Ionicons name="qr-code-outline" size={18} color="#99E1D9" />
+            <Text style={styles.qrButtonText}>My QR Code</Text>
+          </TouchableOpacity>
           <Text style={styles.name}>{user?.firstName} {user?.lastName}</Text>
           <Text style={styles.handle}>@{user?.firstName?.toLowerCase()}{user?.lastName?.toLowerCase()}.events</Text>
         </Animated.View>
@@ -187,6 +204,26 @@ const ProfileScreen: React.FC = () => {
               <Text style={styles.followingEntryCount}>Following ({followingCount})</Text>
               <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
             </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* Friends Section */}
+        <View style={styles.friendsSection}>
+          <TouchableOpacity
+            style={styles.friendsEntryRow}
+            onPress={handleFriendsPress}
+            activeOpacity={0.7}
+          >
+            <View style={styles.friendsEntryLeft}>
+              <View style={styles.friendsEntryIcon}>
+                <Ionicons name="heart-outline" size={20} color="#E43414" />
+              </View>
+              <View>
+                <Text style={styles.friendsEntryLabel}>My Friends</Text>
+                <Text style={styles.friendsEntryCount}>{friendsList.length} friends</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
           </TouchableOpacity>
         </View>
 
@@ -298,13 +335,33 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.heading,
     marginBottom: 4,
   },
   handle: {
     fontSize: 14,
     color: 'rgba(255,255,255,0.45)',
+    fontFamily: fonts.body,
+  },
+  qrButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: 'rgba(153,225,217,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(153,225,217,0.2)',
+  },
+  qrButtonText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#99E1D9',
+    fontFamily: fonts.bodyBold,
   },
   // Location Button — Prominent
   locationButton: {
@@ -339,12 +396,14 @@ const styles = StyleSheet.create({
   locationLabel: {
     fontSize: 12,
     color: 'rgba(255,255,255,0.5)',
+    fontFamily: fonts.body,
     marginBottom: 2,
   },
   locationValue: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.bodyBold,
   },
   locationEditBadge: {
     flexDirection: 'row',
@@ -359,6 +418,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
     color: '#99E1D9',
+    fontFamily: fonts.bodyBold,
   },
   // Settings Section
   settingsSection: {
@@ -367,8 +427,9 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.heading,
     marginBottom: 12,
   },
   settingsCard: {
@@ -393,6 +454,7 @@ const styles = StyleSheet.create({
   settingLabel: {
     fontSize: 15,
     color: '#FFFFFF',
+    fontFamily: fonts.body,
     fontWeight: '400',
   },
   settingDivider: {
@@ -430,8 +492,9 @@ const styles = StyleSheet.create({
   },
   followingEntryLabel: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.subheading,
   },
   followingEntryRight: {
     flexDirection: 'row',
@@ -442,6 +505,47 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: '#99E1D9',
+    fontFamily: fonts.bodyBold,
+  },
+  // Friends Section
+  friendsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 24,
+  },
+  friendsEntryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#161B24',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(228,52,20,0.15)',
+  },
+  friendsEntryLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  friendsEntryIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: 'rgba(228,52,20,0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  friendsEntryLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#FFFFFF',
+    fontFamily: fonts.subheading,
+  },
+  friendsEntryCount: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.45)',
+    fontFamily: fonts.body,
+    marginTop: 2,
   },
   // Links Section
   linksSection: {
@@ -470,6 +574,7 @@ const styles = StyleSheet.create({
   linkLabel: {
     fontSize: 15,
     color: '#FFFFFF',
+    fontFamily: fonts.body,
     fontWeight: '400',
   },
   linkDivider: {
@@ -492,8 +597,9 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#E43414',
+    fontFamily: fonts.bodyBold,
   },
   // FAB
   fab: {

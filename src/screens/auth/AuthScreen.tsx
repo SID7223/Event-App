@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
 
@@ -419,13 +420,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 8,
+    fontFamily: fonts.heading,
   },
   subtitle: {
     fontSize: 16,
     color: 'rgba(255,255,255,0.5)',
+    fontFamily: fonts.body,
   },
   toggleContainer: {
     marginBottom: 28,
@@ -453,8 +456,9 @@ const styles = StyleSheet.create({
   },
   toggleText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: 'rgba(255,255,255,0.5)',
+    fontFamily: fonts.body,
   },
   toggleTextActive: {
     color: '#0A0C12',
@@ -481,8 +485,9 @@ const styles = StyleSheet.create({
   },
   socialBtnText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.bodyBold,
   },
   divider: {
     flexDirection: 'row',
@@ -534,6 +539,7 @@ const styles = StyleSheet.create({
     outlineWidth: 0,
     outlineColor: 'transparent',
     outlineStyle: 'none' as any,
+    fontFamily: fonts.body,
   },
   eyeBtn: {
     padding: 4,
@@ -544,6 +550,7 @@ const styles = StyleSheet.create({
     marginTop: -8,
     marginBottom: 10,
     marginLeft: 4,
+    fontFamily: fonts.body,
   },
   strengthContainer: {
     flexDirection: 'row',
@@ -563,7 +570,7 @@ const styles = StyleSheet.create({
   },
   strengthLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
     marginLeft: 8,
   },
   forgotBtn: {
@@ -575,6 +582,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FFFFFF',
     fontWeight: '500',
+    fontFamily: fonts.body,
   },
   actionBtn: {
     height: 56,
@@ -589,8 +597,10 @@ const styles = StyleSheet.create({
   actionBtnText: {
     color: '#FFFFFF',
     fontSize: 17,
-    fontWeight: '700',
-    letterSpacing: 0.3,
+    fontWeight: '500',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    fontFamily: fonts.bodyBold,
   },
   termsText: {
     fontSize: 13,

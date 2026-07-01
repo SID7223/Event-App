@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
   TextInput,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,8 +16,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
+import { fonts } from '../../theme/fonts';
 import GlassCard from '../../components/ui/GlassCard';
 import GradientButton from '../../components/ui/GradientButton';
+import { useAuth } from '../../store';
 
 const { width } = Dimensions.get('window');
 
@@ -55,6 +58,8 @@ const BookingScreen: React.FC = () => {
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
   const [cvv, setCvv] = useState('');
+  const [isPrivateRSVP, setIsPrivateRSVP] = useState(false);
+  const { togglePrivateRSVP } = useAuth();
 
   const slideAnim = useRef(new Animated.Value(0)).current;
 
@@ -400,6 +405,26 @@ const BookingScreen: React.FC = () => {
         </View>
       </GlassCard>
 
+      {/* Privacy Toggle */}
+      <GlassCard style={styles.privacyCard}>
+        <View style={styles.privacyRow}>
+          <View style={styles.privacyLeft}>
+            <Ionicons name="eye-off-outline" size={20} color="rgba(255,255,255,0.6)" />
+            <View>
+              <Text style={styles.privacyLabel}>Keep this RSVP private</Text>
+              <Text style={styles.privacySub}>Friends won't see this in your activity</Text>
+            </View>
+          </View>
+          <Switch
+            value={isPrivateRSVP}
+            onValueChange={setIsPrivateRSVP}
+            trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#99E1D9' }}
+            thumbColor={isPrivateRSVP ? '#FFFFFF' : 'rgba(255,255,255,0.4)'}
+            ios_backgroundColor="rgba(255,255,255,0.12)"
+          />
+        </View>
+      </GlassCard>
+
       <View style={styles.actionButtons}>
         <GradientButton title="Download Ticket" onPress={() => {}} style={styles.actionButton} />
         <TouchableOpacity style={styles.walletButton}>
@@ -475,9 +500,10 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '500',
     color: colors.text.primary,
     textAlign: 'center',
+    fontFamily: fonts.subheading,
   },
   headerSpacer: {
     width: 44,
@@ -512,7 +538,7 @@ const styles = StyleSheet.create({
   },
   stepNumber: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
     color: colors.text.muted,
   },
   stepNumberActive: {
@@ -522,6 +548,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.text.muted,
     marginTop: 6,
+    fontFamily: fonts.body,
   },
   stepLabelActive: {
     color: colors.text.primary,
@@ -545,9 +572,10 @@ const styles = StyleSheet.create({
   },
   stepTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: '500',
     color: colors.text.primary,
     marginBottom: spacing.lg,
+    fontFamily: fonts.heading,
   },
   ticketCard: {
     marginBottom: 16,
@@ -570,11 +598,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.text.primary,
+    fontFamily: fonts.subheading,
   },
   ticketPrice: {
     fontSize: 24,
     fontWeight: 'bold',
     color: colors.accent.cyan,
+    fontFamily: fonts.bodyBold,
   },
   perksList: {
     gap: 10,
@@ -587,6 +617,7 @@ const styles = StyleSheet.create({
   perkText: {
     fontSize: 14,
     color: colors.text.secondary,
+    fontFamily: fonts.body,
   },
   quantitySelector: {
     flexDirection: 'row',
@@ -624,9 +655,10 @@ const styles = StyleSheet.create({
   },
   screenText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
     color: colors.text.muted,
     textAlign: 'center',
+    fontFamily: fonts.bodyBold,
   },
   seatRow: {
     flexDirection: 'row',
@@ -658,6 +690,7 @@ const styles = StyleSheet.create({
   seatText: {
     fontSize: 10,
     color: colors.text.muted,
+    fontFamily: fonts.body,
   },
   seatTextLight: {
     color: '#fff',
@@ -690,11 +723,13 @@ const styles = StyleSheet.create({
   legendText: {
     fontSize: 12,
     color: colors.text.muted,
+    fontFamily: fonts.body,
   },
   selectedSeatsText: {
     fontSize: 14,
     color: colors.text.secondary,
     textAlign: 'center',
+    fontFamily: fonts.body,
   },
   paymentMethods: {
     gap: 12,
@@ -717,6 +752,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: colors.text.primary,
+    fontFamily: fonts.body,
   },
   cardForm: {
     padding: 20,
@@ -729,6 +765,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.text.muted,
     marginBottom: 8,
+    fontFamily: fonts.body,
   },
   input: {
     backgroundColor: 'rgba(255,255,255,0.05)',
@@ -741,6 +778,7 @@ const styles = StyleSheet.create({
     outlineWidth: 0,
     outlineColor: 'transparent',
     outlineStyle: 'none',
+    fontFamily: fonts.body,
   },
   inputRow: {
     flexDirection: 'row',
@@ -750,9 +788,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: colors.text.primary,
     marginBottom: 12,
+    fontFamily: fonts.subheading,
   },
   summaryCard: {
     padding: 20,
@@ -765,10 +804,12 @@ const styles = StyleSheet.create({
   summaryLabel: {
     fontSize: 14,
     color: colors.text.muted,
+    fontFamily: fonts.body,
   },
   summaryValue: {
     fontSize: 14,
     color: colors.text.primary,
+    fontFamily: fonts.bodyBold,
   },
   summaryTotal: {
     borderTopWidth: 1,
@@ -778,13 +819,15 @@ const styles = StyleSheet.create({
   },
   summaryTotalLabel: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: colors.text.primary,
+    fontFamily: fonts.subheading,
   },
   summaryTotalValue: {
     fontSize: 20,
     fontWeight: 'bold',
     color: colors.accent.cyan,
+    fontFamily: fonts.bodyBold,
   },
   successContainer: {
     alignItems: 'center',
@@ -805,11 +848,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.text.primary,
     marginBottom: 8,
+    fontFamily: fonts.heading,
   },
   successSubtitle: {
     fontSize: 14,
     color: colors.text.muted,
     textAlign: 'center',
+    fontFamily: fonts.body,
   },
   qrCard: {
     alignItems: 'center',
@@ -835,6 +880,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.text.muted,
     textAlign: 'center',
+    fontFamily: fonts.body,
   },
   bookingDetailsCard: {
     padding: 20,
@@ -850,6 +896,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.text.primary,
     flex: 1,
+    fontFamily: fonts.body,
   },
   actionButtons: {
     gap: 12,
@@ -870,8 +917,9 @@ const styles = StyleSheet.create({
   },
   walletButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: colors.accent.cyan,
+    fontFamily: fonts.bodyBold,
   },
   backToHomeButton: {
     alignItems: 'center',
@@ -880,6 +928,34 @@ const styles = StyleSheet.create({
   backToHomeText: {
     fontSize: 16,
     color: colors.text.muted,
+    fontFamily: fonts.body,
+  },
+  privacyCard: {
+    padding: 16,
+    marginBottom: 20,
+  },
+  privacyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  privacyLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  privacyLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.text.primary,
+    fontFamily: fonts.bodyBold,
+  },
+  privacySub: {
+    fontSize: 12,
+    color: colors.text.muted,
+    marginTop: 2,
+    fontFamily: fonts.body,
   },
   bottomBar: {
     position: 'absolute',

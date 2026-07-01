@@ -12,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../../store';
+import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
 
@@ -261,9 +262,10 @@ const styles = StyleSheet.create({
   },
   appName: {
     fontSize: 32,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     letterSpacing: 1,
+    fontFamily: fonts.heading,
   },
   stepsContainer: {
     width: '100%',
@@ -290,6 +292,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: 'rgba(255,255,255,0.4)',
     fontWeight: '500',
+    fontFamily: fonts.body,
   },
   stepTextActive: {
     color: '#FFFFFF',
@@ -325,7 +328,7 @@ const styles = StyleSheet.create({
   },
   completionText: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
 });

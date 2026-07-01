@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store';
 import { mockEvents } from '../../services/mockData';
 import { Event } from '../../types';
+import { fonts } from '../../theme/fonts';
 
 type TabType = 'upcoming' | 'saved' | 'past';
 
@@ -290,8 +291,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.heading,
   },
   tabsContainer: {
     flexDirection: 'row',
@@ -318,10 +320,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.6)',
     fontWeight: '500',
+    fontFamily: fonts.bodyBold,
   },
   tabTextActive: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '500',
+    fontFamily: fonts.bodyBold,
   },
   tabBadge: {
     backgroundColor: 'rgba(255,255,255,0.1)',
@@ -337,7 +341,7 @@ const styles = StyleSheet.create({
   },
   tabBadgeText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '500',
     color: 'rgba(255,255,255,0.6)',
   },
   tabBadgeTextActive: {
@@ -367,14 +371,14 @@ const styles = StyleSheet.create({
   },
   dayOfWeek: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#99E1D9',
     marginBottom: 2,
     letterSpacing: 0.5,
   },
   dayNumber: {
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     lineHeight: 26,
   },
@@ -398,9 +402,10 @@ const styles = StyleSheet.create({
   },
   eventTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 4,
+    fontFamily: fonts.subheading,
   },
   timeRow: {
     flexDirection: 'row',
@@ -411,6 +416,7 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 13,
     color: 'rgba(255,255,255,0.5)',
+    fontFamily: fonts.body,
   },
   venueRow: {
     flexDirection: 'row',
@@ -421,6 +427,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: 'rgba(255,255,255,0.5)',
     flex: 1,
+    fontFamily: fonts.body,
   },
   weatherRow: {
     flexDirection: 'row',
@@ -446,12 +453,14 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '500',
     color: 'rgba(255,255,255,0.5)',
+    fontFamily: fonts.subheading,
   },
   emptySubtitle: {
     fontSize: 14,
     color: 'rgba(255,255,255,0.3)',
+    fontFamily: fonts.body,
   },
 });
 

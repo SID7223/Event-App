@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User, UserLocation, Event as AppEvent } from '../types';
+import { User, UserLocation, Event as AppEvent, Friend } from '../types';
 import { scheduleEventReminder, cancelEventReminder, scheduleTopicNotification, cancelTopicNotification } from '../utils/notifications';
 
 interface AuthState {
@@ -21,6 +21,11 @@ interface AuthState {
     smartReminders: boolean;
     darkMode: boolean;
   };
+  friendsList: string[]; // friend IDs
+  privacySettings: {
+    hideRSVPs: boolean;
+  };
+  privateRSVPs: string[]; // event IDs marked private
   login: (user: User) => void;
   logout: () => void;
   setUser: (user: User) => void;
@@ -36,6 +41,12 @@ interface AuthState {
   isOrganizerFollowed: (organizerId: string) => boolean;
   unfollowEntity: (id: string, type: 'venue' | 'organizer') => Promise<void>;
   updateSettings: (key: keyof AuthState['settings'], value: boolean) => void;
+  addFriend: (friendId: string) => void;
+  removeFriend: (friendId: string) => void;
+  isFriend: (friendId: string) => boolean;
+  updatePrivacySettings: (key: keyof AuthState['privacySettings'], value: boolean) => void;
+  togglePrivateRSVP: (eventId: string) => void;
+  isRSVPPrivate: (eventId: string) => boolean;
   submitEvent: (event: Omit<AppEvent, 'id' | 'attendees' | 'rating' | 'isFavorite' | 'isFeatured'>) => void;
   completeOnboarding: (data: { user: User; location: UserLocation; preferences: string[] }) => void;
 }
@@ -68,6 +79,11 @@ export const useAuth = create<AuthState>()(
         smartReminders: true,
         darkMode: true,
       },
+      friendsList: ['f-001', 'f-002', 'f-003', 'f-004', 'f-005', 'f-006', 'f-007', 'f-008', 'f-009', 'f-010', 'f-011', 'f-012'],
+      privacySettings: {
+        hideRSVPs: false,
+      },
+      privateRSVPs: [],
       
       login: (user: User) => set({ isLoggedIn: true, user }),
       
@@ -98,6 +114,9 @@ export const useAuth = create<AuthState>()(
             smartReminders: true,
             darkMode: true,
           },
+          friendsList: [],
+          privacySettings: { hideRSVPs: false },
+          privateRSVPs: [],
         });
       },
       
@@ -268,6 +287,40 @@ export const useAuth = create<AuthState>()(
       updateSettings: (key: keyof AuthState['settings'], value: boolean) => {
         const { settings } = get();
         set({ settings: { ...settings, [key]: value } });
+      },
+
+      addFriend: (friendId: string) => {
+        const { friendsList } = get();
+        if (!friendsList.includes(friendId)) {
+          set({ friendsList: [...friendsList, friendId] });
+        }
+      },
+
+      removeFriend: (friendId: string) => {
+        const { friendsList } = get();
+        set({ friendsList: friendsList.filter(id => id !== friendId) });
+      },
+
+      isFriend: (friendId: string) => {
+        return get().friendsList.includes(friendId);
+      },
+
+      updatePrivacySettings: (key: keyof AuthState['privacySettings'], value: boolean) => {
+        const { privacySettings } = get();
+        set({ privacySettings: { ...privacySettings, [key]: value } });
+      },
+
+      togglePrivateRSVP: (eventId: string) => {
+        const { privateRSVPs } = get();
+        if (privateRSVPs.includes(eventId)) {
+          set({ privateRSVPs: privateRSVPs.filter(id => id !== eventId) });
+        } else {
+          set({ privateRSVPs: [...privateRSVPs, eventId] });
+        }
+      },
+
+      isRSVPPrivate: (eventId: string) => {
+        return get().privateRSVPs.includes(eventId);
       },
       
       submitEvent: (eventData) => {

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { fonts } from '../../theme/fonts';
 
 const SplashScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -165,9 +166,10 @@ const styles = StyleSheet.create({
   },
   appName: {
     fontSize: 38,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     letterSpacing: 1,
+    fontFamily: fonts.heading,
   },
   taglineSection: {
     alignItems: 'center',
@@ -179,6 +181,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     letterSpacing: 0.3,
     textAlign: 'center',
+    fontFamily: fonts.body,
   },
   buttonSection: {
     width: '100%',
@@ -196,7 +199,7 @@ const styles = StyleSheet.create({
   getStartedText: {
     color: '#FFFFFF',
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: 0.3,
   },
   exploreBtn: {

@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   headerRight: {
@@ -574,7 +574,7 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '500',
     color: 'rgba(255,255,255,0.7)',
     marginBottom: 8,
     textTransform: 'uppercase',
@@ -657,7 +657,7 @@ const styles = StyleSheet.create({
   },
   submitBtnText: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#0A0C12',
   },
   disclaimer: {
@@ -692,7 +692,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   // Vibe Items
@@ -715,7 +715,7 @@ const styles = StyleSheet.create({
   },
   vibeItemTextActive: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '500',
   },
   // Date Items
   dateItem: {
@@ -736,7 +736,7 @@ const styles = StyleSheet.create({
   },
   dateItemTextActive: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '500',
   },
   // Time Items
   timeItem: {
@@ -757,7 +757,7 @@ const styles = StyleSheet.create({
   },
   timeItemTextActive: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '500',
   },
 });
 

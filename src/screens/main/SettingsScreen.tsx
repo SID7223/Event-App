@@ -15,7 +15,7 @@ import { useAuth } from '../../store';
 
 const SettingsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { logout } = useAuth();
+  const { logout, privacySettings, updatePrivacySettings } = useAuth();
   const [pushNotifs, setPushNotifs] = useState(true);
   const [emailNotifs, setEmailNotifs] = useState(true);
   const [locationTracking, setLocationTracking] = useState(true);
@@ -116,6 +116,18 @@ const SettingsScreen: React.FC = () => {
           {renderToggleRow('Dark Mode', 'moon-outline', darkMode, setDarkMode, true)}
         </View>
 
+        {/* Privacy Section */}
+        <Text style={styles.sectionLabel}>Privacy</Text>
+        <View style={styles.card}>
+          {renderToggleRow(
+            'Hide my RSVPs from friends',
+            'eye-off-outline',
+            privacySettings.hideRSVPs,
+            (v) => updatePrivacySettings('hideRSVPs', v),
+            true
+          )}
+        </View>
+
         {/* Log Out */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.85}>
           <Text style={styles.logoutText}>Log Out</Text>
@@ -147,7 +159,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   scrollContent: {
@@ -157,7 +169,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 12,
     marginTop: 8,
@@ -206,7 +218,7 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#E43414',
   },
 });

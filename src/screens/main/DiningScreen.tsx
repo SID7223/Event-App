@@ -18,6 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { mockRestaurants, filterRestaurants } from '../../services/mockData';
 import { Restaurant } from '../../types';
+import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
 
@@ -246,8 +247,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.heading,
   },
   headerRight: {
     width: 40,
@@ -261,8 +263,9 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: 'rgba(255,255,255,0.6)',
+    fontFamily: fonts.body,
   },
   restaurantCount: {
     fontSize: 14,
@@ -292,10 +295,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.6)',
     fontWeight: '500',
+    fontFamily: fonts.bodyBold,
   },
   filterChipTextActive: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '500',
+    fontFamily: fonts.bodyBold,
   },
   restaurantList: {
     paddingHorizontal: 20,
@@ -359,7 +364,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   statusTextOpen: {
     color: '#34C759',
@@ -378,7 +383,7 @@ const styles = StyleSheet.create({
   },
   priceText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#0A0C12',
   },
   ratingBadge: {
@@ -395,8 +400,9 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.body,
   },
   cardInfo: {
     padding: 16,
@@ -406,13 +412,15 @@ const styles = StyleSheet.create({
   },
   restaurantName: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 4,
+    fontFamily: fonts.subheading,
   },
   cuisineText: {
     fontSize: 13,
     color: 'rgba(255,255,255,0.5)',
+    fontFamily: fonts.body,
   },
   locationRow: {
     flexDirection: 'row',
@@ -433,6 +441,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: 'rgba(255,255,255,0.5)',
     flex: 1,
+    fontFamily: fonts.body,
   },
   tagsContainer: {
     flexDirection: 'row',
@@ -474,6 +483,7 @@ const styles = StyleSheet.create({
   hoursText: {
     fontSize: 13,
     color: 'rgba(255,255,255,0.4)',
+    fontFamily: fonts.body,
   },
   actionButtons: {
     flexDirection: 'row',
@@ -495,16 +505,18 @@ const styles = StyleSheet.create({
   },
   callBtnText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#99E1D9',
+    fontFamily: fonts.bodyBold,
   },
   directionsBtn: {
     backgroundColor: '#E43414',
   },
   directionsBtnText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.bodyBold,
   },
 });
 

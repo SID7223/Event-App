@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 30,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 8,
   },
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   loginBtnText: {
     color: '#FFFFFF',
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: 0.3,
   },
   divider: {
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
   },
   socialBtnText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   signupRow: {
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   signupLink: {
     fontSize: 15,
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '500',
   },
 });
 

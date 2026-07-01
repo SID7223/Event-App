@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   scrollContent: {
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   },
   interestTextActive: {
     color: '#0A0C12',
-    fontWeight: '700',
+    fontWeight: '500',
   },
   saveBtn: {
     marginTop: 28,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   saveBtnText: {
     color: '#FFFFFF',
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: 0.3,
   },
 });

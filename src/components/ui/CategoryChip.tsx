@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   labelSmall: {
     fontSize: 12,

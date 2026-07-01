@@ -1,4 +1,4 @@
-import { Event, User, Ticket, Booking, Notification, VibeCategory, Movie, Cinema, MovieShowtime, MovieWithShowtimes, Restaurant, Venue, Organizer } from '../types';
+import { Event, User, Ticket, Booking, Notification, VibeCategory, Movie, Cinema, MovieShowtime, MovieWithShowtimes, Restaurant, Venue, Organizer, Friend } from '../types';
 
 // Unified vibe categories (no mode split)
 export const allVibes: VibeCategory[] = [
@@ -1140,4 +1140,62 @@ export const getOrganizerById = (id: string): Organizer | undefined => {
 // Helper: Get events by organizer ID
 export const getEventsByOrganizer = (organizerId: string): Event[] => {
   return mockEvents.filter(e => e.organizerId === organizerId);
+};
+
+// ============================================================
+// SOCIAL: Mock Friends & Attendance
+// ============================================================
+
+export const mockFriends: Friend[] = [
+  { id: 'f-001', name: 'Andi Pratama', handle: '@andi.pratama', avatar: 'https://randomuser.me/api/portraits/men/41.jpg', mutualFriends: 5, isOnline: true },
+  { id: 'f-002', name: 'Sari Dewi', handle: '@sari.dewi', avatar: 'https://randomuser.me/api/portraits/women/44.jpg', mutualFriends: 3, isOnline: true },
+  { id: 'f-003', name: 'Rizky Ramadhan', handle: '@rizky.r', avatar: 'https://randomuser.me/api/portraits/men/42.jpg', mutualFriends: 8, isOnline: false },
+  { id: 'f-004', name: 'Putri Ayu', handle: '@putri.ayu', avatar: 'https://randomuser.me/api/portraits/women/45.jpg', mutualFriends: 2, isOnline: true },
+  { id: 'f-005', name: 'Dimas Saputra', handle: '@dimas.sap', avatar: 'https://randomuser.me/api/portraits/men/43.jpg', mutualFriends: 6, isOnline: false },
+  { id: 'f-006', name: 'Nadia Putri', handle: '@nadia.putri', avatar: 'https://randomuser.me/api/portraits/women/46.jpg', mutualFriends: 4, isOnline: true },
+  { id: 'f-007', name: 'Fajar Nugroho', handle: '@fajar.n', avatar: 'https://randomuser.me/api/portraits/men/44.jpg', mutualFriends: 1, isOnline: false },
+  { id: 'f-008', name: 'Maya Anggraeni', handle: '@maya.a', avatar: 'https://randomuser.me/api/portraits/women/47.jpg', mutualFriends: 7, isOnline: true },
+  { id: 'f-009', name: 'Budi Santoso', handle: '@budi.s', avatar: 'https://randomuser.me/api/portraits/men/45.jpg', mutualFriends: 3, isOnline: false },
+  { id: 'f-010', name: 'Rina Wulandari', handle: '@rina.w', avatar: 'https://randomuser.me/api/portraits/women/48.jpg', mutualFriends: 2, isOnline: true },
+  { id: 'f-011', name: 'Yoga Firmansyah', handle: '@yoga.f', avatar: 'https://randomuser.me/api/portraits/men/46.jpg', mutualFriends: 5, isOnline: false },
+  { id: 'f-012', name: 'Lestari Budiman', handle: '@lestari.b', avatar: 'https://randomuser.me/api/portraits/women/49.jpg', mutualFriends: 4, isOnline: true },
+];
+
+// Which friends are attending which events (event ID → array of friend IDs)
+export const friendAttendees: Record<string, string[]> = {
+  '1': ['f-001', 'f-002', 'f-005', 'f-008', 'f-011'],  // Jakarta Music Festival
+  '3': ['f-003', 'f-006'],                                // Comedy Night Live
+  '4': ['f-001', 'f-004', 'f-007', 'f-010'],             // Jakarta Food Festival
+  '6': ['f-002', 'f-009'],                                // Nusa Penida Beach Party
+  '7': ['f-005', 'f-012'],                                // Indonesian Indie Film Festival
+  '9': ['f-001', 'f-003', 'f-008'],                       // Bandung Jazz Festival
+  '11': ['f-006', 'f-010'],                               // Tech Startup Summit
+  '13': ['f-002', 'f-004', 'f-007', 'f-011', 'f-012'],  // Sunset Yoga & Sound
+};
+
+// Helper: Get attending friends for an event (respects privacy)
+export const getAttendingFriends = (
+  eventId: string,
+  friendsList: string[],
+  privateRSVPs: string[],
+  privacyHideRSVPs: boolean
+): Friend[] => {
+  if (privacyHideRSVPs) return [];
+  const attendingIds = friendAttendees[eventId] || [];
+  return mockFriends.filter(
+    f => attendingIds.includes(f.id) && friendsList.includes(f.id) && !privateRSVPs.includes(eventId)
+  );
+};
+
+// Helper: Get events where friends have RSVP'd
+export const getEventsWithFriendAttendance = (
+  friendsList: string[],
+  privateRSVPs: string[],
+  privacyHideRSVPs: boolean
+): Event[] => {
+  if (privacyHideRSVPs) return [];
+  return mockEvents.filter(event => {
+    const attendingIds = friendAttendees[event.id] || [];
+    return attendingIds.some(id => friendsList.includes(id) && !privateRSVPs.includes(event.id));
+  });
 };

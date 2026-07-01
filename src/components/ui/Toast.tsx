@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   closeButton: {
     marginLeft: 8,

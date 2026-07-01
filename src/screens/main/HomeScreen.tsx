@@ -13,9 +13,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth, useApp } from '../../store';
-import { mockEvents, sortVibesByPreferences } from '../../services/mockData';
-import { Event, VibeCategory } from '../../types';
+import { mockEvents, sortVibesByPreferences, getAttendingFriends, getEventsWithFriendAttendance } from '../../services/mockData';
+import { Event, VibeCategory, Friend } from '../../types';
 import AnimatedHamburger from '../../components/ui/AnimatedHamburger';
+import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
 
@@ -75,7 +76,7 @@ interface HomeScreenProps {
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible = false }) => {
   const navigation = useNavigation<any>();
-  const { location, preferences } = useAuth();
+  const { location, preferences, friendsList, privateRSVPs, privacySettings } = useAuth();
   const { activeVibe, setActiveVibe } = useApp();
   
   const [iconOpen, setIconOpen] = useState(false);
@@ -99,6 +100,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
     if (!activeVibe || activeVibe === 'all') {
       return mockEvents;
     }
+
+    // Friends filter: only events where friends have RSVP'd
+    if (activeVibe === 'friends') {
+      return getEventsWithFriendAttendance(friendsList, privateRSVPs, privacySettings.hideRSVPs);
+    }
     
     const vibe = sortedVibes.find(v => v.id === activeVibe);
     if (!vibe) return mockEvents;
@@ -107,7 +113,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
       e.category.toLowerCase().includes(vibe.label.toLowerCase()) ||
       e.category.toLowerCase().includes(vibe.id.toLowerCase())
     );
-  }, [activeVibe, sortedVibes]);
+  }, [activeVibe, sortedVibes, friendsList, privateRSVPs, privacySettings.hideRSVPs]);
 
   // Get popular events in neighborhood
   const popularInArea = useMemo(() => {
@@ -221,55 +227,102 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
     );
   };
 
-  const renderPopularEvent = (event: Event) => (
-    <TouchableOpacity
-      key={event.id}
-      style={styles.popularCard}
-      onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
-      activeOpacity={0.88}
-    >
-      <Image source={{ uri: event.image }} style={styles.popularImage} />
-      <LinearGradient
-        colors={['transparent', 'rgba(10,12,18,0.85)']}
-        style={styles.popularGradient}
-      />
-      <View style={styles.popularInfo}>
-        <Text style={styles.popularTitle} numberOfLines={1}>{event.title}</Text>
-        <View style={styles.popularMeta}>
-          <Ionicons name="people" size={12} color="rgba(255,255,255,0.6)" />
-          <Text style={styles.popularAttendees}>{event.attendees.toLocaleString()} going</Text>
-        </View>
-        <View style={styles.popularPriceTag}>
-          <Text style={styles.popularPrice}>${event.price}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+  const renderPopularEvent = (event: Event) => {
+    const attendingFriends = getAttendingFriends(event.id, friendsList, privateRSVPs, privacySettings.hideRSVPs);
+    const hasFriendsAttending = attendingFriends.length > 0;
 
-  const renderUpcomingEvent = (event: Event) => (
-    <TouchableOpacity
-      key={event.id}
-      style={styles.upcomingCard}
-      onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
-      activeOpacity={0.88}
-    >
-      <View style={styles.upcomingDateBadge}>
-        <Text style={styles.upcomingDay}>{getDay(event.date)}</Text>
-        <Text style={styles.upcomingMonth}>{getMonth(event.date)}</Text>
-      </View>
-      <Image source={{ uri: event.image }} style={styles.upcomingImage} />
-      <View style={styles.upcomingInfo}>
-        <Text style={styles.upcomingTitle} numberOfLines={1}>{event.title}</Text>
-        <View style={styles.upcomingMeta}>
-          <Ionicons name="location-outline" size={12} color="rgba(255,255,255,0.5)" />
-          <Text style={styles.upcomingLocation} numberOfLines={1}>{event.venue}</Text>
+    return (
+      <TouchableOpacity
+        key={event.id}
+        style={styles.popularCard}
+        onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
+        activeOpacity={0.88}
+      >
+        <Image source={{ uri: event.image }} style={styles.popularImage} />
+        <LinearGradient
+          colors={['transparent', 'rgba(10,12,18,0.85)']}
+          style={styles.popularGradient}
+        />
+        <View style={styles.popularInfo}>
+          <Text style={styles.popularTitle} numberOfLines={1}>{event.title}</Text>
+          {hasFriendsAttending ? (
+            <View style={styles.friendAttendanceRow}>
+              <View style={styles.stackedAvatars}>
+                {attendingFriends.slice(0, 3).map((friend, idx) => (
+                  <Image
+                    key={friend.id}
+                    source={{ uri: friend.avatar }}
+                    style={[styles.miniAvatar, { marginLeft: idx > 0 ? -8 : 0, zIndex: 3 - idx }]}
+                  />
+                ))}
+              </View>
+              <Text style={styles.friendAttendeeText} numberOfLines={1}>
+                {attendingFriends.map(f => f.name.split(' ')[0]).slice(0, 2).join(', ')}
+                {attendingFriends.length > 2 && ` + ${attendingFriends.length - 2}`}
+                {' '}other{attendingFriends.length > 2 ? 's' : ''} going
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.popularMeta}>
+              <Ionicons name="people" size={12} color="rgba(255,255,255,0.6)" />
+              <Text style={styles.popularAttendees}>{event.attendees.toLocaleString()} going</Text>
+            </View>
+          )}
+          <View style={styles.popularPriceTag}>
+            <Text style={styles.popularPrice}>${event.price}</Text>
+          </View>
         </View>
-      </View>
-      <View style={styles.upcomingPriceTag}>
-        <Text style={styles.upcomingPrice}>${event.price}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
+
+  const renderUpcomingEvent = (event: Event) => {
+    const attendingFriends = getAttendingFriends(event.id, friendsList, privateRSVPs, privacySettings.hideRSVPs);
+    const hasFriendsAttending = attendingFriends.length > 0;
+
+    return (
+      <TouchableOpacity
+        key={event.id}
+        style={styles.upcomingCard}
+        onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
+        activeOpacity={0.88}
+      >
+        <View style={styles.upcomingDateBadge}>
+          <Text style={styles.upcomingDay}>{getDay(event.date)}</Text>
+          <Text style={styles.upcomingMonth}>{getMonth(event.date)}</Text>
+        </View>
+        <Image source={{ uri: event.image }} style={styles.upcomingImage} />
+        <View style={styles.upcomingInfo}>
+          <Text style={styles.upcomingTitle} numberOfLines={1}>{event.title}</Text>
+          {hasFriendsAttending ? (
+            <View style={styles.upcomingFriendRow}>
+              <View style={styles.stackedAvatarsSmall}>
+                {attendingFriends.slice(0, 2).map((friend, idx) => (
+                  <Image
+                    key={friend.id}
+                    source={{ uri: friend.avatar }}
+                    style={[styles.miniAvatarSmall, { marginLeft: idx > 0 ? -6 : 0, zIndex: 2 - idx }]}
+                  />
+                ))}
+              </View>
+              <Text style={styles.upcomingFriendText} numberOfLines={1}>
+                {attendingFriends.map(f => f.name.split(' ')[0]).slice(0, 2).join(', ')}
+                {attendingFriends.length > 2 && ` +${attendingFriends.length - 2}`} going
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.upcomingMeta}>
+              <Ionicons name="location-outline" size={12} color="rgba(255,255,255,0.5)" />
+              <Text style={styles.upcomingLocation} numberOfLines={1}>{event.venue}</Text>
+            </View>
+          )}
+        </View>
+        <View style={styles.upcomingPriceTag}>
+          <Text style={styles.upcomingPrice}>${event.price}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -346,6 +399,22 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
               />
               <Text style={[styles.vibeLabel, (!activeVibe || activeVibe === 'all') && styles.vibeLabelActive]}>
                 All
+              </Text>
+            </TouchableOpacity>
+
+            {/* Friends chip (always second) */}
+            <TouchableOpacity
+              style={[styles.vibeChip, activeVibe === 'friends' && styles.vibeChipActive]}
+              onPress={() => handleVibePress('friends')}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name="people"
+                size={16}
+                color={activeVibe === 'friends' ? '#FFFFFF' : 'rgba(255,255,255,0.6)'}
+              />
+              <Text style={[styles.vibeLabel, activeVibe === 'friends' && styles.vibeLabelActive]}>
+                Friends
               </Text>
             </TouchableOpacity>
             
@@ -467,7 +536,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   notifBtn: {
@@ -485,13 +554,15 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 28,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.heading,
   },
   greetingSubtext: {
     fontSize: 16,
     color: 'rgba(255,255,255,0.5)',
     marginTop: 4,
+    fontFamily: fonts.body,
   },
   searchBar: {
     flexDirection: 'row',
@@ -510,6 +581,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: 'rgba(255,255,255,0.35)',
+    fontFamily: fonts.body,
   },
   filterBtn: {
     width: 36,
@@ -557,7 +629,7 @@ const styles = StyleSheet.create({
   },
   featuredBadgeText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFD700',
   },
   featuredInfo: {
@@ -569,10 +641,11 @@ const styles = StyleSheet.create({
   },
   featuredTitle: {
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 10,
     lineHeight: 28,
+    fontFamily: fonts.heading,
   },
   featuredMeta: {
     flexDirection: 'row',
@@ -588,6 +661,7 @@ const styles = StyleSheet.create({
   featuredMetaText: {
     fontSize: 12,
     color: 'rgba(255,255,255,0.8)',
+    fontFamily: fonts.body,
   },
   rsvpButton: {
     alignSelf: 'flex-start',
@@ -602,8 +676,11 @@ const styles = StyleSheet.create({
   },
   rsvpText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.bodyBold,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
   },
   // Vibe Filters
   vibesSection: {
@@ -636,13 +713,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.6)',
     fontWeight: '500',
+    fontFamily: fonts.bodyBold,
   },
   vibeLabelActive: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '500',
+    fontFamily: fonts.bodyBold,
   },
   vibeLabelPreferred: {
     color: '#99E1D9',
+    fontFamily: fonts.bodyBold,
   },
   // Sections
   section: {
@@ -662,13 +742,15 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.heading,
   },
   seeAll: {
     fontSize: 14,
     color: 'rgba(255,255,255,0.5)',
     fontWeight: '500',
+    fontFamily: fonts.body,
   },
   popularContainer: {
     paddingHorizontal: 20,
@@ -703,9 +785,10 @@ const styles = StyleSheet.create({
   },
   popularTitle: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 4,
+    fontFamily: fonts.subheading,
   },
   popularMeta: {
     flexDirection: 'row',
@@ -716,6 +799,56 @@ const styles = StyleSheet.create({
   popularAttendees: {
     fontSize: 11,
     color: 'rgba(255,255,255,0.6)',
+    fontFamily: fonts.body,
+  },
+  // Friend attendance (stacked avatars)
+  friendAttendanceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+  stackedAvatars: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  miniAvatar: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: '#161B24',
+  },
+  friendAttendeeText: {
+    fontSize: 11,
+    color: '#99E1D9',
+    fontWeight: '500',
+    flex: 1,
+    fontFamily: fonts.bodyBold,
+  },
+  // Upcoming friend attendance
+  upcomingFriendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  stackedAvatarsSmall: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  miniAvatarSmall: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 1.5,
+    borderColor: '#161B24',
+  },
+  upcomingFriendText: {
+    fontSize: 11,
+    color: '#99E1D9',
+    fontWeight: '500',
+    flex: 1,
+    fontFamily: fonts.bodyBold,
   },
   popularPriceTag: {
     alignSelf: 'flex-start',
@@ -726,8 +859,9 @@ const styles = StyleSheet.create({
   },
   popularPrice: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#0A0C12',
+    fontFamily: fonts.bodyBold,
   },
   upcomingContainer: {
     paddingHorizontal: 20,
@@ -751,12 +885,12 @@ const styles = StyleSheet.create({
   },
   upcomingDay: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#E43414',
   },
   upcomingMonth: {
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: '500',
     color: 'rgba(228,52,20,0.7)',
     textTransform: 'uppercase',
   },
@@ -770,9 +904,10 @@ const styles = StyleSheet.create({
   },
   upcomingTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 4,
+    fontFamily: fonts.subheading,
   },
   upcomingMeta: {
     flexDirection: 'row',
@@ -792,8 +927,9 @@ const styles = StyleSheet.create({
   },
   upcomingPrice: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.bodyBold,
   },
   emptyState: {
     paddingHorizontal: 20,
@@ -803,6 +939,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     color: 'rgba(255,255,255,0.4)',
+    fontFamily: fonts.body,
   },
 });
 

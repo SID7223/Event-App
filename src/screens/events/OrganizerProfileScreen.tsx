@@ -14,8 +14,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../../store';
+import { fonts } from '../../theme/fonts';
 import { getOrganizerById, getEventsByOrganizer } from '../../services/mockData';
 import { Event } from '../../types';
+import ClaimVenueModal from '../../components/ui/ClaimVenueModal';
 
 const { width } = Dimensions.get('window');
 
@@ -50,6 +52,7 @@ const OrganizerProfileScreen: React.FC = () => {
 
   const { followedOrganizers, toggleFollowOrganizer } = useAuth();
   const isFollowed = followedOrganizers.includes(organizerId);
+  const [showClaimModal, setShowClaimModal] = useState(false);
 
   const organizer = useMemo(() => getOrganizerById(organizerId), [organizerId]);
   const organizerEvents = useMemo(() => getEventsByOrganizer(organizerId), [organizerId]);
@@ -298,8 +301,26 @@ const OrganizerProfileScreen: React.FC = () => {
           )}
         </View>
 
+        {/* Claim This Organizer */}
+        <View style={styles.claimSection}>
+          <TouchableOpacity
+            style={styles.claimLink}
+            onPress={() => setShowClaimModal(true)}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="shield-checkmark-outline" size={16} color="rgba(255,255,255,0.35)" />
+            <Text style={styles.claimText}>Do you own this business? <Text style={styles.claimHighlight}>Claim this page.</Text></Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      <ClaimVenueModal
+        visible={showClaimModal}
+        onClose={() => setShowClaimModal(false)}
+        venueName={organizer?.name || ''}
+      />
     </SafeAreaView>
   );
 };
@@ -377,10 +398,11 @@ const styles = StyleSheet.create({
   },
   organizerName: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 8,
+    fontFamily: fonts.heading,
   },
   organizerBio: {
     fontSize: 14,
@@ -389,6 +411,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 20,
     marginBottom: 20,
+    fontFamily: fonts.body,
   },
   metricsRow: {
     flexDirection: 'row',
@@ -409,12 +432,14 @@ const styles = StyleSheet.create({
   },
   metricNumber: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.bodyBold,
   },
   metricLabel: {
     fontSize: 13,
     color: 'rgba(255,255,255,0.5)',
+    fontFamily: fonts.body,
   },
   metricDivider: {
     width: 1,
@@ -445,11 +470,13 @@ const styles = StyleSheet.create({
   },
   followBtnText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.bodyBold,
   },
   followBtnTextActive: {
     color: '#E43414',
+    fontFamily: fonts.bodyBold,
   },
   socialBtn: {
     flexDirection: 'row',
@@ -467,6 +494,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: 'rgba(255,255,255,0.7)',
+    fontFamily: fonts.bodyBold,
   },
   tagsSection: {
     marginBottom: 24,
@@ -487,6 +515,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: 'rgba(255,255,255,0.6)',
     fontWeight: '500',
+    fontFamily: fonts.bodyBold,
   },
   tabsContainer: {
     flexDirection: 'row',
@@ -513,10 +542,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.6)',
     fontWeight: '500',
+    fontFamily: fonts.bodyBold,
   },
   tabTextActive: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '500',
+    fontFamily: fonts.bodyBold,
   },
   tabBadge: {
     backgroundColor: 'rgba(255,255,255,0.1)',
@@ -532,7 +563,7 @@ const styles = StyleSheet.create({
   },
   tabBadgeText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '500',
     color: 'rgba(255,255,255,0.6)',
   },
   tabBadgeTextActive: {
@@ -576,13 +607,13 @@ const styles = StyleSheet.create({
   },
   eventDay: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     lineHeight: 22,
   },
   eventMonth: {
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: '500',
     color: 'rgba(255,255,255,0.6)',
     textTransform: 'uppercase',
   },
@@ -595,9 +626,10 @@ const styles = StyleSheet.create({
   },
   eventTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 6,
+    fontFamily: fonts.subheading,
   },
   eventMeta: {
     flexDirection: 'row',
@@ -608,6 +640,7 @@ const styles = StyleSheet.create({
   eventMetaText: {
     fontSize: 12,
     color: 'rgba(255,255,255,0.6)',
+    fontFamily: fonts.body,
   },
   eventPriceTag: {
     position: 'absolute',
@@ -620,8 +653,9 @@ const styles = StyleSheet.create({
   },
   eventPrice: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#0A0C12',
+    fontFamily: fonts.bodyBold,
   },
   emptyState: {
     flex: 1,
@@ -639,7 +673,7 @@ const styles = StyleSheet.create({
   },
   emptyEventsTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '500',
     color: 'rgba(255,255,255,0.5)',
   },
   emptyEventsSubtitle: {
@@ -647,6 +681,33 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.3)',
     textAlign: 'center',
     paddingHorizontal: 40,
+  },
+  // Claim Section
+  claimSection: {
+    paddingHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  claimLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+  },
+  claimText: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.35)',
+    fontFamily: fonts.body,
+  },
+  claimHighlight: {
+    color: 'rgba(153,225,217,0.7)',
+    fontWeight: '500',
+    fontFamily: fonts.bodyBold,
   },
 });
 

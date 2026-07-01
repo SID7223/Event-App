@@ -75,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({ visible, onClose }) => {
     setTimeout(() => {
       if (id === 'home') navigation.navigate('HomeTab');
       else if (id === 'explore') navigation.navigate('ExploreTab');
-      else if (id === 'myevents') navigation.navigate('MyEventsTab');
+      else if (id === 'myevents') navigation.navigate('PlansTab');
       else if (id === 'notifications') navigation.navigate('HomeTab', { screen: 'Notifications' });
       else if (id === 'settings') navigation.navigate('ProfileTab', { screen: 'Settings' });
     }, 200);
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 4,
   },

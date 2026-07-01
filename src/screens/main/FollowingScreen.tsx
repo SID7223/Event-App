@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store';
+import { fonts } from '../../theme/fonts';
 import { getVenueById, getOrganizerById } from '../../services/mockData';
 import FollowingRow, { FollowingEntity } from '../../components/ui/FollowingRow';
 
@@ -184,8 +185,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.heading,
   },
   headerRight: {
     width: 40,
@@ -193,8 +195,9 @@ const styles = StyleSheet.create({
   },
   headerCount: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#E43414',
+    fontFamily: fonts.body,
   },
   // Tab Container
   tabContainer: {
@@ -220,10 +223,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: 'rgba(255,255,255,0.5)',
+    fontFamily: fonts.body,
   },
   tabTextActive: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '500',
+    fontFamily: fonts.body,
   },
   tabIndicator: {
     position: 'absolute',
@@ -261,9 +266,10 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 8,
+    fontFamily: fonts.subheading,
   },
   emptySubtitle: {
     fontSize: 14,
@@ -271,6 +277,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 24,
+    fontFamily: fonts.body,
   },
   exploreBtn: {
     flexDirection: 'row',
@@ -283,8 +290,9 @@ const styles = StyleSheet.create({
   },
   exploreBtnText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#0A0C12',
+    fontFamily: fonts.bodyBold,
   },
 });
 

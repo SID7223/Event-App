@@ -19,6 +19,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { mockEvents, getOrganizerById } from '../../services/mockData';
 import { useAuth } from '../../store';
 import { requestNotificationPermissions } from '../../utils/notifications';
+import { fonts } from '../../theme/fonts';
 
 const { width, height } = Dimensions.get('window');
 
@@ -526,6 +527,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
     color: '#FFFFFF',
+    fontFamily: fonts.body,
   },
   venueLink: {
     color: '#99E1D9',
@@ -548,9 +550,10 @@ const styles = StyleSheet.create({
   eventTitle: {
     flex: 1,
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     lineHeight: 32,
+    fontFamily: fonts.heading,
   },
   pricePill: {
     backgroundColor: '#99E1D9',
@@ -561,7 +564,7 @@ const styles = StyleSheet.create({
   },
   priceText: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#0A0C12',
   },
   freePill: {
@@ -592,7 +595,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.7)',
   },
   socialProofNumber: {
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   socialProofDivider: {
@@ -606,9 +609,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 14,
+    fontFamily: fonts.subheading,
   },
   // Detail Card
   detailCard: {
@@ -642,7 +646,7 @@ const styles = StyleSheet.create({
   },
   detailValue: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   detailSubtext: {
@@ -675,7 +679,7 @@ const styles = StyleSheet.create({
   },
   hostedByName: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 2,
   },
@@ -714,7 +718,7 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   statLabel: {
@@ -764,7 +768,7 @@ const styles = StyleSheet.create({
   rsvpBtnText: {
     color: '#FFFFFF',
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   rsvpBtnTextSaved: {
     color: '#E43414',
@@ -783,7 +787,7 @@ const styles = StyleSheet.create({
   mainBtnText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: 0.3,
   },
   shareBtn: {
@@ -795,6 +799,49 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
+  },
+  eventCategory: {
+    fontFamily: fonts.bodyBold,
+  },
+  eventDate: {
+    fontFamily: fonts.body,
+  },
+  eventTime: {
+    fontFamily: fonts.body,
+  },
+  eventLocation: {
+    fontFamily: fonts.body,
+  },
+  eventDescription: {
+    fontFamily: fonts.body,
+  },
+  quickInfoLabel: {
+    fontFamily: fonts.body,
+  },
+  attendeeText: {
+    fontFamily: fonts.body,
+  },
+  rsvpButtonText: {
+    fontFamily: fonts.bodyBold,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  getTicketsText: {
+    fontFamily: fonts.bodyBold,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  shareText: {
+    fontFamily: fonts.bodyBold,
+  },
+  venueName: {
+    fontFamily: fonts.subheading,
+  },
+  venueAddress: {
+    fontFamily: fonts.body,
+  },
+  hostedByLabel: {
+    fontFamily: fonts.body,
   },
 });
 

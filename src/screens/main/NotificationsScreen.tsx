@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
+import { fonts } from '../../theme/fonts';
 import NotificationCard from '../../components/cards/NotificationCard';
 import EmptyState from '../../components/layout/EmptyState';
 import { mockNotifications } from '../../services/mockData';
@@ -136,10 +137,12 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: colors.text.primary,
+    fontFamily: fonts.heading,
   },
   markAllRead: {
     fontSize: 14,
     color: '#FFFFFF',
+    fontFamily: fonts.body,
   },
   badgeContainer: {
     paddingHorizontal: spacing.lg,
@@ -154,8 +157,9 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
     color: colors.accent.cyan,
+    fontFamily: fonts.body,
   },
   scrollContent: {
     paddingHorizontal: spacing.lg,

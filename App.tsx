@@ -1,18 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import * as SplashScreen from 'expo-splash-screen';
 import AppNavigator from './src/navigation';
+import { loadFonts } from './src/theme/fonts';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 2,
-      staleTime: 1000 * 60 * 5,
-    },
-  },
-});
+// Keep splash screen visible while fonts load
+SplashScreen.preventAutoHideAsync();
 
 const DarkTheme = {
   ...DefaultTheme,
@@ -29,14 +25,43 @@ const DarkTheme = {
 };
 
 export default function App() {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    loadFonts()
+      .then(() => setFontsLoaded(true))
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#99E1D9" />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <NavigationContainer theme={DarkTheme}>
-          <AppNavigator />
-          <StatusBar style="light" />
-        </NavigationContainer>
-      </QueryClientProvider>
+      <NavigationContainer theme={DarkTheme}>
+        <AppNavigator />
+        <StatusBar style="light" />
+      </NavigationContainer>
     </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#0A0C12',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

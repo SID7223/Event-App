@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   },
   titleLine: {
     fontSize: 42,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     lineHeight: 50,
   },
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   btnText: {
     color: '#FFFFFF',
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: 0.3,
   },
   loginLink: {
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   },
   loginLinkBold: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '500',
   },
 });
 

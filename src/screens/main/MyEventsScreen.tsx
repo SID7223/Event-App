@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 26,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
   },
   calendarBtn: {
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   },
   tabTextActive: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '500',
   },
   listContent: {
     paddingHorizontal: 20,
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   },
   dateDay: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     lineHeight: 20,
   },
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   },
   eventTitle: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 4,
     lineHeight: 20,
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   eventPrice: {
     fontSize: 13,
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '500',
     marginBottom: 4,
   },
   statusRow: {
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
   },
   statusBadge: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   statusConfirmed: {
     color: '#99E1D9',

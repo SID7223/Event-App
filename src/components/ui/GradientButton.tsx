@@ -12,6 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
+import { fonts } from '../../theme/fonts';
 
 interface GradientButtonProps {
   title: string;
@@ -204,17 +205,21 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#fff',
-    fontWeight: '700',
-    letterSpacing: 0.3,
+    fontWeight: '500',
+    letterSpacing: 0.8,
+    fontFamily: fonts.bodyBold,
+    textTransform: 'uppercase',
   },
   icon: {
     marginRight: 8,
   },
   textGradient: {},
   textGradientInner: {
-    fontWeight: '700',
-    letterSpacing: 0.3,
+    fontWeight: '500',
+    letterSpacing: 0.8,
+    fontFamily: fonts.bodyBold,
     color: '#3DE2D1',
+    textTransform: 'uppercase',
   },
 });
 

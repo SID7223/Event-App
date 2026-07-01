@@ -186,3 +186,20 @@ export interface Organizer {
   eventCount: number;
   tags: string[];
 }
+
+// Social types
+export interface Friend {
+  id: string;
+  name: string;
+  handle: string;
+  avatar: string;
+  mutualFriends: number;
+  isOnline: boolean;
+}
+
+// QR Code type
+export interface QRCode {
+  userId: string;
+  handle: string;
+  generatedAt: string;
+}
