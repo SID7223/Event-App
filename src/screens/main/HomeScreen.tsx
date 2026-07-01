@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,31 +12,60 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-import { mockEvents } from '../../services/mockData';
+import { useAuth, useApp } from '../../store';
+import { mockEvents, sortVibesByPreferences } from '../../services/mockData';
+import { Event, VibeCategory } from '../../types';
 import AnimatedHamburger from '../../components/ui/AnimatedHamburger';
 
 const { width } = Dimensions.get('window');
-
-const CATEGORIES = [
-  { id: 'feed', label: 'My feed', icon: 'flame' as const, active: true },
-  { id: 'food', label: 'Food', icon: 'restaurant' as const, active: false },
-  { id: 'concerts', label: 'Concerts', icon: 'musical-notes' as const, active: false },
-  { id: 'art', label: 'Art', icon: 'color-palette' as const, active: false },
-  { id: 'tech', label: 'Tech', icon: 'laptop' as const, active: false },
-  { id: 'sports', label: 'Sports', icon: 'football' as const, active: false },
-];
 
 const getMonth = (dateStr: string) => {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   return months[new Date(dateStr).getMonth()];
 };
+
 const getDay = (dateStr: string) => new Date(dateStr).getDate();
+
 const formatTime = (time: string) => {
   const [h, m] = time.split(':');
   const hour = parseInt(h);
   const ampm = hour >= 12 ? 'PM' : 'AM';
   const h12 = hour % 12 || 12;
   return `${h12}:${m} ${ampm}`;
+};
+
+const getGreeting = (): string => {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) {
+    return 'Good Morning';
+  } else if (hour >= 12 && hour < 17) {
+    return 'Good Afternoon';
+  } else if (hour >= 17 && hour < 21) {
+    return 'Good Evening';
+  } else {
+    return 'Good Night';
+  }
+};
+
+const getGreetingSubtext = (): string => {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) {
+    return 'Ready to explore?';
+  } else if (hour >= 12 && hour < 17) {
+    return 'What\'s happening today?';
+  } else if (hour >= 17 && hour < 21) {
+    return 'Let\'s go out!';
+  } else {
+    return 'Discover something new';
+  }
+};
+
+const isThisWeek = (dateStr: string): boolean => {
+  const eventDate = new Date(dateStr);
+  const today = new Date();
+  const weekEnd = new Date(today);
+  weekEnd.setDate(today.getDate() + 7);
+  return eventDate >= today && eventDate <= weekEnd;
 };
 
 interface HomeScreenProps {
@@ -46,11 +75,58 @@ interface HomeScreenProps {
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible = false }) => {
   const navigation = useNavigation<any>();
-  const [activeCategory, setActiveCategory] = useState('feed');
+  const { location, preferences } = useAuth();
+  const { activeVibe, setActiveVibe } = useApp();
+  
   const [iconOpen, setIconOpen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const chipScrollRef = useRef<ScrollView>(null);
 
-  // Sync icon state when sidebar closes externally (overlay tap, menu item)
+  // Sort vibes based on user preferences (preferred first)
+  const sortedVibes: VibeCategory[] = useMemo(() => {
+    return sortVibesByPreferences(preferences || []);
+  }, [preferences]);
+
+  // Get featured event (highest rated isFeatured event)
+  const featuredEvent = useMemo(() => {
+    return mockEvents
+      .filter(e => e.isFeatured)
+      .sort((a, b) => b.rating - a.rating)[0];
+  }, []);
+
+  // Filter events based on active vibe
+  const filteredEvents = useMemo(() => {
+    if (!activeVibe || activeVibe === 'all') {
+      return mockEvents;
+    }
+    
+    const vibe = sortedVibes.find(v => v.id === activeVibe);
+    if (!vibe) return mockEvents;
+    
+    return mockEvents.filter(e => 
+      e.category.toLowerCase().includes(vibe.label.toLowerCase()) ||
+      e.category.toLowerCase().includes(vibe.id.toLowerCase())
+    );
+  }, [activeVibe, sortedVibes]);
+
+  // Get popular events in neighborhood
+  const popularInArea = useMemo(() => {
+    const neighborhood = location?.neighborhood || 'Senayan';
+    return mockEvents
+      .filter(e => e.neighborhood === neighborhood)
+      .sort((a, b) => b.attendees - a.attendees)
+      .slice(0, 5);
+  }, [location]);
+
+  // Get new & upcoming events (mixed types)
+  const upcomingEvents = useMemo(() => {
+    return mockEvents
+      .filter(e => isThisWeek(e.date))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .slice(0, 6);
+  }, []);
+
+  // Sync icon state when sidebar closes externally
   useEffect(() => {
     if (!sidebarVisible && iconOpen) {
       setIconOpen(false);
@@ -66,11 +142,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
 
   const handleHamburgerPress = useCallback(() => {
     if (iconOpen) {
-      // Stairs → close sidebar immediately
       setIconOpen(false);
       onOpenSidebar?.();
     } else {
-      // Fries → Stairs transition (0.3s), then open sidebar
       setIconOpen(true);
       timerRef.current = setTimeout(() => {
         onOpenSidebar?.();
@@ -78,36 +152,121 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
     }
   }, [iconOpen, onOpenSidebar]);
 
-  const upcomingEvents = mockEvents.slice(0, 4);
+  const handleVibePress = (vibeId: string) => {
+    const newVibe = activeVibe === vibeId ? 'all' : vibeId;
+    setActiveVibe(newVibe);
+    // Scroll chips to start when changing
+    chipScrollRef.current?.scrollTo({ x: 0, animated: true });
+  };
 
-  const renderEventCard = ({ item, index }: { item: typeof mockEvents[0]; index: number }) => (
+  const neighborhood = location?.neighborhood || 'Your Area';
+
+  const renderFeaturedBanner = () => {
+    if (!featuredEvent) return null;
+    
+    return (
+      <TouchableOpacity
+        style={styles.featuredBanner}
+        onPress={() => navigation.navigate('EventDetail', { eventId: featuredEvent.id })}
+        activeOpacity={0.9}
+      >
+        <Image source={{ uri: featuredEvent.image }} style={styles.featuredImage} />
+        <LinearGradient
+          colors={['rgba(10,12,18,0.3)', 'rgba(10,12,18,0.5)', 'rgba(10,12,18,0.95)']}
+          locations={[0, 0.4, 1]}
+          style={styles.featuredGradient}
+        />
+        
+        {/* Featured Badge */}
+        <View style={styles.featuredBadge}>
+          <Ionicons name="star" size={12} color="#FFD700" />
+          <Text style={styles.featuredBadgeText}>Featured Today</Text>
+        </View>
+        
+        {/* Featured Info */}
+        <View style={styles.featuredInfo}>
+          <Text style={styles.featuredTitle} numberOfLines={2}>{featuredEvent.title}</Text>
+          
+          <View style={styles.featuredMeta}>
+            <View style={styles.featuredMetaItem}>
+              <Ionicons name="calendar-outline" size={14} color="rgba(255,255,255,0.8)" />
+              <Text style={styles.featuredMetaText}>
+                {getMonth(featuredEvent.date)} {getDay(featuredEvent.date)}
+              </Text>
+            </View>
+            <View style={styles.featuredMetaItem}>
+              <Ionicons name="time-outline" size={14} color="rgba(255,255,255,0.8)" />
+              <Text style={styles.featuredMetaText}>{formatTime(featuredEvent.time)}</Text>
+            </View>
+            <View style={styles.featuredMetaItem}>
+              <Ionicons name="location-outline" size={14} color="rgba(255,255,255,0.8)" />
+              <Text style={styles.featuredMetaText} numberOfLines={1}>{featuredEvent.venue}</Text>
+            </View>
+          </View>
+          
+          {/* RSVP Button */}
+          <View style={styles.rsvpButton}>
+            <LinearGradient
+              colors={['#99E1D9', '#E43414']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.rsvpGradient}
+            >
+              <Text style={styles.rsvpText}>View Event</Text>
+              <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
+            </LinearGradient>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderPopularEvent = (event: Event) => (
     <TouchableOpacity
-      style={styles.eventCard}
-      onPress={() => navigation.navigate('EventDetail', { eventId: item.id })}
+      key={event.id}
+      style={styles.popularCard}
+      onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
       activeOpacity={0.88}
     >
-      <Image source={{ uri: item.image }} style={styles.eventCardImage} />
+      <Image source={{ uri: event.image }} style={styles.popularImage} />
       <LinearGradient
         colors={['transparent', 'rgba(10,12,18,0.85)']}
-        style={styles.eventCardGradient}
+        style={styles.popularGradient}
       />
-      {/* Date badge */}
-      <View style={styles.dateBadge}>
-        <Text style={styles.dateDay}>{getDay(item.date)}</Text>
-        <Text style={styles.dateMonth}>{getMonth(item.date)}</Text>
-      </View>
-      {/* Info */}
-      <View style={styles.eventCardInfo}>
-        <Text style={styles.eventCardTitle} numberOfLines={1}>{item.title}</Text>
-        <View style={styles.eventCardMeta}>
-          <Ionicons name="location-outline" size={12} color="rgba(255,255,255,0.6)" />
-          <Text style={styles.eventCardLocation} numberOfLines={1}>
-            {item.location.split(',')[1]?.trim() || item.location} - {formatTime(item.time)}
-          </Text>
+      <View style={styles.popularInfo}>
+        <Text style={styles.popularTitle} numberOfLines={1}>{event.title}</Text>
+        <View style={styles.popularMeta}>
+          <Ionicons name="people" size={12} color="rgba(255,255,255,0.6)" />
+          <Text style={styles.popularAttendees}>{event.attendees.toLocaleString()} going</Text>
+        </View>
+        <View style={styles.popularPriceTag}>
+          <Text style={styles.popularPrice}>${event.price}</Text>
         </View>
       </View>
-      <View style={styles.priceTag}>
-        <Text style={styles.eventCardPrice}>${item.price}</Text>
+    </TouchableOpacity>
+  );
+
+  const renderUpcomingEvent = (event: Event) => (
+    <TouchableOpacity
+      key={event.id}
+      style={styles.upcomingCard}
+      onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
+      activeOpacity={0.88}
+    >
+      <View style={styles.upcomingDateBadge}>
+        <Text style={styles.upcomingDay}>{getDay(event.date)}</Text>
+        <Text style={styles.upcomingMonth}>{getMonth(event.date)}</Text>
+      </View>
+      <Image source={{ uri: event.image }} style={styles.upcomingImage} />
+      <View style={styles.upcomingInfo}>
+        <Text style={styles.upcomingTitle} numberOfLines={1}>{event.title}</Text>
+        <View style={styles.upcomingMeta}>
+          <Ionicons name="location-outline" size={12} color="rgba(255,255,255,0.5)" />
+          <Text style={styles.upcomingLocation} numberOfLines={1}>{event.venue}</Text>
+        </View>
+      </View>
+      <View style={styles.upcomingPriceTag}>
+        <Text style={styles.upcomingPrice}>${event.price}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -125,10 +284,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
             onPress={handleHamburgerPress}
           />
 
-          <View style={styles.locationContainer}>
+          <TouchableOpacity
+            style={styles.locationContainer}
+            onPress={() => navigation.navigate('ProfileTab')}
+            activeOpacity={0.7}
+          >
             <Ionicons name="location" size={14} color="#E43414" />
-            <Text style={styles.locationText}>Jakarta, Ina</Text>
-          </View>
+            <Text style={styles.locationText}>{location?.city || 'Jakarta'}</Text>
+            <Ionicons name="chevron-down" size={14} color="rgba(255,255,255,0.5)" />
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.notifBtn}
@@ -139,6 +303,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
           </TouchableOpacity>
         </View>
 
+        {/* Greeting */}
+        <View style={styles.greetingContainer}>
+          <Text style={styles.greeting}>{getGreeting()},</Text>
+          <Text style={styles.greetingSubtext}>{getGreetingSubtext()}</Text>
+        </View>
+
         {/* Search Bar */}
         <TouchableOpacity
           style={styles.searchBar}
@@ -146,55 +316,124 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
           activeOpacity={0.85}
         >
           <Ionicons name="search-outline" size={18} color="rgba(255,255,255,0.4)" />
-          <Text style={styles.searchPlaceholder}>Search all events...</Text>
+          <Text style={styles.searchPlaceholder}>Search events...</Text>
           <TouchableOpacity style={styles.filterBtn} activeOpacity={0.7}>
             <Ionicons name="options-outline" size={18} color="rgba(255,255,255,0.5)" />
           </TouchableOpacity>
         </TouchableOpacity>
 
-        {/* Upcoming Events */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Upcoming events</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('ExploreTab')}>
-            <Text style={styles.seeAll}>See All</Text>
-          </TouchableOpacity>
+        {/* Featured Event Banner */}
+        {renderFeaturedBanner()}
+
+        {/* Vibe Filters */}
+        <View style={styles.vibesSection}>
+          <ScrollView
+            ref={chipScrollRef}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.vibesContainer}
+          >
+            {/* All chip (always first) */}
+            <TouchableOpacity
+              style={[styles.vibeChip, (!activeVibe || activeVibe === 'all') && styles.vibeChipActive]}
+              onPress={() => handleVibePress('all')}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name="flash"
+                size={16}
+                color={!activeVibe || activeVibe === 'all' ? '#FFFFFF' : 'rgba(255,255,255,0.6)'}
+              />
+              <Text style={[styles.vibeLabel, (!activeVibe || activeVibe === 'all') && styles.vibeLabelActive]}>
+                All
+              </Text>
+            </TouchableOpacity>
+            
+            {/* Dynamic vibe chips based on preferences */}
+            {sortedVibes.map((vibe) => {
+              const isActive = activeVibe === vibe.id;
+              const isPreferred = (preferences || []).some(p => 
+                p.toLowerCase().includes(vibe.id.toLowerCase()) || 
+                vibe.id.toLowerCase().includes(p.toLowerCase()) ||
+                p.toLowerCase().includes(vibe.label.toLowerCase()) ||
+                vibe.label.toLowerCase().includes(p.toLowerCase())
+              );
+              
+              return (
+                <TouchableOpacity
+                  key={vibe.id}
+                  style={[
+                    styles.vibeChip, 
+                    isActive && styles.vibeChipActive,
+                    isPreferred && !isActive && styles.vibeChipPreferred,
+                  ]}
+                  onPress={() => handleVibePress(vibe.id)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name={vibe.icon as any}
+                    size={16}
+                    color={isActive ? '#FFFFFF' : isPreferred ? '#99E1D9' : 'rgba(255,255,255,0.6)'}
+                  />
+                  <Text style={[
+                    styles.vibeLabel, 
+                    isActive && styles.vibeLabelActive,
+                    isPreferred && !isActive && styles.vibeLabelPreferred,
+                  ]}>
+                    {vibe.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
         </View>
 
-        {/* Category Chips */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesContainer}
-        >
-          {CATEGORIES.map((cat) => {
-            const isActive = activeCategory === cat.id;
-            return (
-              <TouchableOpacity
-                key={cat.id}
-                style={[styles.categoryChip, isActive && styles.categoryChipActive]}
-                onPress={() => setActiveCategory(cat.id)}
-                activeOpacity={0.7}
-              >
-                <Ionicons
-                  name={cat.icon}
-                  size={16}
-                  color={isActive ? '#FFFFFF' : 'rgba(255,255,255,0.6)'}
-                />
-                <Text style={[styles.categoryLabel, isActive && styles.categoryLabelActive]}>
-                  {cat.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+        {/* Popular in Neighborhood Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionTitleRow}>
+              <Ionicons name="trending-up" size={18} color="#99E1D9" />
+              <Text style={styles.sectionTitle}>Popular in {neighborhood}</Text>
+            </View>
+            <TouchableOpacity onPress={() => navigation.navigate('ExploreTab')}>
+              <Text style={styles.seeAll}>See All</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.popularContainer}
+          >
+            {popularInArea.length > 0 ? (
+              popularInArea.map(renderPopularEvent)
+            ) : (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>No popular events in your area yet</Text>
+              </View>
+            )}
+          </ScrollView>
+        </View>
 
-        {/* Event Cards */}
-        <View style={styles.eventsContainer}>
-          {upcomingEvents.map((item, index) => (
-            <React.Fragment key={item.id}>
-              {renderEventCard({ item, index })}
-            </React.Fragment>
-          ))}
+        {/* New & Upcoming Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionTitleRow}>
+              <Ionicons name="calendar" size={18} color="#E43414" />
+              <Text style={styles.sectionTitle}>New & Upcoming</Text>
+            </View>
+            <TouchableOpacity onPress={() => navigation.navigate('ExploreTab')}>
+              <Text style={styles.seeAll}>See All</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.upcomingContainer}>
+            {upcomingEvents.length > 0 ? (
+              upcomingEvents.map(renderUpcomingEvent)
+            ) : (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>No upcoming events this week</Text>
+              </View>
+            )}
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -215,15 +454,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 12,
-    paddingBottom: 16,
+    paddingBottom: 8,
   },
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
   },
   locationText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
     color: '#FFFFFF',
   },
@@ -233,18 +476,22 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
   },
-  avatarBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#E43414',
+  greetingContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
   },
-  avatar: {
-    width: '100%',
-    height: '100%',
+  greeting: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  greetingSubtext: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.5)',
+    marginTop: 4,
   },
   searchBar: {
     flexDirection: 'row',
@@ -253,7 +500,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     height: 52,
     marginHorizontal: 20,
-    marginBottom: 24,
+    marginBottom: 20,
     paddingHorizontal: 16,
     gap: 10,
     borderWidth: 1,
@@ -272,12 +519,146 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  // Featured Banner Styles
+  featuredBanner: {
+    marginHorizontal: 20,
+    marginBottom: 24,
+    height: 220,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: '#161B24',
+  },
+  featuredImage: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    resizeMode: 'cover',
+  },
+  featuredGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  featuredBadge: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,215,0,0.3)',
+  },
+  featuredBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFD700',
+  },
+  featuredInfo: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 20,
+  },
+  featuredTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 10,
+    lineHeight: 28,
+  },
+  featuredMeta: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 16,
+  },
+  featuredMetaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  featuredMetaText: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.8)',
+  },
+  rsvpButton: {
+    alignSelf: 'flex-start',
+  },
+  rsvpGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  rsvpText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  // Vibe Filters
+  vibesSection: {
+    marginBottom: 24,
+  },
+  vibesContainer: {
+    paddingHorizontal: 20,
+    gap: 10,
+  },
+  vibeChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 24,
+    backgroundColor: '#1A1F2B',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+  },
+  vibeChipActive: {
+    backgroundColor: '#E43414',
+    borderColor: '#E43414',
+  },
+  vibeChipPreferred: {
+    borderColor: 'rgba(153,225,217,0.4)',
+    backgroundColor: 'rgba(153,225,217,0.1)',
+  },
+  vibeLabel: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.6)',
+    fontWeight: '500',
+  },
+  vibeLabelActive: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  vibeLabelPreferred: {
+    color: '#99E1D9',
+  },
+  // Sections
+  section: {
+    marginBottom: 28,
+  },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     marginBottom: 16,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   sectionTitle: {
     fontSize: 18,
@@ -289,119 +670,139 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.5)',
     fontWeight: '500',
   },
-  categoriesContainer: {
+  popularContainer: {
     paddingHorizontal: 20,
-    gap: 10,
-    marginBottom: 24,
+    gap: 12,
   },
-  categoryChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 24,
-    backgroundColor: '#1A1F2B',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-  },
-  categoryChipActive: {
-    backgroundColor: '#E43414',
-    borderColor: '#E43414',
-  },
-  categoryLabel: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.6)',
-    fontWeight: '500',
-  },
-  categoryLabelActive: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-  },
-  eventsContainer: {
-    paddingHorizontal: 20,
-    gap: 16,
-  },
-  eventCard: {
-    width: '100%',
-    height: 260,
-    borderRadius: 20,
+  popularCard: {
+    width: 160,
+    height: 200,
+    borderRadius: 16,
     overflow: 'hidden',
     backgroundColor: '#161B24',
   },
-  eventCardImage: {
+  popularImage: {
     width: '100%',
     height: '100%',
     position: 'absolute',
     resizeMode: 'cover',
   },
-  eventCardGradient: {
+  popularGradient: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: 140,
+    height: 120,
   },
-  dateBadge: {
+  popularInfo: {
     position: 'absolute',
-    top: 14,
-    right: 14,
-    backgroundColor: 'rgba(10,12,18,0.7)',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    alignItems: 'center',
-    backdropFilter: 'blur(10px)',
-  },
-  dateDay: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    lineHeight: 22,
-  },
-  dateMonth: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.6)',
-    textTransform: 'uppercase',
-    lineHeight: 14,
-  },
-  eventCardInfo: {
-    position: 'absolute',
-    bottom: -10,
+    bottom: 0,
     left: 0,
     right: 0,
-    padding: 16,
+    padding: 12,
   },
-  eventCardTitle: {
-    fontSize: 18,
+  popularTitle: {
+    fontSize: 13,
     fontWeight: '700',
     color: '#FFFFFF',
-    marginBottom: 2,
+    marginBottom: 4,
   },
-  eventCardMeta: {
+  popularMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginBottom: 10,
+    marginBottom: 8,
   },
-  eventCardLocation: {
-    fontSize: 13,
+  popularAttendees: {
+    fontSize: 11,
     color: 'rgba(255,255,255,0.6)',
   },
-  priceTag: {
-    position: 'absolute',
-    bottom: 16,
-    right: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+  popularPriceTag: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
   },
-  eventCardPrice: {
-    fontSize: 15,
+  popularPrice: {
+    fontSize: 12,
     fontWeight: '700',
     color: '#0A0C12',
+  },
+  upcomingContainer: {
+    paddingHorizontal: 20,
+    gap: 12,
+  },
+  upcomingCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#161B24',
+    borderRadius: 14,
+    padding: 12,
+    gap: 12,
+  },
+  upcomingDateBadge: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+    backgroundColor: 'rgba(228,52,20,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  upcomingDay: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#E43414',
+  },
+  upcomingMonth: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: 'rgba(228,52,20,0.7)',
+    textTransform: 'uppercase',
+  },
+  upcomingImage: {
+    width: 56,
+    height: 56,
+    borderRadius: 10,
+  },
+  upcomingInfo: {
+    flex: 1,
+  },
+  upcomingTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  upcomingMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  upcomingLocation: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.5)',
+    flex: 1,
+  },
+  upcomingPriceTag: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  upcomingPrice: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  emptyState: {
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.4)',
   },
 });
 

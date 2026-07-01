@@ -1,15 +1,17 @@
 import React from 'react';
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 import SplashScreen from '../screens/auth/SplashScreen';
-import OnboardingScreen from '../screens/auth/OnboardingScreen';
-import LoginScreen from '../screens/auth/LoginScreen';
-import SignupScreen from '../screens/auth/SignupScreen';
+import AuthScreen from '../screens/auth/AuthScreen';
+import LocationStep from '../screens/auth/LocationStep';
+import VibeQuiz from '../screens/auth/VibeQuiz';
+import OnboardingLoading from '../screens/auth/OnboardingLoading';
 
 export type AuthStackParamList = {
   Splash: undefined;
-  Onboarding: undefined;
-  Login: undefined;
-  Signup: undefined;
+  Auth: undefined;
+  LocationStep: { user: any };
+  VibeQuiz: { user: any; location: any };
+  OnboardingLoading: undefined;
 };
 
 const Stack = createStackNavigator<AuthStackParamList>();
@@ -23,9 +25,10 @@ const AuthNavigator: React.FC = () => {
       }}
     >
       <Stack.Screen name="Splash" component={SplashScreen} />
-      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Screen name="Auth" component={AuthScreen} />
+      <Stack.Screen name="LocationStep" component={LocationStep} />
+      <Stack.Screen name="VibeQuiz" component={VibeQuiz} />
+      <Stack.Screen name="OnboardingLoading" component={OnboardingLoading} />
     </Stack.Navigator>
   );
 };

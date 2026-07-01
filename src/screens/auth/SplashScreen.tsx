@@ -47,6 +47,13 @@ const SplashScreen: React.FC = () => {
         useNativeDriver: true,
       }).start();
     }, 1400);
+
+    // Auto-navigate to Auth after 3 seconds
+    const timer = setTimeout(() => {
+      navigation.replace('Auth');
+    }, 3000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -85,7 +92,7 @@ const SplashScreen: React.FC = () => {
         {/* Buttons */}
         <Animated.View style={[styles.buttonSection, { opacity: buttonOpacity }]}>
           <TouchableOpacity
-            onPress={() => navigation.replace('Onboarding')}
+            onPress={() => navigation.replace('Auth')}
             activeOpacity={0.88}
           >
             <LinearGradient
@@ -99,7 +106,7 @@ const SplashScreen: React.FC = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => navigation.replace('Onboarding')}
+            onPress={() => navigation.replace('Auth')}
             style={styles.exploreBtn}
           >
             <Text style={styles.exploreText}>Explore Events</Text>

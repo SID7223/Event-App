@@ -21,12 +21,13 @@ const INTERESTS = ['Music', 'Art', 'Tech', 'Festival'];
 
 const EditProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { user, setUser } = useAuth();
+  const { user, setUser, setLocation } = useAuth();
   const [firstName, setFirstName] = useState(user?.firstName || 'John');
   const [lastName, setLastName] = useState(user?.lastName || 'Doe');
   const [email, setEmail] = useState(user?.email || 'johndoe@example.com');
   const [phone, setPhone] = useState(user?.phone || '+62 812 3455 7890');
-  const [location, setLocation] = useState('Jakarta, Indonesia');
+  const [locationText, setLocationText] = useState(user?.location?.city || 'Jakarta');
+  const [neighborhood, setNeighborhood] = useState(user?.location?.neighborhood || 'Senayan');
   const [selectedInterests, setSelectedInterests] = useState<string[]>(
     user?.interests || ['Music', 'Art', 'Tech', 'Festival']
   );
@@ -56,8 +57,24 @@ const EditProfileScreen: React.FC = () => {
         email,
         phone,
         interests: selectedInterests,
+        location: {
+          city: locationText,
+          neighborhood: neighborhood,
+          latitude: user?.location?.latitude ?? -6.2088,
+          longitude: user?.location?.longitude ?? 106.8456,
+          country: user?.location?.country ?? 'Indonesia',
+          fullAddress: `${neighborhood}, ${locationText}`,
+        },
       };
       setUser(updatedUser);
+      setLocation({
+        city: locationText,
+        neighborhood: neighborhood,
+        latitude: user?.location?.latitude ?? -6.2088,
+        longitude: user?.location?.longitude ?? 106.8456,
+        country: user?.location?.country ?? 'Indonesia',
+        fullAddress: `${neighborhood}, ${locationText}`,
+      });
       Alert.alert('Success', 'Profile updated successfully!', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
@@ -141,7 +158,8 @@ const EditProfileScreen: React.FC = () => {
 
           {renderField('Email', email, setEmail, 'email-address', errors.email)}
           {renderField('Phone Number', phone, setPhone, 'phone-pad')}
-          {renderField('Location', location, setLocation)}
+          {renderField('City', locationText, setLocationText)}
+          {renderField('Neighborhood', neighborhood, setNeighborhood)}
 
           {/* Interests */}
           <View style={styles.fieldGroup}>
