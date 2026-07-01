@@ -1,0 +1,1337 @@
+==============================================================================
+ZYNTR — EVENT DISCOVERY & BOOKING APP
+Complete Feature, Screen, Button & Logic Documentation
+==============================================================================
+Generated: July 1, 2026
+Platform: Android Mobile (React Native / Expo)
+Version: Expo SDK 56 | React Native 0.85.3 | React 19.2.3 | TypeScript 6.0
+
+==============================================================================
+TABLE OF CONTENTS
+==============================================================================
+
+ 1.  App Overview & Tech Stack
+ 2.  Design System (Colors, Typography, Spacing)
+ 3.  Complete Navigation Tree
+ 4.  Auth Flow Screens (Onboarding)
+ 5.  Main App Screens
+ 6.  Event Detail & Booking
+ 7.  Cinema Module
+ 8.  Dining Module
+ 9.  Venue & Organizer Profiles
+ 10. My Plans Screen
+ 11. Following Management Screen
+ 12. Host an Event Portal
+ 13. Profile & Settings
+ 14. Sidebar Navigation
+ 15. State Management (Zustand Stores)
+ 16. Notification System
+ 17. Mock Data Inventory
+ 18. All Types / Interfaces
+ 19. Complete Button & Action Reference
+ 20. User Flow Walkthrough
+
+==============================================================================
+1. APP OVERVIEW & TECH STACK
+==============================================================================
+
+Zyntr is a dark-themed event discovery and booking app for Android. Users
+browse local events, filter by vibe, RSVP/purchase tickets, follow venues
+and organizers, browse movies & showtimes, discover restaurants, and host
+their own events.
+
+TECH STACK:
+- React Native 0.85.3 + Expo SDK 56
+- TypeScript 6.0
+- React Navigation 7 (Native Stack + Bottom Tabs)
+- Zustand 5 (state management with AsyncStorage persistence)
+- React Hook Form 7 + Yup (form validation)
+- Expo: Linear Gradient, Blur, Image, Haptics, Location, Notifications
+- React Native Reanimated 4 + Gesture Handler
+- React Native Maps 1.27
+- date-fns 4
+- React Query (TanStack) 5
+
+==============================================================================
+2. DESIGN SYSTEM
+==============================================================================
+
+COLORS:
+  Background:       #0A0C12
+  Card/Surface:     #161B24
+  Accent Teal:      #99E1D9
+  Accent Red:       #E43414
+  Text Primary:     #FFFFFF
+  Text Secondary:   rgba(255,255,255,0.5)
+  Text Muted:       rgba(255,255,255,0.35)
+  Card Border:      rgba(255,255,255,0.06)
+  Overlay:          rgba(0,0,0,0.6-0.8)
+
+BORDER RADIUS:
+  Small:  8px
+  Medium: 12-14px
+  Large:  16-20px
+  Pill:   999px
+
+SPACING:
+  XS: 4px | SM: 8px | MD: 16px | LG: 24px | XL: 32px
+
+==============================================================================
+3. COMPLETE NAVIGATION TREE
+==============================================================================
+
+ROOT STACK (AppNavigator — NativeStackNavigator)
+│
+├── [AUTH FLOW] — shown when !isLoggedIn || !onboardingComplete
+│   └── AuthStack (StackNavigator)
+│       ├── Splash           → SplashScreen
+│       ├── Auth             → AuthScreen (Login/Signup toggle)
+│       ├── LocationStep     → LocationStep        { user }
+│       ├── VibeQuiz         → VibeQuiz            { user, location }
+│       └── OnboardingLoading → OnboardingLoading
+│
+├── [MAIN APP] — shown when loggedIn && onboardingComplete
+│   └── BottomTabs (6 tabs)
+│       │
+│       ├── HomeTab → HomeStack
+│       │   ├── Home            → HomeScreen (sidebar toggle)
+│       │   ├── Notifications   → NotificationsScreen
+│       │   └── EventDetail     → EventDetailScreen
+│       │
+│       ├── ExploreTab → ExploreStack
+│       │   ├── Explore         → ExploreScreen
+│       │   └── EventDetail     → EventDetailScreen
+│       │
+│       ├── PlansTab → PlansStack
+│       │   ├── PlansMain       → MyPlansScreen
+│       │   └── EventDetail     → EventDetailScreen
+│       │
+│       ├── CinemaTab → CinemaStack
+│       │   └── CinemaMain      → CinemaScreen
+│       │
+│       ├── DiningTab → DiningStack
+│       │   └── DiningMain      → DiningScreen
+│       │
+│       └── ProfileTab → ProfileStack
+│           ├── Profile         → ProfileScreen
+│           ├── EditProfile     → EditProfileScreen
+│           └── Settings        → SettingsScreen
+│
+├── EventDetail       → EventDetailScreen       { eventId }
+├── VenueProfile      → VenueProfileScreen      { venueId }
+├── OrganizerProfile  → OrganizerProfileScreen  { organizerId }
+├── Booking           → BookingScreen           { eventId }
+├── EditProfile       → EditProfileScreen
+├── Following         → FollowingScreen
+└── HostEvent         → HostEventScreen
+
+BOTTOM TAB BAR:
+  Home     | Explore  | Plans    | Cinema   | Dining   | Profile
+  (house)  | (search) | (list)   | (film)   | (plate)  | (avatar ring)
+  Active color: #E43414 (red) for icons; Profile uses red ring border
+
+==============================================================================
+4. AUTH FLOW SCREENS
+==============================================================================
+
+4.1 SPLASH SCREEN (SplashScreen.tsx)
+--------------------------------------
+Purpose: Brand introduction and entry point.
+
+Elements:
+- Full-screen local background image (splash-bg.jpg) with dark overlay
+- Animated "Z" logo (spring scale + fade in, 900ms)
+- "Zyntr" app name text
+- Tagline: "Discover events. Book experiences. Make memories."
+- [Get Started] gradient button (teal→red, pill shape) → Auth screen
+- [Explore Events] text link → Auth screen
+
+Behavior:
+- Stays static until user taps a button (no auto-advance)
+- Logo animates in on mount
+
+4.2 AUTH SCREEN (AuthScreen.tsx)
+--------------------------------------
+Purpose: Unified Login/Signup with toggle.
+
+Elements:
+- Animated "Z" logo at top
+- "Welcome Back" / "Create Account" header (swaps on toggle)
+- [Login ↔ Signup] toggle pill at top
+
+LOGIN MODE:
+- Email input (email keyboard, lock icon)
+- Password input (lock icon, show/hide eye toggle)
+- [Forgot Password?] link (visual only)
+- [Login] gradient button
+- "Or continue with" divider
+- [Google] social button (visual only)
+- [Apple] social button (visual only)
+- "Don't have an account? Sign Up" link
+
+SIGNUP MODE:
+- First Name + Last Name (side by side)
+- Email input (email keyboard)
+- Phone input (phone-pad keyboard)
+- Password input (show/hide toggle)
+- [I agree to Terms & Conditions] checkbox (toggleable)
+- [Sign Up] gradient button
+- "Already have an account? Login" link
+
+Validation:
+- All fields required
+- Email: regex /\S+@\S+\.\S+/
+- Password: min 6 chars
+- Terms checkbox must be checked (signup only)
+
+Behavior:
+- On success → calls login(mockUser) → navigates to LocationStep
+
+4.3 LOCATION STEP (LocationStep.tsx)
+--------------------------------------
+Purpose: Set user's city/neighborhood.
+
+Elements:
+- Back button → Auth screen
+- "Where are you based?" header
+- City text input (pre-filled: "Jakarta")
+- Neighborhood text input (pre-filled: "Senayan")
+- [Use My Location] GPS button → requests expo-location permission
+- [Continue] gradient button
+
+Behavior:
+- GPS button calls expo-location for current coords
+- Saves city + neighborhood to Zustand
+- → navigates to VibeQuiz
+
+4.4 VIBE QUIZ (VibeQuiz.tsx)
+--------------------------------------
+Purpose: Select interest categories.
+
+Elements:
+- Back button
+- "What are you into?" header
+- 8 selectable chips (Music, Art, Tech, Food, Sports, Comedy, Festivals, Business)
+- Each chip: icon + label, teal bg + white text when selected
+- Min 3 selections required
+- [Continue] gradient button (enabled when 3+ selected)
+
+Behavior:
+- Chips toggle on/off with spring animation
+- Selected IDs saved to Zustand preferences
+- → navigates to OnboardingLoading
+
+4.5 ONBOARDING LOADING (OnboardingLoading.tsx)
+--------------------------------------
+Purpose: Simulated 3-step profile building.
+
+Elements:
+- "Setting up your experience..." header
+- 3 steps shown sequentially:
+  1. "Personalizing your feed" ✓
+  2. "Finding local events" ✓
+  3. "Almost ready..." ✓
+- Progress indicator (teal)
+
+Behavior:
+- Each step appears after 1.2s delay
+- After all 3 → calls completeOnboarding() → navigates to Main
+
+==============================================================================
+5. MAIN APP SCREENS
+==============================================================================
+
+5.1 HOME SCREEN (HomeScreen.tsx)
+--------------------------------------
+Purpose: Primary landing screen with event discovery.
+
+HEADER:
+- Animated hamburger icon (fries↔stairs, 300ms) → opens Sidebar
+- Location pin + city name (centered)
+- Notification bell badge → navigates to NotificationsScreen
+
+SEARCH BAR (visual, taps → ExploreTab):
+- Magnifying glass icon
+- "Search events, venues..." placeholder
+- Filter icon button (visual)
+
+VIBE FILTER CHIPS (horizontal scroll):
+- "All" chip (default, red when active)
+- Live Music, Cinema, Workshops, Business, Food, Sports, Comedy, Art, Tech, Festivals
+- Each shows icon + label
+- Active chip: red bg, white text
+- Sorts by user preferences (preferred first)
+
+FEATURED BANNER (card):
+- Large event image with gradient overlay
+- Event title + date + location
+- "Featured" badge
+- Tap → EventDetail
+
+SECTIONS:
+1. "Popular in [neighborhood]" — top 5 events in user's neighborhood sorted by attendees
+2. "New & Upcoming" — events this week sorted by date ascending (max 6)
+3. "Tech & Innovation" — tech-category events
+4. "Workshops & Learning" — workshops-category events
+
+Each section:
+- Section header with title
+- Horizontal scroll of event cards
+- Event card: image, date badge, title, location, price tag
+- Tap → EventDetail
+
+Behavior:
+- Vibe filter chips re-filter sections dynamically
+- Location-aware: events filtered by user's neighborhood
+- Sidebar opens/closes with animation
+
+5.2 EXPLORE SCREEN (ExploreScreen.tsx)
+--------------------------------------
+Purpose: Search and filter all events.
+
+HEADER:
+- "Explore" title
+- Search input with magnifying glass icon
+
+SEARCH:
+- Real-time text filtering by event title or location
+- Clear button (X icon) when text present
+- Keyboard dismisses on scroll
+
+FILTER TABS:
+- All | Events | Artists | Venues
+- White bg when active
+
+EVENT LIST (FlatList):
+- Event card:
+  - Thumbnail image (84x84, rounded)
+  - Date badge on thumbnail
+  - Event title (bold, 2 lines)
+  - Date range text
+  - Location text
+  - Attendee count
+  - Price (red, bold)
+- Tap → EventDetail
+
+Behavior:
+- Filter tabs narrow results
+- Search queries filter in real-time
+- Keyboard auto-dismisses on scroll
+
+5.3 NOTIFICATIONS SCREEN (NotificationsScreen.tsx)
+--------------------------------------
+Purpose: View all notifications.
+
+HEADER:
+- Back button → Home
+- "Notifications" title
+
+NOTIFICATION CARDS (8 mock items):
+- Icon based on type:
+  - booking → checkmark-circle (teal)
+  - reminder → alarm (red)
+  - promotion → pricetag (green)
+  - update → information-circle (blue)
+  - error → alert-circle (red)
+  - recommendation → compass (teal)
+  - feedback → chatbubble (purple)
+- Title text (bold)
+- Message text (muted)
+- Time text
+- Read/unread visual distinction
+
+Types: booking, reminder, promotion, update, error, recommendation, feedback
+
+==============================================================================
+6. EVENT DETAIL & BOOKING
+==============================================================================
+
+6.1 EVENT DETAIL SCREEN (EventDetailScreen.tsx)
+--------------------------------------
+Purpose: Full event details, RSVP, tickets, and booking entry.
+
+HERO SECTION:
+- Full-width image (~40% screen height)
+- Back button (top-left, circular dark bg)
+- Heart/favorite button (top-right, circular dark bg) → toggles with animation
+- Share button
+
+QUICK INFO BAR:
+- Date & Time with calendar icon
+- Venue name with location icon (tappable → VenueProfile if venueId exists)
+- Address text
+
+SOCIAL PROOF:
+- Attendee count with avatar stack
+- Rating (star + number)
+
+"HOSTED BY" SECTION:
+- Organizer avatar (48x48, circular)
+- Organizer name (bold)
+- Follower count (muted)
+- [View Profile] link + chevron (teal) → OrganizerProfile (if organizerId exists)
+
+ABOUT EVENT:
+- Full description text
+- Event tags/chips
+
+BOTTOM ACTION BAR (3 buttons):
+1. [Heart/Save] — toggles RSVP/saved status, schedules/cancels 2hr reminder
+2. [Get Tickets] or [RSVP Free] — navigates to BookingScreen (ticketed) or toggles RSVP (free)
+3. [Share] — system share sheet
+
+Behavior:
+- Hero image parallax on scroll
+- Venue name tap → VenueProfile screen
+- Organizer tap → OrganizerProfile screen
+- RSVP toggle updates Zustand savedEvents + schedules/cancels notification
+
+6.2 BOOKING SCREEN (BookingScreen.tsx)
+--------------------------------------
+Purpose: Ticket selection and purchase flow.
+
+HEADER:
+- Back button → EventDetail
+- "Book Tickets" title
+
+EVENT SUMMARY:
+- Event image (thumbnail)
+- Event title
+- Date + time
+
+TICKET TYPE SELECTION:
+- VIP ($250) — limited availability
+- Regular ($150)
+- General ($75)
+- Each shows: name, price, description, remaining count
+
+QUANTITY SELECTOR:
+- [-] button | count display | [+] button
+- Per ticket type
+
+PRICE CALCULATION:
+- Unit price × quantity
+- Subtotal display
+- Service fee
+- Total
+
+PAYMENT SECTION:
+- Credit Card (pre-selected)
+- GoPay
+- OVO
+
+[A. BOOK NOW] gradient button → processes payment
+
+POST-PURCHASE:
+- "Ticket Confirmed!" modal
+- QR code display
+- [Download Ticket] button
+- [Add to Wallet] button
+- [Back to Home] button
+
+==============================================================================
+7. CINEMA MODULE
+==============================================================================
+
+CINEMA SCREEN (CinemaScreen.tsx)
+--------------------------------------
+Purpose: Browse movies and book showtimes at nearby cinemas.
+
+HEADER:
+- "Cinema" title
+- Movie count subtitle (e.g., "9 movies")
+
+MOVIE POSTER GRID (2 columns):
+- Movie poster image (portrait, ~1.4:1 aspect ratio)
+- IMAX badge (shown when movie has IMAX showtimes)
+- Movie title (bold, white)
+- Genre + Duration meta line (e.g., "Sci-Fi • 148 min")
+
+TAP MOVIE → MODAL DETAIL VIEW:
+- Hero section with poster background + gradient overlay
+- Rating badge (star icon + rating number)
+- Duration + Age rating (e.g., "PG-13")
+- Genre tags (teal chips)
+- Synopsis section
+- Cast & Crew section
+
+CINEMA CARDS (inside modal):
+- Cinema name
+- Distance (teal)
+- Neighborhood
+- [Get Directions] link
+
+HORIZONTAL SHOWTIME CHIPS:
+- Time (large, bold)
+- Format (2D/3D/IMAX/4DX)
+- Price (Rp XXk)
+- Available seats count
+- Active cinema highlighted with teal border
+- Tap → books that showtime
+
+DATA:
+- 9 movies (Sci-Fi, Drama, Action, Comedy, Documentary, Fantasy, etc.)
+- 4 cinemas (CGV Grand Indonesia, XXI Plaza Senayan, Cinemaxx Central Park, CGV Pondok Indah)
+- 27 showtimes across movies and cinemas
+- Formats: 2D, 3D, IMAX
+
+==============================================================================
+8. DINING MODULE
+==============================================================================
+
+DINING SCREEN (DiningScreen.tsx)
+--------------------------------------
+Purpose: Discover local restaurants and take action.
+
+HEADER:
+- "Dining" title
+- Restaurant count subtitle
+
+FILTER CHIPS (horizontal scroll):
+- All | Open Now | Live Music | Budget | Fine Dining
+- Active chip: teal bg, white text
+
+RESTAURANT CARDS:
+- Image header (160px height)
+- Open/Closed Status Badge:
+  - Green dot + "Open Now" / Red dot + "Closed"
+- Price range badge ($, $$, $$$, $$$$)
+- Rating badge (star + number)
+- Restaurant name + cuisine type
+- Distance (teal) + neighborhood
+- Quick Tags: Open Now, Live Music Tonight, Popular, Historic, etc.
+- Opening hours text
+
+ACTION BUTTONS:
+- [Call to Book] (teal outline) → opens phone dialer (tel:${phone})
+- [Directions] (red filled) → opens Google Maps with address
+
+DATA:
+- 10 restaurants (Indonesian, International, Italian, Seafood, Japanese, Korean, Western, etc.)
+- Price ranges: $, $$, $$$, $$$$
+- Filters: isOpen, hasLiveMusic, priceRange, cuisine, neighborhood
+
+==============================================================================
+9. VENUE & ORGANIZER PROFILES
+==============================================================================
+
+9.1 VENUE PROFILE (VenueProfileScreen.tsx)
+--------------------------------------
+Trigger: Tap venue name in EventDetailScreen (when event.venueId exists)
+
+HEADER:
+- Cover image (200px) with gradient overlay
+- Back button (top-left)
+
+PROFILE:
+- Venue logo (80x80, rounded with border)
+- Venue name + star badge
+- Type badge (📍 Venue)
+- Neighborhood
+
+STATS ROW (card):
+- Followers count (formatted: 12.5k)
+- Event count
+- Rating (star + number)
+
+ACTION BUTTONS:
+- [Follow] (heart icon) — toggles "Follow" ↔ "Following"
+- [Map] — opens Google Maps with venue address
+- [Website] — opens venue website
+
+BIO SECTION:
+- Description text
+- Tags (horizontal scroll)
+
+EVENT FEED (tabs):
+- Upcoming Events — event cards sorted ascending
+- Past Events — event cards sorted descending, muted styling
+
+DATA: 4 venues (GBK, Balai Kartini, Ancol Beach City, JCC Senayan)
+
+STATE:
+- followedVenues: string[] — array of followed venue IDs
+- toggleFollowVenue(venueId, venueName) — follow/unfollow + notification
+- isVenueFollowed(venueId) — check status
+
+9.2 ORGANIZER PROFILE (OrganizerProfileScreen.tsx)
+--------------------------------------
+Trigger: Tap "Hosted By" row in EventDetailScreen (when event.organizerId exists)
+
+HEADER:
+- Cover image (180px) with gradient overlay
+- Centered circular avatar (100x100) with star badge
+- Organizer Name (centered, bold)
+- Bio text (centered, muted)
+
+METRICS ROW (card):
+- Followers count (formatted: 78.0k)
+- Events Hosted count
+- Rating (star + number)
+
+ACTION BUTTONS:
+- [Follow] (heart icon) — toggles "Follow" ↔ "Following"
+- [Instagram] — opens Instagram profile (pink accent)
+- [Website] — opens organizer website (teal accent, optional)
+- NO Map button (organizers are mobile)
+
+CONTENT FEED (tabs):
+- Upcoming Events (count badge) — event cards sorted ascending
+- Past Events (count badge) — event cards sorted descending, muted styling
+
+EVENT CARD LAYOUT:
+- Image with gradient overlay
+- Date badge (day + month)
+- Title + time + venue
+- Price tag
+
+DATA: 4 organizers (Live Nation Indonesia, Laugh Factory Asia, Indonesian Chef Association, TechSummit Global)
+
+STATE:
+- followedOrganizers: string[] — array of followed organizer IDs
+- toggleFollowOrganizer(organizerId, organizerName) — follow/unfollow + notification
+- isOrganizerFollowed(organizerId) — check status
+
+==============================================================================
+10. MY PLANS SCREEN
+==============================================================================
+
+MY PLANS SCREEN (MyPlansScreen.tsx)
+--------------------------------------
+Purpose: Chronological list of user's planned events.
+
+HEADER:
+- "My Plans" title
+
+FILTER TABS (pill-style chips):
+- Upcoming (count badge) — events from today onwards
+- Saved (count badge) — all saved/RSVP'd events
+- Past (count badge) — events where date has passed
+
+PLAN ROW LAYOUT:
+- Left: Date column
+  - Day of week (FRI) — teal color
+  - Day number (12) — large, bold white
+  - Month (JUL) — small, muted
+- Vertical divider (red accent, or muted for past)
+- Center: Event info
+  - Event title (bold, white, single line)
+  - Time (icon + formatted time)
+  - Venue (icon + venue name)
+  - Weather context (teal icon for upcoming)
+- Right: Chevron arrow
+
+LOGIC:
+- savedEvents: string[] from Zustand
+- myPlans = mockEvents.filter(e => savedEvents.includes(e.id))
+- Auto-move to Past: isEventPast() compares event date to current time
+- Sorted ascending for upcoming/saved, descending for past
+
+EMPTY STATE:
+- Icon (calendar-outline)
+- "No plans yet" title
+- "RSVP to events to see them here" subtitle
+- [Explore Events] CTA button → ExploreTab
+
+==============================================================================
+11. FOLLOWING MANAGEMENT SCREEN
+==============================================================================
+
+FOLLOWING SCREEN (FollowingScreen.tsx)
+--------------------------------------
+Purpose: Unified dashboard for all followed venues and organizers.
+
+HEADER:
+- Back button → Profile
+- "Following" title
+- Total count badge
+
+SEGMENTED CONTROL:
+- [All] | [Venues] | [Organizers]
+- Animated indicator (teal underline)
+- Active tab: white bg, bold text
+- Inactive: muted text
+
+FOLLOWING LIST (FlatList):
+Each row (FollowingRow component):
+- Circular avatar (venues get rounded-square)
+- Name (bold)
+- Type badge: 📍 Venue (red) or 🎤 Organizer (teal)
+- [Heart] unfollow button (filled red → removes with animation)
+
+Behavior:
+- Tap row → navigates to VenueProfile or OrganizerProfile
+- Tap heart → unfollows with scale+fade animation, item removed from list
+- Unfollow removes from followedVenues/followedOrganizers arrays
+
+EMPTY STATE:
+- Heart outline icon
+- "No follows yet" title
+- "You aren't following any local spots yet. Explore your city to find creators and venues!"
+- [Explore] CTA button → ExploreTab
+
+STATE:
+- followedVenues: string[]
+- followedOrganizers: string[]
+- unfollowEntity(id, type: 'venue' | 'organizer') — removes from correct array
+
+==============================================================================
+12. HOST AN EVENT PORTAL
+==============================================================================
+
+HOST EVENT SCREEN (HostEventScreen.tsx)
+--------------------------------------
+Purpose: Self-serve event submission for local creators.
+
+ENTRY POINTS:
+- FAB (floating action button) on ProfileScreen (bottom-right, teal, + icon)
+- "Host an Event" row in ProfileScreen links section
+
+HEADER:
+- Back button → Profile
+- "Host an Event" title
+
+BANNER:
+- Sparkles icon + "Share your event with the local community"
+
+FORM (react-hook-form + yup validation):
+
+1. Event Title (text, required, min 3 chars)
+   - Placeholder: "e.g., Jazz Night at Blue Note"
+
+2. Event Type (modal picker, required)
+   - Opens bottom sheet with all 10 vibe categories:
+     Live Music, Cinema, Workshops, Business, Food, Sports,
+     Comedy, Art, Tech, Festivals
+   - Each row: icon + label + checkmark when selected
+   - Active row: red bg highlight
+
+3. Description (multiline, required, min 10 chars)
+   - Placeholder: "Tell people what to expect..."
+
+4. Date (modal picker, required)
+   - Opens bottom sheet with next 30 dates
+   - Format: YYYY-MM-DD
+
+5. Time (modal picker, required)
+   - Opens bottom sheet with 30-minute intervals from 06:00 to 23:30
+
+6. Venue Name (text, required)
+   - Pre-filled from user location
+   - Placeholder: "e.g., Jakarta Convention Center"
+
+7. Neighborhood (text, required)
+   - Pre-filled from user location
+   - Placeholder: "e.g., Senayan"
+
+8. Full Address (text, required)
+   - Pre-filled from user location
+   - Placeholder: "Street address or landmark"
+
+9. Price (numeric, optional)
+   - Placeholder: "0 = Free Event"
+
+10. Image URL (text, optional, url validated)
+    - Placeholder: "https://example.com/event-image.jpg"
+
+11. External Link (text, optional, url validated)
+    - Placeholder: "Instagram, website, or ticketing link"
+
+SUBMIT:
+- [Submit for Review] teal button with rocket icon
+- Loading state: hourglass icon + "Submitting..."
+- On submit: adds event to pendingEvents in Zustand
+- Success alert: "Event Submitted! Your event has been submitted for review."
+- Navigates back to Profile on OK
+
+DISCLAIMER:
+- "Events are reviewed before going live. You'll be notified once approved."
+
+STATE:
+- pendingEvents: AppEvent[] — stores submitted events
+- submitEvent(eventData) — creates event with generated ID, zero attendees/rating
+
+==============================================================================
+13. PROFILE & SETTINGS
+==============================================================================
+
+13.1 PROFILE SCREEN (ProfileScreen.tsx)
+--------------------------------------
+Purpose: User profile management hub.
+
+HEADER (animated fade-in):
+- Avatar (90x90, circular, teal border)
+- Camera edit button (bottom-right of avatar)
+- User name (from store)
+- Username handle (generated: @firstnamelastname.events)
+
+EDIT LOCATION (prominent row):
+- Location icon (red)
+- "Your Location" label
+- City + neighborhood text
+- [Edit] badge (teal) → EditProfile screen
+
+SETTINGS TOGGLES (inline card):
+- Push Notifications (toggle switch, default ON)
+- Smart Reminders (toggle switch, default ON)
+- Dark Mode (toggle switch, default ON)
+
+FOLLOWING ENTRY ROW:
+- People icon (teal)
+- "My Network" label
+- "Following (N)" count (teal)
+- Chevron → FollowingScreen
+
+LINKS SECTION (card):
+- [Host an Event] — mic icon, teal → HostEventScreen
+- [Contact Support] — chatbubble icon, teal → alert with email/phone
+- [Invite Friends] — share icon, teal → system share sheet
+
+FAB (Floating Action Button):
+- Position: bottom-right, above tab bar
+- Teal circle with + icon
+- Tap → HostEventScreen
+
+LOG OUT:
+- Red outlined button with log-out icon
+- Confirmation alert → clears store → Auth flow
+
+13.2 EDIT PROFILE SCREEN (EditProfileScreen.tsx)
+--------------------------------------
+Purpose: Edit user profile and location.
+
+HEADER:
+- Back button → Profile
+- "Edit Profile" title with pencil emoji
+
+AVATAR:
+- Current avatar image (90x90)
+- Camera edit button (visual only)
+
+FIELDS:
+- First Name (text, pre-filled, required)
+- Last Name (text, pre-filled, required)
+- Email (email keyboard, pre-filled, required)
+- Phone Number (phone keyboard, pre-filled)
+- City (text, pre-filled)
+- Neighborhood (text, pre-filled)
+
+INTERESTS:
+- Toggle chips: Music, Art, Tech, Festival
+- White bg when selected, transparent when not
+- "+" chip to add more (visual only)
+
+VALIDATION:
+- First name, last name, email required
+- Email format validated
+
+SAVE:
+- [Save Changes] gradient button
+- Validates fields
+- Updates user in Zustand via setUser()
+- Updates location in Zustand via setLocation()
+- Shows success alert
+- Navigates back on OK
+
+13.3 SETTINGS SCREEN (SettingsScreen.tsx)
+--------------------------------------
+Purpose: App preferences and account management.
+
+HEADER:
+- Back button → Profile
+- "Settings" title
+
+ACCOUNT SECTION (card):
+- [Edit Profile] → EditProfile screen
+- [Change Password] → alert: "Password reset link sent"
+- [Privacy Settings] → alert: "Privacy settings saved"
+
+PREFERENCES SECTION (card with toggles):
+| Setting                        | Default |
+|--------------------------------|---------|
+| Push Notifications             | ON      |
+| Email Notifications            | ON      |
+| Location Tracking              | ON      |
+| Show Events I'm Interested In  | ON      |
+| Dark Mode                      | ON      |
+
+Custom Switch: teal track when ON, white thumb
+
+LOG OUT:
+- Red outlined button
+- Calls logout() from Zustand
+- Clears all state + cancels notifications
+- Returns to Auth flow
+
+==============================================================================
+14. SIDEBAR NAVIGATION
+==============================================================================
+
+SIDEBAR (Sidebar.tsx)
+--------------------------------------
+Trigger: Animated hamburger icon (fries↔stairs) in HomeScreen header.
+
+ANIMATION:
+- Slides in from left (spring: tension 65, friction 11)
+- Dark overlay (60% opacity) behind — tap to close
+- 250ms fade on overlay
+
+CONTENT:
+- User avatar (64x64, red border)
+- User name + email
+- Divider line
+
+MENU ITEMS:
+| Item           | Icon               | Action                        |
+|----------------|--------------------|-------------------------------|
+| Home           | home-outline       | → HomeTab                     |
+| Explore        | search-outline     | → ExploreTab                  |
+| My Plans       | list-outline       | → PlansTab                    |
+| Notifications  | notifications-outline | → HomeTab → Notifications |
+| Cinema         | film-outline       | → CinemaTab                   |
+| Dining         | restaurant-outline | → DiningTab                   |
+| Settings       | settings-outline   | → ProfileTab → Settings       |
+
+BOTTOM ITEMS:
+| Item             | Icon                 | Action |
+|------------------|----------------------|--------|
+| Help & Support   | help-circle-outline  | —      |
+| Logout           | log-out-outline      | —      |
+
+ANIMATED HAMBURGER (AnimatedHamburger.tsx):
+- Fries (closed): Three lines of decreasing width (20, 14, 8)
+- Stairs (open): Three staggered lines (10, 14, 18) with offset
+- 300ms linear timing
+- Crossfade: fries fades out → stairs fades in
+
+==============================================================================
+15. STATE MANAGEMENT (ZUSTAND STORES)
+==============================================================================
+
+15.1 AUTH STORE (useAuth)
+Persistence: AsyncStorage (full state)
+Key: 'auth-storage'
+
+STATE FIELDS:
+| Field                    | Type                    | Default    |
+|--------------------------|-------------------------|------------|
+| isLoggedIn               | boolean                 | false      |
+| user                     | User \| null            | null       |
+| location                 | UserLocation \| null    | null       |
+| preferences              | string[]                | []         |
+| savedEvents              | string[]                | []         |
+| eventNotifications       | Record<string, string>  | {}         |
+| followedVenues           | string[]                | []         |
+| followedOrganizers       | string[]                | []         |
+| organizerNotifications   | Record<string, string>  | {}         |
+| onboardingComplete       | boolean                 | false      |
+| pendingEvents            | AppEvent[]              | []         |
+| settings                 | { pushNotifications, smartReminders, darkMode } | all true |
+
+ACTIONS:
+| Action                                    | Description                                      |
+|-------------------------------------------|--------------------------------------------------|
+| login(user)                               | Sets isLoggedIn + user                           |
+| logout()                                  | Cancels all notifications, resets everything     |
+| setUser(user)                             | Updates user data                                |
+| setLocation(location)                     | Updates user location                            |
+| setPreferences(preferences)               | Sets preference array                            |
+| addPreference(preference)                 | Adds with dedup                                  |
+| removePreference(preference)              | Removes from array                               |
+| toggleRSVP(eventId, title, date, time)    | RSVP + schedule/cancel 2hr reminder              |
+| isEventSaved(eventId)                     | Check if event is saved                          |
+| toggleFollowVenue(venueId, venueName)     | Follow/unfollow venue + topic notification       |
+| isVenueFollowed(venueId)                  | Check if venue is followed                       |
+| toggleFollowOrganizer(orgId, orgName)     | Follow/unfollow organizer + topic notification   |
+| isOrganizerFollowed(orgId)                | Check if organizer is followed                   |
+| unfollowEntity(id, type)                  | Generic unfollow for venue or organizer          |
+| updateSettings(key, value)                | Toggle pushNotifications/smartReminders/darkMode |
+| submitEvent(eventData)                    | Add event to pendingEvents                       |
+| completeOnboarding({user,location,prefs}) | Set all onboarding data + isLoggedIn             |
+
+15.2 APP STORE (useApp)
+Persistence: AsyncStorage (partialized: activeVibe only)
+Key: 'app-storage'
+
+STATE FIELDS:
+| Field          | Type           | Default |
+|----------------|----------------|---------|
+| activeVibe     | string \| null | null    |
+| searchQuery    | string         | ''      |
+| isSearching    | boolean        | false   |
+
+ACTIONS:
+| Action                | Description          |
+|-----------------------|----------------------|
+| setActiveVibe(vibe)   | Set active vibe chip |
+| setSearchQuery(query)  | Set search text      |
+| setIsSearching(bool)  | Set search mode      |
+
+==============================================================================
+16. NOTIFICATION SYSTEM
+==============================================================================
+
+UTILITIES (notifications.ts):
+
+| Function                      | Description                                              |
+|-------------------------------|----------------------------------------------------------|
+| requestNotificationPermissions| Checks/requests permissions, creates Android channel     |
+| scheduleEventReminder(...)    | Schedules 2hr-before event notification                  |
+| cancelEventReminder(id)       | Cancels single notification                              |
+| cancelAllEventReminders()     | Cancels ALL scheduled notifications                      |
+| getScheduledNotifications()   | Returns all scheduled notification requests              |
+| scheduleTopicNotification(...) | Simulates topic subscription (fires after 2 sec)        |
+| cancelTopicNotification(id)   | Cancels topic notification                               |
+
+ANDROID CHANNELS:
+| Channel ID           | Name               | Importance | Light Color |
+|----------------------|--------------------|------------|-------------|
+| event-reminders      | Event Reminders    | HIGH       | #E43414     |
+| organizer-updates    | Organizer Updates  | HIGH       | #99E1D9     |
+
+NOTIFICATION BEHAVIOR:
+- RSVP event → schedule 2hr-before reminder
+- Un-RSVP → cancel reminder
+- Follow venue/organizer → schedule topic subscription confirmation
+- Unfollow → cancel topic notification
+- Logout → cancel ALL notifications
+
+==============================================================================
+17. MOCK DATA INVENTORY
+==============================================================================
+
+EVENTS (15 total):
+| #  | Title                                    | Category   | Price  | Location              | Neighborhood   |
+|----|------------------------------------------|------------|--------|-----------------------|----------------|
+| 1  | Jakarta Music Festival 2026              | Music      | $250   | GBK, Jakarta          | Senayan        |
+| 2  | Bali Art Biennale                        | Art        | $45    | Museum MACAN, Bali    | Senayan        |
+| 3  | Comedy Night Live Jakarta                | Comedy     | $75    | Balai Kartini, Jakarta| Kuningan       |
+| 4  | Jakarta Food Festival                    | Food       | $35    | Ancol, Jakarta        | Ancol          |
+| 5  | Bandung Electronic Music Festival        | Music      | $180   | Dago Pakar, Bandung   | Dago           |
+| 6  | Nusa Penida Beach Party                  | Festivals  | $120   | Nusa Penida, Bali     | Nusa Penida    |
+| 7  | Indonesian Indie Film Festival           | Cinema     | $55    | CGV, Jakarta          | Senayan        |
+| 8  | Bandung Jazz Festival                    | Music      | $95    | Gedung Sate, Bandung  | Gedung Sate    |
+| 9  | TechSummit Asia 2026                     | Tech       | $350   | JCC, Jakarta          | Senayan        |
+| 10 | Digital Marketing Summit                 | Business   | $150   | Ritz-Carlton, Jakarta | Kuningan       |
+| 11 | Startup Weekend Jakarta                  | Tech       | $25    | GoWork, Jakarta       | Sudirman       |
+| 12 | CEO Summit Bali 2026                     | Business   | $299   | The Mulia, Bali       | Nusa Dua       |
+| 13 | AI & ML Workshop                         | Tech       | $75    | Universitas Indonesia | Depok          |
+| 14 | Photography Workshop                     | Workshops  | $45    | Taman Ismail Marzuki  | Cikini         |
+| 15 | Badminton Tournament                     | Sports     | $15    | GBK Arena, Jakarta    | Senayan        |
+
+Featured events: 1, 2, 4, 5, 6, 9, 12
+Favorited by user: 4, 6, 9
+Events linked to venues via venueId
+Events linked to organizers via organizerId
+
+VIBES (10):
+live_music, cinema, workshops, business, foodie, sports, comedy, art, tech, festivals
+
+MOVIES (9):
+| ID     | Title                          | Genre         | Duration | Rating |
+|--------|--------------------------------|---------------|----------|--------|
+| mov-001| Dune: Part Three              | Sci-Fi        | 148 min  | 4.8    |
+| mov-002| The Last Autumn                | Drama         | 112 min  | 4.5    |
+| mov-003| Shadow Protocol                | Action        | 135 min  | 4.3    |
+| mov-004| Laugh Track                    | Comedy        | 98 min   | 4.1    |
+| mov-005| Voices of the Archipelago      | Documentary   | 125 min  | 4.7    |
+| mov-006| Crimson Horizon                | Thriller      | 118 min  | 4.4    |
+| mov-007| The Wandering Star             | Fantasy       | 142 min  | 4.6    |
+| mov-008| Midnight in Monsoon            | Horror        | 105 min  | 4.0    |
+| mov-009| Neon Dreams                    | Sci-Fi/Romance| 130 min  | 4.2    |
+
+CINEMAS (4):
+| ID      | Name                     | Neighborhood    |
+|---------|--------------------------|-----------------|
+| cine-001| CGV Grand Indonesia      | Menteng         |
+| cine-002| XXI Plaza Senayan        | Senayan         |
+| cine-003| Cinemaxx Central Park    | Tanjung Duren   |
+| cine-004| CGV Pondok Indah         | Pondok Indah    |
+
+SHOWTIMES (27): Spread across 4 cinemas × 9 movies
+Formats: 2D, 3D, IMAX
+
+RESTAURANTS (10):
+| ID      | Name                    | Cuisine            | Price | Open | Live Music |
+|---------|------------------------|--------------------|-------|------|------------|
+| rest-001| Warung Betawi           | Indonesian         | $     | Yes  | No         |
+| rest-002| The Junction Bar       | International      | $$$   | Yes  | Yes        |
+| rest-003| Nasi Goreng Mafia      | Modern Indonesian  | $$    | Yes  | No         |
+| rest-004| Trattoria Milano        | Italian            | $$$   | No   | No         |
+| rest-005| Raja Sate               | Indonesian Fine D. | $$$$  | Yes  | No         |
+| rest-006| Kopi Toko Djakarta     | Cafe               | $     | Yes  | No         |
+| rest-007| Seafood 88              | Seafood            | $$$   | Yes  | No         |
+| rest-008| Sakura Japanese         | Japanese           | $$$   | Yes  | No         |
+| rest-009| Seoul Kitchen           | Korean             | $$    | Yes  | Yes        |
+| rest-010| The Western Grill       | Western            | $$$   | No   | No         |
+
+VENUES (8 — 4 venues + 4 organizers):
+| ID      | Name                     | Type       | Neighborhood |
+|---------|--------------------------|------------|--------------|
+| ven-001| GBK                      | venue      | Senayan      |
+| ven-002| Balai Kartini            | venue      | Kuningan     |
+| ven-003| Ancol Beach City         | venue      | Ancol        |
+| ven-004| JCC Senayan              | venue      | Senayan      |
+| ven-005| Live Nation Indonesia    | organizer  | —            |
+| ven-006| Laugh Factory Asia       | organizer  | —            |
+| ven-007| Indonesian Chef Assoc.   | organizer  | —            |
+| ven-008| TechSummit Global        | organizer  | —            |
+
+ORGANIZERS (4):
+| ID      | Name                     | Instagram         |
+|---------|--------------------------|--------------------|
+| org-001| Live Nation Indonesia    | @livenationid      |
+| org-002| Laugh Factory Asia       | @laughfactoryasia  |
+| org-003| Indonesian Chef Assoc.   | @indonesianchefs   |
+| org-004| TechSummit Global        | @techsummitglobal  |
+
+TICKETS (6):
+| #  | Event                    | Type        | Price | Qty | Status    |
+|----|--------------------------|-------------|-------|-----|-----------|
+| 1  | Jakarta Music Festival   | VIP         | $250  | 2   | Upcoming  |
+| 2  | TechSummit Asia          | Regular     | $350  | 1   | Upcoming  |
+| 3  | Comedy Night Live        | Standard    | $75   | 2   | Upcoming  |
+| 4  | Jakarta Food Festival    | General     | $35   | 4   | Upcoming  |
+| 5  | Bali Art Biennale        | Standard    | $45   | 2   | Past      |
+| 6  | Bandung Electronic Music | Weekend Pass| $180  | 1   | Cancelled |
+
+NOTIFICATIONS (8):
+Types: booking(2), reminder(1), promotion(1), update(1), error(1), recommendation(1), feedback(1)
+
+BOOKINGS (4):
+Payment methods: Credit Card, GoPay, OVO, Debit Card — all "confirmed"
+
+CATEGORIES (9):
+Music, Sports, Art, Festival, Technology, Comedy, Restaurant, Business, Nightlife
+
+==============================================================================
+18. ALL TYPES / INTERFACES
+==============================================================================
+
+Event {
+  id, title, description, category, image, price, location,
+  date, time, organizer, organizerId?, venue, venueId?,
+  attendees, rating, isFavorite, isFeatured, neighborhood?
+}
+
+VibeCategory { id, label, icon }
+
+UserLocation {
+  city, neighborhood, latitude, longitude, country, fullAddress
+}
+
+User {
+  id, firstName, lastName, email, phone, avatar,
+  interests[], notifications, location?, preferences?
+}
+
+Ticket {
+  id, eventId, userId, type, price, quantity, seat,
+  qrCode, status: 'upcoming'|'past'|'cancelled', purchaseDate
+}
+
+Booking {
+  id, eventId, tickets[], totalAmount, paymentMethod, status, date
+}
+
+Notification { id, title, message, time, read, type, icon }
+
+Movie {
+  id, title, genre[], duration, rating, poster,
+  releaseDate, synopsis, director, cast[], ageRating
+}
+
+Cinema { id, name, address, distance, neighborhood }
+
+MovieShowtime {
+  id, movieId, cinemaId, date, time,
+  format: '2D'|'3D'|'IMAX'|'4DX', price, availableSeats
+}
+
+MovieWithShowtimes extends Movie {
+  cinemas: { cinema: Cinema; showtimes: MovieShowtime[] }[]
+}
+
+Restaurant {
+  id, name, cuisine, image, priceRange, rating, reviewCount,
+  address, neighborhood, distance, phone, isOpen,
+  hasLiveMusic, openingHours, tags[], featured
+}
+
+Venue {
+  id, name, type: 'venue'|'organizer', logo, coverImage,
+  bio, address, neighborhood, website, rating,
+  followerCount, eventCount, tags[]
+}
+
+Organizer {
+  id, name, avatar, coverImage, bio, website, instagram,
+  rating, followerCount, eventCount, tags[]
+}
+
+==============================================================================
+19. COMPLETE BUTTON & ACTION REFERENCE
+==============================================================================
+
+AUTH FLOW:
+| Screen         | Button/Link                       | Action                              |
+|----------------|-----------------------------------|-------------------------------------|
+| Splash         | [Get Started]                     | → Auth screen                       |
+| Splash         | [Explore Events]                  | → Auth screen                       |
+| Auth           | [Login ↔ Signup] toggle           | Swaps form mode                     |
+| Auth           | [Login]                           | Validates → login(mockUser)         |
+| Auth           | [Sign Up]                         | Validates → login(mockUser)         |
+| Auth           | [Google] (visual)                 | —                                   |
+| Auth           | [Apple] (visual)                  | —                                   |
+| Auth           | "Don't have account?" / "Login"   | Swaps form mode                     |
+| LocationStep   | [Use My Location]                 | Requests GPS permission             |
+| LocationStep   | [Continue]                        | Saves location → VibeQuiz          |
+| VibeQuiz       | [chip] (×8)                       | Toggles selection (min 3)           |
+| VibeQuiz       | [Continue]                        | Saves prefs → Loading               |
+
+HOME SCREEN:
+| Button/Element               | Action                                    |
+|------------------------------|-------------------------------------------|
+| Hamburger icon               | Opens/closes Sidebar                     |
+| Notification bell            | → NotificationsScreen                    |
+| Search bar                   | → ExploreTab                             |
+| Vibe filter chip             | Filters event sections by category       |
+| Event card                   | → EventDetailScreen                      |
+| Featured banner              | → EventDetailScreen                      |
+| Section "See All"            | (visual only)                            |
+
+EXPLORE SCREEN:
+| Button/Element               | Action                                    |
+|------------------------------|-------------------------------------------|
+| Search input                 | Filters events by title/location          |
+| Clear (X) button             | Clears search text                        |
+| Filter tabs                  | All/Events/Artists/Venues                 |
+| Event card                   | → EventDetailScreen                      |
+
+EVENT DETAIL:
+| Button/Element               | Action                                    |
+|------------------------------|-------------------------------------------|
+| Back arrow                   | Returns to previous screen                |
+| Heart/favorite               | Toggles saved event                       |
+| Share icon                   | System share sheet                        |
+| Venue name (tappable)        | → VenueProfileScreen                      |
+| Organizer row (tappable)     | → OrganizerProfileScreen                  |
+| [Heart/Save] bottom bar      | Toggle RSVP + schedule/cancel reminder    |
+| [Get Tickets] bottom bar     | → BookingScreen                           |
+| [Share] bottom bar           | System share sheet                        |
+
+BOOKING:
+| Button/Element               | Action                                    |
+|------------------------------|-------------------------------------------|
+| Back arrow                   | → EventDetail                             |
+| [-] / [+] quantity           | Adjust ticket count                       |
+| [Book Now]                   | Processes → confirmation modal            |
+| [Download Ticket]            | (visual only)                             |
+| [Add to Wallet]              | (visual only)                             |
+| [Back to Home]               | → HomeTab                                 |
+
+CINEMA:
+| Button/Element               | Action                                    |
+|------------------------------|-------------------------------------------|
+| Movie poster                 | Opens modal with cinemas + showtimes      |
+| Close modal (X)              | Closes movie detail                       |
+| Showtime chip                | Books that showtime                       |
+
+DINING:
+| Button/Element               | Action                                    |
+|------------------------------|-------------------------------------------|
+| Filter chips                 | Filters restaurant list                   |
+| [Call to Book]               | Opens phone dialer (tel:)                 |
+| [Directions]                 | Opens Google Maps with address            |
+
+PROFILE:
+| Button/Element               | Action                                    |
+|------------------------------|-------------------------------------------|
+| Edit Location row            | → EditProfileScreen                       |
+| Push Notifications toggle    | Updates settings.pushNotifications        |
+| Smart Reminders toggle       | Updates settings.smartReminders           |
+| Dark Mode toggle             | Updates settings.darkMode                 |
+| My Network / Following row   | → FollowingScreen                         |
+| [Host an Event] link         | → HostEventScreen                         |
+| [Contact Support]            | Alert with email/phone                    |
+| [Invite Friends]             | System share sheet                        |
+| FAB (+) button               | → HostEventScreen                         |
+| [Log Out]                    | Confirmation alert → Auth                 |
+
+FOLLOWING SCREEN:
+| Button/Element               | Action                                    |
+|------------------------------|-------------------------------------------|
+| Back arrow                   | → Profile                                 |
+| [All] tab                    | Shows all followed entities               |
+| [Venues] tab                 | Shows only venues                         |
+| [Organizers] tab             | Shows only organizers                     |
+| Row (tap)                    | → VenueProfile or OrganizerProfile        |
+| Heart button (tap)           | Unfollows with animation                  |
+| [Explore] CTA (empty state)  | → ExploreTab                              |
+
+HOST EVENT:
+| Button/Element               | Action                                    |
+|------------------------------|-------------------------------------------|
+| Back arrow                   | → Profile                                 |
+| Event Type picker            | Opens modal with 10 vibe categories       |
+| Date picker                  | Opens modal with 30 dates                 |
+| Time picker                  | Opens modal with time slots               |
+| [Submit for Review]          | Validates → submitEvent() → alert → back  |
+
+EDIT PROFILE:
+| Button/Element               | Action                                    |
+|------------------------------|-------------------------------------------|
+| Back arrow                   | → Profile                                 |
+| Interest chips               | Toggle selection                          |
+| [Save Changes]               | Validates → setUser() + setLocation()     |
+
+SETTINGS:
+| Button/Element               | Action                                    |
+|------------------------------|-------------------------------------------|
+| Back arrow                   | → Profile                                 |
+| [Edit Profile]               | → EditProfileScreen                       |
+| [Change Password]            | Alert: reset link sent                    |
+| [Privacy Settings]           | Alert: saved                              |
+| Toggle switches              | Update settings in Zustand                |
+| [Log Out]                    | Clears store → Auth                       |
+
+SIDEBAR:
+| Button/Element               | Action                                    |
+|------------------------------|-------------------------------------------|
+| Overlay tap                  | Closes sidebar                           |
+| Menu items (×7)              | Navigate to respective tabs               |
+| [Help & Support]             | (visual only)                             |
+| [Logout]                     | (visual only)                             |
+
+==============================================================================
+20. COMPLETE USER FLOW WALKTHROUGH
+==============================================================================
+
+1.  App Launch → Splash Screen ("Z" logo animation)
+2.  [Get Started] → Auth Screen (Login mode)
+3.  Toggle to Sign Up → Fill name, email, phone, password → Check terms → [Sign Up]
+4.  → Location Step → City/Neighborhood pre-filled → [Continue]
+5.  → Vibe Quiz → Select 3+ interests → [Continue]
+6.  → Onboarding Loading (3 steps animate) → completes onboarding
+7.  → HOME SCREEN (main app)
+8.  Browse: Featured banner, Vibe chips filter sections, Event cards
+9.  Hamburger → Sidebar slides in → Navigate to any tab
+10. Tap event card → EVENT DETAIL → Hero, info, RSVP, Book Tickets
+11. Tap venue name → VENUE PROFILE → Follow, see events
+12. Tap "Hosted By" → ORGANIZER PROFILE → Follow, Instagram
+13. [Get Tickets] → BOOKING → Select type/qty → [Book Now] → Confirmation
+14. Profile Tab → Settings toggles, My Network, Host Event FAB
+15. FAB (+) → HOST EVENT → Fill form → [Submit for Review]
+16. My Network → FOLLOWING → See all followed venues/organizers → Unfollow
+17. Plans Tab → See upcoming/saved/past events chronologically
+18. Cinema Tab → Browse movies → Tap poster → See cinemas + showtimes
+19. Dining Tab → Filter restaurants → Call or Directions
+20. [Log Out] → Clears data → Returns to Auth
+
+==============================================================================
+END OF DOCUMENTATION
+==============================================================================
+
+Generated: July 1, 2026
+Project: Zyntr Event App (EventApp)
+Platform: Android Mobile
