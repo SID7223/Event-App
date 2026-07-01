@@ -263,6 +263,7 @@ const MyPlansScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={renderEmptyState}
+        style={{ flex: 1 }}
       />
     </SafeAreaView>
   );

@@ -119,6 +119,8 @@ export interface Movie {
   city?: PakistanCity;
   bookingType?: BookingType;
   externalLink?: string | null;
+  whatsappNumber?: string | null;
+  dataSource?: DataSource;
 }
 
 export interface Cinema {
@@ -142,6 +144,8 @@ export interface MovieShowtime {
   bookingType?: BookingType;
   externalLink?: string | null;
   whatsappNumber?: string | null;
+  dataSource?: DataSource;
+  city?: PakistanCity;
 }
 
 export interface MovieWithShowtimes extends Movie {
@@ -173,6 +177,7 @@ export interface Restaurant {
   bookingType?: BookingType;
   whatsappNumber?: string | null;
   externalLink?: string | null;
+  dataSource?: DataSource;
 }
 
 // Venue / Organizer types

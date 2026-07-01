@@ -567,6 +567,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   stepContent: {
+    flexGrow: 1,
     padding: spacing.lg,
     paddingBottom: 120,
   },

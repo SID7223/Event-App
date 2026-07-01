@@ -138,6 +138,7 @@ const FollowingScreen: React.FC = () => {
             )}
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
+            style={{ flex: 1 }}
           />
         ) : (
           renderEmpty()

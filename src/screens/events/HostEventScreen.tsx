@@ -543,6 +543,7 @@ const styles = StyleSheet.create({
     width: 40,
   },
   scrollContent: {
+    flexGrow: 1,
     paddingBottom: 100,
   },
   // Banner

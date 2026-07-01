@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { mockEvents } from '../../services/mockData';
+import { useFilteredContent } from '../../hooks/useFilteredContent';
 import GlassPill from '../../components/ui/GlassPill';
 import { BlurView } from 'expo-blur';
 import { fonts } from '../../theme/fonts';
@@ -56,8 +56,9 @@ const ExploreScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [activeFilter, setActiveFilter] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const { events: filteredEventsList, userSelectedCity } = useFilteredContent();
 
-  const filtered = mockEvents.filter((e) => {
+  const filtered = filteredEventsList.filter((e) => {
     if (!searchQuery) return true;
     return (
       e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -65,7 +66,7 @@ const ExploreScreen: React.FC = () => {
     );
   });
 
-  const renderItem = ({ item, index }: { item: typeof mockEvents[0]; index: number }) => {
+  const renderItem = ({ item, index }: { item: typeof filteredEventsList[0]; index: number }) => {
     const count = FAKE_COUNTS[index % FAKE_COUNTS.length];
     const location = LOCATION_SHORT[item.location] ?? item.location;
 
@@ -181,7 +182,7 @@ const ExploreScreen: React.FC = () => {
           <Ionicons name="search-outline" size={17} color="rgba(255,255,255,0.4)" />
           <TextInput
             style={styles.searchInput}
-            placeholder='"Concerts in Jakarta"'
+            placeholder={`"Concerts in ${userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}"`}
             placeholderTextColor="rgba(255,255,255,0.35)"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -218,6 +219,7 @@ const ExploreScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         onScrollBeginDrag={Keyboard.dismiss}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
+        style={{ flex: 1 }}
       />
     </SafeAreaView>
   );
@@ -328,9 +330,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FFFFFF',
     height: '100%',
-    outlineWidth: 0,
-    outlineColor: 'transparent',
-    outlineStyle: 'none',
+    ...({
+      outlineWidth: 0,
+      outlineColor: 'transparent',
+      outlineStyle: 'none',
+    } as any),
   },
 
   /* ── Filter chips ── */

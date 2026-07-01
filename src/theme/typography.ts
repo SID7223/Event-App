@@ -18,14 +18,14 @@ export const typography = StyleSheet.create({
   },
   subheading: {
     fontSize: 20,
-    fontWeight: '400',
+    fontWeight: '500',
     color: '#FFFFFF',
     lineHeight: 28,
     fontFamily: fonts.subheading,
   },
   body: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '400',
     color: 'rgba(255, 255, 255, 0.7)',
     lineHeight: 24,
     fontFamily: fonts.body,
@@ -42,7 +42,7 @@ export const typography = StyleSheet.create({
     fontWeight: '400',
     color: 'rgba(255, 255, 255, 0.5)',
     lineHeight: 18,
-    fontFamily: fonts.subheading,
+    fontFamily: fonts.body,
   },
   button: {
     fontSize: 16,
@@ -71,7 +71,7 @@ export const typography = StyleSheet.create({
   },
   chip: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '400',
     color: 'rgba(255, 255, 255, 0.6)',
     fontFamily: fonts.body,
   },
@@ -85,18 +85,18 @@ export const typography = StyleSheet.create({
     fontSize: 14,
     fontWeight: '400',
     color: 'rgba(255,255,255,0.45)',
-    fontFamily: fonts.subheading,
+    fontFamily: fonts.body,
   },
   meta: {
     fontSize: 12,
     fontWeight: '400',
     color: 'rgba(255,255,255,0.5)',
-    fontFamily: fonts.subheading,
+    fontFamily: fonts.body,
   },
   small: {
     fontSize: 11,
     fontWeight: '400',
     color: 'rgba(255,255,255,0.4)',
-    fontFamily: fonts.subheading,
+    fontFamily: fonts.body,
   },
 });

@@ -213,6 +213,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.08)',
   },
   scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 24,
     paddingBottom: 100,
   },

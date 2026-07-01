@@ -332,6 +332,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0A0C12',
   },
   scrollContent: {
+    flexGrow: 1,
     paddingBottom: 100,
   },
   header: {

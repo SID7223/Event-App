@@ -7,17 +7,19 @@ import {
   TouchableOpacity,
   Dimensions,
   Image,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth, useApp } from '../../store';
-import { mockEvents, sortVibesByPreferences, getAttendingFriends, getEventsWithFriendAttendance } from '../../services/mockData';
-import { Event, VibeCategory, Friend } from '../../types';
+import { sortVibesByPreferences, getAttendingFriends } from '../../services/mockData';
+import { Event, VibeCategory } from '../../types';
 import AnimatedHamburger from '../../components/ui/AnimatedHamburger';
 import GlassPill from '../../components/ui/GlassPill';
 import { BlurView } from 'expo-blur';
+import { useFilteredContent } from '../../hooks/useFilteredContent';
 import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
@@ -63,14 +65,6 @@ const getGreetingSubtext = (): string => {
   }
 };
 
-const isThisWeek = (dateStr: string): boolean => {
-  const eventDate = new Date(dateStr);
-  const today = new Date();
-  const weekEnd = new Date(today);
-  weekEnd.setDate(today.getDate() + 7);
-  return eventDate >= today && eventDate <= weekEnd;
-};
-
 interface HomeScreenProps {
   onOpenSidebar?: () => void;
   sidebarVisible?: boolean;
@@ -81,6 +75,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
   const { location, preferences, friendsList, privateRSVPs, privacySettings } = useAuth();
   const { activeVibe, setActiveVibe } = useApp();
   
+  const [showCityPicker, setShowCityPicker] = useState(false);
+  const { events: filteredEventsList, userSelectedCity } = useFilteredContent();
   const [iconOpen, setIconOpen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chipScrollRef = useRef<ScrollView>(null);
@@ -92,47 +88,44 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
 
   // Get featured event (highest rated isFeatured event)
   const featuredEvent = useMemo(() => {
-    return mockEvents
+    return filteredEventsList
       .filter(e => e.isFeatured)
       .sort((a, b) => b.rating - a.rating)[0];
-  }, []);
+  }, [filteredEventsList]);
 
   // Filter events based on active vibe
   const filteredEvents = useMemo(() => {
     if (!activeVibe || activeVibe === 'all') {
-      return mockEvents;
-    }
-
-    // Friends filter: only events where friends have RSVP'd
-    if (activeVibe === 'friends') {
-      return getEventsWithFriendAttendance(friendsList, privateRSVPs, privacySettings.hideRSVPs);
+      return filteredEventsList;
     }
     
     const vibe = sortedVibes.find(v => v.id === activeVibe);
-    if (!vibe) return mockEvents;
+    if (!vibe) return filteredEventsList;
     
-    return mockEvents.filter(e => 
+    return filteredEventsList.filter(e => 
       e.category.toLowerCase().includes(vibe.label.toLowerCase()) ||
       e.category.toLowerCase().includes(vibe.id.toLowerCase())
     );
-  }, [activeVibe, sortedVibes, friendsList, privateRSVPs, privacySettings.hideRSVPs]);
+  }, [activeVibe, sortedVibes, filteredEventsList]);
 
   // Get popular events in neighborhood
   const popularInArea = useMemo(() => {
-    const neighborhood = location?.neighborhood || 'Senayan';
-    return mockEvents
-      .filter(e => e.neighborhood === neighborhood)
+    const neighborhood = location?.neighborhood;
+    const matchingNeighborhood = filteredEventsList.filter(e => e.neighborhood === neighborhood);
+    const sourceList = matchingNeighborhood.length > 0 ? matchingNeighborhood : filteredEventsList;
+    return [...sourceList]
       .sort((a, b) => b.attendees - a.attendees)
       .slice(0, 5);
-  }, [location]);
+  }, [filteredEventsList, location]);
 
-  // Get new & upcoming events (mixed types)
+  // Get new & upcoming events (flexible date sorting)
   const upcomingEvents = useMemo(() => {
-    return mockEvents
-      .filter(e => isThisWeek(e.date))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    const today = new Date().toISOString().split('T')[0];
+    return filteredEventsList
+      .filter(e => e.date >= today)
+      .sort((a, b) => a.date.localeCompare(b.date))
       .slice(0, 6);
-  }, []);
+  }, [filteredEventsList]);
 
   // Sync icon state when sidebar closes externally
   useEffect(() => {
@@ -167,7 +160,43 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
     chipScrollRef.current?.scrollTo({ x: 0, animated: true });
   };
 
-  const neighborhood = location?.neighborhood || 'Your Area';
+  const handleSelectCity = (city: string) => {
+    useApp.getState().setUserSelectedCity(city.toLowerCase());
+    setShowCityPicker(false);
+  };
+
+  const renderCityPicker = () => {
+    const cities = ['Lahore', 'Karachi', 'Islamabad'];
+    return (
+      <Modal visible={showCityPicker} transparent animationType="fade">
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1} 
+          onPress={() => setShowCityPicker(false)}
+        >
+          <View style={styles.cityDropdownContainer}>
+            <Text style={styles.dropdownTitle}>Select City</Text>
+            {cities.map((city) => {
+              const isActive = userSelectedCity.toLowerCase() === city.toLowerCase();
+              return (
+                <TouchableOpacity
+                  key={city}
+                  style={[styles.cityOption, isActive && styles.cityOptionActive]}
+                  onPress={() => handleSelectCity(city)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.cityOptionText, isActive && styles.cityOptionTextActive]}>
+                    {city}
+                  </Text>
+                  {isActive && <Ionicons name="checkmark" size={18} color="#99E1D9" />}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
+  };
 
   const renderFeaturedBanner = () => {
     if (!featuredEvent) return null;
@@ -341,11 +370,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
 
           <TouchableOpacity
             style={styles.locationContainer}
-            onPress={() => navigation.navigate('ProfileTab')}
+            onPress={() => setShowCityPicker(true)}
             activeOpacity={0.7}
           >
             <Ionicons name="location" size={14} color="#E43414" />
-            <Text style={styles.locationText}>{location?.city || 'Jakarta'}</Text>
+            <Text style={styles.locationText}>
+              {userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}
+            </Text>
             <Ionicons name="chevron-down" size={14} color="rgba(255,255,255,0.5)" />
           </TouchableOpacity>
 
@@ -422,7 +453,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
               <Ionicons name="trending-up" size={18} color="#FF6B4A" />
-              <Text style={styles.sectionTitle}>Popular in {neighborhood}</Text>
+              <Text style={styles.sectionTitle}>Popular in {userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}</Text>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('ExploreTab')}>
               <Text style={styles.seeAll}>See All</Text>
@@ -465,6 +496,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
           </View>
         </View>
       </ScrollView>
+      {renderCityPicker()}
     </SafeAreaView>
   );
 };
@@ -475,6 +507,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0A0C12',
   },
   scrollContent: {
+    flexGrow: 1,
     paddingBottom: 100,
   },
   header: {
@@ -871,6 +904,53 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.4)',
     fontFamily: fonts.body,
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cityDropdownContainer: {
+    backgroundColor: '#161B24',
+    borderRadius: 16,
+    padding: 20,
+    width: 280,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  dropdownTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 16,
+    textAlign: 'center',
+    fontFamily: fonts.heading,
+  },
+  cityOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    marginBottom: 8,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+  },
+  cityOptionActive: {
+    backgroundColor: 'rgba(153,225,217,0.1)',
+  },
+  cityOptionText: {
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.7)',
+    fontWeight: '500',
+    fontFamily: fonts.body,
+  },
+  cityOptionTextActive: {
+    color: '#99E1D9',
+    fontWeight: '700',
+    fontFamily: fonts.bodyBold,
+  },
 });
 
 export default HomeScreen;
+

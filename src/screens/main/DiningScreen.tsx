@@ -16,9 +16,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-import { mockRestaurants, filterRestaurants } from '../../services/mockData';
 import { Restaurant } from '../../types';
 import GlassPill from '../../components/ui/GlassPill';
+import { useFilteredContent } from '../../hooks/useFilteredContent';
+import { handleVenueBooking } from '../../utils/booking';
 import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
@@ -28,21 +29,22 @@ type FilterType = 'all' | 'open' | 'live_music' | 'budget' | 'fine_dining';
 const DiningScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const { dining: filteredDiningList } = useFilteredContent();
 
   const filteredRestaurants = useMemo(() => {
     switch (activeFilter) {
       case 'open':
-        return filterRestaurants({ isOpen: true });
+        return filteredDiningList.filter(r => r.isOpen);
       case 'live_music':
-        return filterRestaurants({ hasLiveMusic: true });
+        return filteredDiningList.filter(r => r.hasLiveMusic);
       case 'budget':
-        return mockRestaurants.filter(r => r.priceRange === '$' || r.priceRange === '$$');
+        return filteredDiningList.filter(r => r.priceRange === '$' || r.priceRange === '$$');
       case 'fine_dining':
-        return mockRestaurants.filter(r => r.priceRange === '$$$' || r.priceRange === '$$$$');
+        return filteredDiningList.filter(r => r.priceRange === '$$$' || r.priceRange === '$$$$');
       default:
-        return mockRestaurants;
+        return filteredDiningList;
     }
-  }, [activeFilter]);
+  }, [activeFilter, filteredDiningList]);
 
   const handleCall = (phone: string) => {
     Linking.openURL(`tel:${phone}`);
@@ -61,102 +63,108 @@ const DiningScreen: React.FC = () => {
     }
   };
 
-  const renderRestaurantCard = ({ item }: { item: Restaurant }) => (
-    <View style={styles.restaurantCard}>
-      {/* Image */}
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: item.image }} style={styles.restaurantImage} />
-        <LinearGradient
-          colors={['transparent', 'rgba(10,12,18,0.85)']}
-          style={styles.imageGradient}
-        />
-        
-        {/* Open/Closed Status */}
-        <View style={[styles.statusBadge, item.isOpen ? styles.statusOpen : styles.statusClosed]}>
-          <View style={[styles.statusDot, item.isOpen ? styles.statusDotOpen : styles.statusDotClosed]} />
-          <Text style={[styles.statusText, item.isOpen ? styles.statusTextOpen : styles.statusTextClosed]}>
-            {item.isOpen ? 'Open Now' : 'Closed'}
-          </Text>
-        </View>
-        
-        {/* Price Range */}
-        <View style={styles.priceBadge}>
-          <Text style={styles.priceText}>{item.priceRange}</Text>
-        </View>
-        
-        {/* Rating */}
-        <View style={styles.ratingBadge}>
-          <Ionicons name="star" size={12} color="#FFD700" />
-          <Text style={styles.ratingText}>{item.rating}</Text>
-        </View>
-      </View>
+  const renderRestaurantCard = ({ item }: { item: Restaurant }) => {
+    const hasDigitalBooking = item.bookingType === 'whatsapp' || item.bookingType === 'external_link';
+    const callLabel = item.bookingType === 'whatsapp' ? 'Book via WhatsApp' : item.bookingType === 'external_link' ? 'Book on Website' : 'Call to Book';
+    const iconName = item.bookingType === 'whatsapp' ? 'logo-whatsapp' : item.bookingType === 'external_link' ? 'globe-outline' : 'call-outline';
+    const iconColor = item.bookingType === 'whatsapp' ? '#25D366' : '#99E1D9';
 
-      {/* Info */}
-      <View style={styles.cardInfo}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.restaurantName} numberOfLines={1}>{item.name}</Text>
-          <Text style={styles.cuisineText}>{item.cuisine}</Text>
-        </View>
+    const handleBookingClick = async () => {
+      if (hasDigitalBooking) {
+        await handleVenueBooking(item);
+      } else {
+        handleCall(item.phone);
+      }
+    };
 
-        {/* Location */}
-        <View style={styles.locationRow}>
-          <Ionicons name="location-outline" size={14} color="rgba(255,255,255,0.5)" />
-          <Text style={styles.distanceText}>{item.distance}</Text>
-          <Text style={styles.locationDot}>•</Text>
-          <Text style={styles.neighborhoodText} numberOfLines={1}>{item.neighborhood}</Text>
-        </View>
-
-        {/* Tags */}
-        <View style={styles.tagsContainer}>
-          {item.tags.map((tag, index) => (
-            <View
-              key={index}
-              style={[
-                styles.tag,
-                tag === 'Live Music Tonight' && styles.tagHighlight,
-                tag === 'Open Now' && styles.tagOpen,
-              ]}
-            >
-              <Text style={[
-                styles.tagText,
-                tag === 'Live Music Tonight' && styles.tagTextHighlight,
-                tag === 'Open Now' && styles.tagTextOpen,
-              ]}>
-                {tag}
-              </Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Hours */}
-        <View style={styles.hoursRow}>
-          <Ionicons name="time-outline" size={14} color="rgba(255,255,255,0.4)" />
-          <Text style={styles.hoursText}>{item.openingHours}</Text>
-        </View>
-
-        {/* Action Buttons */}
-        <View style={styles.actionButtons}>
-          <TouchableOpacity
-            style={[styles.actionBtn, styles.callBtn]}
-            onPress={() => handleCall(item.phone)}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="call-outline" size={18} color="#FF6B4A" />
-            <Text style={styles.callBtnText}>Call to Book</Text>
-          </TouchableOpacity>
+    return (
+      <View style={styles.restaurantCard}>
+        {/* Image */}
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: item.image }} style={styles.restaurantImage} />
+          <LinearGradient
+            colors={['transparent', 'rgba(10,12,18,0.85)']}
+            style={styles.imageGradient}
+          />
           
-          <TouchableOpacity
-            style={[styles.actionBtn, styles.directionsBtn]}
-            onPress={() => handleDirections(item.address)}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="navigate-outline" size={18} color="#FFFFFF" />
-            <Text style={styles.directionsBtnText}>Directions</Text>
-          </TouchableOpacity>
+          {/* Open/Closed Status */}
+          <View style={[styles.statusBadge, item.isOpen ? styles.statusOpen : styles.statusClosed]}>
+            <View style={[styles.statusDot, item.isOpen ? styles.statusDotOpen : styles.statusDotClosed]} />
+            <Text style={[styles.statusText, item.isOpen ? styles.statusTextOpen : styles.statusTextClosed]}>
+              {item.isOpen ? 'Open Now' : 'Closed'}
+            </Text>
+          </View>
+          
+          {/* Price Range */}
+          <View style={styles.priceBadge}>
+            <Text style={styles.priceText}>{item.priceRange}</Text>
+          </View>
+          
+          {/* Rating */}
+          <View style={styles.ratingBadge}>
+            <Ionicons name="star" size={12} color="#FFD700" />
+            <Text style={styles.ratingText}>{item.rating}</Text>
+          </View>
+        </View>
+
+        {/* Info */}
+        <View style={styles.cardInfo}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.restaurantName} numberOfLines={1}>{item.name}</Text>
+            <Text style={styles.cuisineText}>{item.cuisine}</Text>
+          </View>
+
+          {/* Location */}
+          <View style={styles.locationRow}>
+            <Ionicons name="location-outline" size={14} color="rgba(255,255,255,0.5)" />
+            <Text style={styles.distanceText}>{item.distance}</Text>
+            <Text style={styles.locationDot}>•</Text>
+            <Text style={styles.neighborhoodText} numberOfLines={1}>{item.neighborhood}</Text>
+          </View>
+
+          {/* Tags */}
+          <View style={styles.tagsContainer}>
+            {item.tags.map((tag, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.tag,
+                  tag === 'Live Music Tonight' && styles.tagHighlight,
+                  tag === 'Open Now' && styles.tagOpen,
+                ]}
+              >
+                <Text style={[
+                  styles.tagText,
+                  tag === 'Live Music Tonight' && styles.tagTextHighlight,
+                  tag === 'Open Now' && styles.tagTextOpen,
+                ]}>
+                  {tag}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Hours */}
+          <View style={styles.hoursRow}>
+            <Ionicons name="time-outline" size={14} color="rgba(255,255,255,0.4)" />
+            <Text style={styles.hoursText}>{item.openingHours}</Text>
+          </View>
+
+          {/* Action Buttons */}
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              style={[styles.actionBtn, styles.callBtn]}
+              onPress={handleBookingClick}
+              activeOpacity={0.8}
+            >
+              <Ionicons name={iconName as any} size={18} color={iconColor} />
+              <Text style={styles.callBtnText}>{callLabel}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -199,6 +207,7 @@ const DiningScreen: React.FC = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.restaurantList}
         showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
       />
     </SafeAreaView>
   );

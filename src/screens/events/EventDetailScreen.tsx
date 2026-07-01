@@ -16,9 +16,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { mockEvents, getOrganizerById } from '../../services/mockData';
-import { useAuth } from '../../store';
+import { getOrganizerById } from '../../services/mockData';
+import { useAuth, useApp } from '../../store';
 import { requestNotificationPermissions } from '../../utils/notifications';
+import { handleVenueBooking, getBookingButtonLabel } from '../../utils/booking';
 import { fonts } from '../../theme/fonts';
 
 const { width, height } = Dimensions.get('window');
@@ -58,7 +59,8 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
   const { savedEvents, toggleRSVP } = useAuth();
   const isSaved = savedEvents.includes(eventId);
   
-  const event = mockEvents.find((e) => e.id === eventId) || mockEvents[0];
+  const events = useApp((state) => state.events);
+  const event = events.find((e) => e.id === eventId) || events[0];
   
   // Mock social proof data
   const friendsGoing = Math.floor(Math.random() * 20) + 5;
@@ -100,26 +102,12 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
     }
   };
 
-  const handleGetTickets = () => {
-    // For demo purposes, show options
-    Alert.alert(
-      'Get Tickets',
-      'Where would you like to get tickets?',
-      [
-        {
-          text: 'Eventbrite',
-          onPress: () => Linking.openURL(`https://www.eventbrite.com/e/${event.id}`),
-        },
-        {
-          text: 'Ticketmaster',
-          onPress: () => Linking.openURL(`https://www.ticketmaster.com/search?q=${encodeURIComponent(event.title)}`),
-        },
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-      ]
-    );
+  const handleBookingPress = async () => {
+    if (event.bookingType === 'external_link' || event.bookingType === 'whatsapp') {
+      await handleVenueBooking(event);
+    } else {
+      navigation.navigate('Booking', { eventId: event.id });
+    }
   };
 
   const handleVenuePress = () => {
@@ -388,7 +376,29 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
           </TouchableOpacity>
           
           {/* Get Tickets / RSVP Main Button */}
-          {isFreeEvent ? (
+          {event.bookingType === 'external_link' || event.bookingType === 'whatsapp' ? (
+            <TouchableOpacity
+              activeOpacity={0.88}
+              onPress={handleBookingPress}
+              style={styles.mainBtnContainer}
+            >
+              <LinearGradient
+                colors={event.bookingType === 'whatsapp' ? ['#25D366', '#128C7E'] : ['#99E1D9', '#E43414']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.mainBtn}
+              >
+                <Ionicons 
+                  name={event.bookingType === 'whatsapp' ? "logo-whatsapp" : "globe-outline"} 
+                  size={22} 
+                  color="#FFFFFF" 
+                />
+                <Text style={styles.mainBtnText}>
+                  {getBookingButtonLabel(event)}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          ) : isFreeEvent ? (
             <TouchableOpacity
               activeOpacity={0.88}
               onPress={handleRSVPToggle}
@@ -413,7 +423,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
           ) : (
             <TouchableOpacity
               activeOpacity={0.88}
-              onPress={handleGetTickets}
+              onPress={handleBookingPress}
               style={styles.mainBtnContainer}
             >
               <LinearGradient

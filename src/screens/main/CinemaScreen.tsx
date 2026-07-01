@@ -15,7 +15,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-import { getMoviesWithShowtimes } from '../../services/mockData';
+import { useFilteredContent } from '../../hooks/useFilteredContent';
+import { handleVenueBooking } from '../../utils/booking';
 import { MovieWithShowtimes, Cinema, MovieShowtime } from '../../types';
 import { fonts } from '../../theme/fonts';
 
@@ -29,7 +30,7 @@ const CinemaScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCinema, setSelectedCinema] = useState<Cinema | null>(null);
 
-  const moviesWithShowtimes = useMemo(() => getMoviesWithShowtimes(), []);
+  const { cinema: moviesWithShowtimes } = useFilteredContent();
 
   const handleMoviePress = (movie: MovieWithShowtimes) => {
     setSelectedMovie(movie);
@@ -47,9 +48,13 @@ const CinemaScreen: React.FC = () => {
     setSelectedCinema(cinema);
   };
 
-  const handleSelectShowtime = (showtime: MovieShowtime) => {
+  const handleSelectShowtime = async (showtime: MovieShowtime) => {
     handleCloseModal();
-    // Navigate to booking or show confirmation
+    if (showtime.bookingType === 'external_link' || showtime.bookingType === 'whatsapp') {
+      await handleVenueBooking(showtime);
+    } else {
+      navigation.navigate('Booking', { eventId: showtime.id });
+    }
   };
 
   const formatDuration = (minutes: number) => {
@@ -147,6 +152,7 @@ const CinemaScreen: React.FC = () => {
         columnWrapperStyle={styles.posterRow}
         contentContainerStyle={styles.posterList}
         showsVerticalScrollIndicator={false}
+        style={styles.flatList}
       />
 
       {/* Movie Detail Modal */}
@@ -266,6 +272,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0A0C12',
+  },
+  flatList: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',

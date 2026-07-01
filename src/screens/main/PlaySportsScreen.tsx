@@ -345,6 +345,7 @@ const PlaySportsScreen: React.FC = () => {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
+        style={{ flex: 1 }}
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Ionicons name="search-outline" size={40} color="rgba(255,255,255,0.15)" />

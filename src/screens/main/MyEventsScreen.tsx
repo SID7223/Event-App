@@ -140,6 +140,7 @@ const MyEventsScreen: React.FC = () => {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
+        style={{ flex: 1 }}
       />
     </SafeAreaView>
   );
