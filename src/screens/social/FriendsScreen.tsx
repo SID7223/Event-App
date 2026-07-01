@@ -192,12 +192,12 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     paddingHorizontal: 14,
     height: 46,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.10)',
     gap: 10,
   },
   searchInput: {
@@ -220,11 +220,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.10)',
   },
   friendLeft: {
     flexDirection: 'row',
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: '#22C55E',
     borderWidth: 2,
-    borderColor: '#161B24',
+    borderColor: 'rgba(255,255,255,0.10)',
   },
   friendInfo: {
     flex: 1,
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
   },
   friendHandle: {
     fontSize: 13,
-    color: '#99E1D9',
+    color: '#FF6B4A',
     marginBottom: 2,
     fontFamily: fonts.body,
   },

@@ -5,13 +5,14 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Switch,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store';
+import MatteGlassCard from '../../components/ui/MatteGlassCard';
+import GlassToggle from '../../components/ui/GlassToggle';
 
 const SettingsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -29,13 +30,7 @@ const SettingsScreen: React.FC = () => {
     value: boolean;
     onValueChange: (v: boolean) => void;
   }) => (
-    <Switch
-      value={value}
-      onValueChange={onValueChange}
-      trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#99E1D9' }}
-      thumbColor={value ? '#FFFFFF' : 'rgba(255,255,255,0.4)'}
-      ios_backgroundColor="rgba(255,255,255,0.12)"
-    />
+    <GlassToggle value={value} onValueChange={onValueChange} />
   );
 
   const handleLogout = () => {
@@ -79,7 +74,7 @@ const SettingsScreen: React.FC = () => {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Account Section */}
         <Text style={styles.sectionLabel}>Account</Text>
-        <View style={styles.card}>
+        <MatteGlassCard style={styles.card} padding={0}>
           <TouchableOpacity
             style={[styles.row, styles.rowBorder]}
             onPress={() => navigation.navigate('ProfileTab', { screen: 'EditProfile' })}
@@ -104,21 +99,21 @@ const SettingsScreen: React.FC = () => {
             <Text style={styles.rowLabel}>Privacy Settings</Text>
             <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
           </TouchableOpacity>
-        </View>
+        </MatteGlassCard>
 
         {/* Preferences Section */}
         <Text style={styles.sectionLabel}>Preferences</Text>
-        <View style={styles.card}>
+        <MatteGlassCard style={styles.card} padding={0}>
           {renderToggleRow('Push Notifications', 'notifications-outline', pushNotifs, setPushNotifs)}
           {renderToggleRow('Email Notifications', 'mail-outline', emailNotifs, setEmailNotifs)}
           {renderToggleRow('Location Tracking', 'location-outline', locationTracking, setLocationTracking)}
           {renderToggleRow('Show Events I\'m Interested In', 'eye-outline', showInterested, setShowInterested)}
           {renderToggleRow('Dark Mode', 'moon-outline', darkMode, setDarkMode, true)}
-        </View>
+        </MatteGlassCard>
 
         {/* Privacy Section */}
         <Text style={styles.sectionLabel}>Privacy</Text>
-        <View style={styles.card}>
+        <MatteGlassCard style={styles.card} padding={0}>
           {renderToggleRow(
             'Hide my RSVPs from friends',
             'eye-off-outline',
@@ -126,7 +121,7 @@ const SettingsScreen: React.FC = () => {
             (v) => updatePrivacySettings('hideRSVPs', v),
             true
           )}
-        </View>
+        </MatteGlassCard>
 
         {/* Log Out */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.85}>
@@ -175,12 +170,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   card: {
-    backgroundColor: '#161B24',
     borderRadius: 18,
     marginBottom: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.07)',
-    overflow: 'hidden',
   },
   row: {
     flexDirection: 'row',

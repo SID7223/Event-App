@@ -1,4 +1,4 @@
-import { Event, User, Ticket, Booking, Notification, VibeCategory, Movie, Cinema, MovieShowtime, MovieWithShowtimes, Restaurant, Venue, Organizer, Friend } from '../types';
+import { Event, User, Ticket, Booking, Notification, VibeCategory, Movie, Cinema, MovieShowtime, MovieWithShowtimes, Restaurant, Venue, Organizer, Friend, PakistanCity } from '../types';
 
 // Unified vibe categories (no mode split)
 export const allVibes: VibeCategory[] = [

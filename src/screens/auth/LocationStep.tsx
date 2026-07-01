@@ -201,7 +201,7 @@ const LocationStep: React.FC = () => {
         <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
             <LinearGradient
-              colors={['#99E1D9', '#E43414']}
+              colors={['#FF6B4A', '#E43414']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={[styles.progressFill, { width: '50%' }]}
@@ -236,7 +236,7 @@ const LocationStep: React.FC = () => {
                   <Ionicons name="checkmark-circle" size={64} color="#2ED573" />
                 </Animated.View>
               ) : (
-                <Ionicons name="location" size={48} color="#99E1D9" />
+                <Ionicons name="location" size={48} color="#FF6B4A" />
               )}
             </View>
           </View>
@@ -375,7 +375,7 @@ const LocationStep: React.FC = () => {
             activeOpacity={0.88}
           >
             <LinearGradient
-              colors={selectedLocation ? ['#99E1D9', '#E43414'] : ['#333', '#333']}
+              colors={selectedLocation ? ['#FF6B4A', '#E43414'] : ['#333', '#333']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={[styles.continueBtn, !selectedLocation && styles.continueBtnDisabled]}
@@ -447,28 +447,28 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: 'rgba(153,225,217,0.2)',
+    backgroundColor: 'rgba(255,107,74,0.2)',
   },
   iconBackground: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'rgba(153,225,217,0.3)',
+    borderColor: 'rgba(255,107,74,0.3)',
   },
   detectBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     height: 56,
     gap: 10,
     borderWidth: 1,
-    borderColor: 'rgba(153,225,217,0.3)',
+    borderColor: 'rgba(255,107,74,0.3)',
     marginBottom: 24,
   },
   detectBtnDisabled: {
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
   selectedCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
   changeBtnText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#99E1D9',
+    color: '#FF6B4A',
   },
   divider: {
     flexDirection: 'row',
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     height: 56,
     paddingHorizontal: 18,
@@ -563,7 +563,7 @@ const styles = StyleSheet.create({
   },
   suggestionsContainer: {
     marginTop: 8,
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.07)',

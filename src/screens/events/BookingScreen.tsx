@@ -418,7 +418,7 @@ const BookingScreen: React.FC = () => {
           <Switch
             value={isPrivateRSVP}
             onValueChange={setIsPrivateRSVP}
-            trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#99E1D9' }}
+            trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#FF6B4A' }}
             thumbColor={isPrivateRSVP ? '#FFFFFF' : 'rgba(255,255,255,0.4)'}
             ios_backgroundColor="rgba(255,255,255,0.12)"
           />

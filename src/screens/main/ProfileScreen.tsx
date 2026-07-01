@@ -9,13 +9,14 @@ import {
   Image,
   Alert,
   Share,
-  Switch,
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store';
+import MatteGlassCard from '../../components/ui/MatteGlassCard';
+import GlassToggle from '../../components/ui/GlassToggle';
 import { fonts } from '../../theme/fonts';
 
 const ProfileScreen: React.FC = () => {
@@ -90,13 +91,7 @@ const ProfileScreen: React.FC = () => {
     value: boolean;
     onValueChange: (v: boolean) => void;
   }) => (
-    <Switch
-      value={value}
-      onValueChange={onValueChange}
-      trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#99E1D9' }}
-      thumbColor={value ? '#FFFFFF' : 'rgba(255,255,255,0.4)'}
-      ios_backgroundColor="rgba(255,255,255,0.12)"
-    />
+    <GlassToggle value={value} onValueChange={onValueChange} />
   );
 
   return (
@@ -114,7 +109,7 @@ const ProfileScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={styles.qrButton} onPress={handleQRCode} activeOpacity={0.7}>
-            <Ionicons name="qr-code-outline" size={18} color="#99E1D9" />
+            <Ionicons name="qr-code-outline" size={18} color="#FF6B4A" />
             <Text style={styles.qrButtonText}>My QR Code</Text>
           </TouchableOpacity>
           <Text style={styles.name}>{user?.firstName} {user?.lastName}</Text>
@@ -122,32 +117,33 @@ const ProfileScreen: React.FC = () => {
         </Animated.View>
 
         {/* Edit Location — Prominent */}
-        <TouchableOpacity
-          style={styles.locationButton}
-          onPress={handleEditLocation}
-          activeOpacity={0.85}
-        >
-          <View style={styles.locationLeft}>
-            <View style={styles.locationIconContainer}>
-              <Ionicons name="location" size={20} color="#E43414" />
+        <MatteGlassCard style={styles.locationButton}>
+          <TouchableOpacity
+            onPress={handleEditLocation}
+            activeOpacity={0.85}
+          >
+            <View style={styles.locationLeft}>
+              <View style={styles.locationIconContainer}>
+                <Ionicons name="location" size={20} color="#E43414" />
+              </View>
+              <View style={styles.locationInfo}>
+                <Text style={styles.locationLabel}>Your Location</Text>
+                <Text style={styles.locationValue}>
+                  {location?.neighborhood || 'Set your location'}, {location?.city || 'Jakarta'}
+                </Text>
+              </View>
             </View>
-            <View style={styles.locationInfo}>
-              <Text style={styles.locationLabel}>Your Location</Text>
-              <Text style={styles.locationValue}>
-                {location?.neighborhood || 'Set your location'}, {location?.city || 'Jakarta'}
-              </Text>
+            <View style={styles.locationEditBadge}>
+              <Ionicons name="create-outline" size={16} color="#FF6B4A" />
+              <Text style={styles.locationEditText}>Edit</Text>
             </View>
-          </View>
-          <View style={styles.locationEditBadge}>
-            <Ionicons name="create-outline" size={16} color="#99E1D9" />
-            <Text style={styles.locationEditText}>Edit</Text>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </MatteGlassCard>
 
         {/* Settings Toggles */}
         <View style={styles.settingsSection}>
           <Text style={styles.sectionTitle}>Settings</Text>
-          <View style={styles.settingsCard}>
+          <MatteGlassCard style={styles.settingsCard} padding={0}>
             <View style={styles.settingRow}>
               <View style={styles.settingLeft}>
                 <Ionicons name="notifications-outline" size={20} color="rgba(255,255,255,0.6)" />
@@ -184,60 +180,62 @@ const ProfileScreen: React.FC = () => {
                 onValueChange={(v) => updateSettings('darkMode', v)}
               />
             </View>
-          </View>
+          </MatteGlassCard>
         </View>
 
         {/* Following Entry Point */}
         <View style={styles.followingSection}>
-          <TouchableOpacity
-            style={styles.followingEntryRow}
-            onPress={handleFollowingPress}
-            activeOpacity={0.7}
-          >
-            <View style={styles.followingEntryLeft}>
-              <View style={styles.followingEntryIcon}>
-                <Ionicons name="people-outline" size={20} color="#99E1D9" />
+          <MatteGlassCard style={styles.followingEntryRow}>
+            <TouchableOpacity
+              onPress={handleFollowingPress}
+              activeOpacity={0.7}
+            >
+              <View style={styles.followingEntryLeft}>
+                <View style={styles.followingEntryIcon}>
+                  <Ionicons name="people-outline" size={20} color="#FF6B4A" />
+                </View>
+                <Text style={styles.followingEntryLabel}>My Network</Text>
               </View>
-              <Text style={styles.followingEntryLabel}>My Network</Text>
-            </View>
-            <View style={styles.followingEntryRight}>
-              <Text style={styles.followingEntryCount}>Following ({followingCount})</Text>
-              <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
-            </View>
-          </TouchableOpacity>
+              <View style={styles.followingEntryRight}>
+                <Text style={styles.followingEntryCount}>Following ({followingCount})</Text>
+                <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
+              </View>
+            </TouchableOpacity>
+          </MatteGlassCard>
         </View>
 
         {/* Friends Section */}
         <View style={styles.friendsSection}>
-          <TouchableOpacity
-            style={styles.friendsEntryRow}
-            onPress={handleFriendsPress}
-            activeOpacity={0.7}
-          >
-            <View style={styles.friendsEntryLeft}>
-              <View style={styles.friendsEntryIcon}>
-                <Ionicons name="heart-outline" size={20} color="#E43414" />
+          <MatteGlassCard style={styles.friendsEntryRow}>
+            <TouchableOpacity
+              onPress={handleFriendsPress}
+              activeOpacity={0.7}
+            >
+              <View style={styles.friendsEntryLeft}>
+                <View style={styles.friendsEntryIcon}>
+                  <Ionicons name="heart-outline" size={20} color="#E43414" />
+                </View>
+                <View>
+                  <Text style={styles.friendsEntryLabel}>My Friends</Text>
+                  <Text style={styles.friendsEntryCount}>{friendsList.length} friends</Text>
+                </View>
               </View>
-              <View>
-                <Text style={styles.friendsEntryLabel}>My Friends</Text>
-                <Text style={styles.friendsEntryCount}>{friendsList.length} friends</Text>
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
-          </TouchableOpacity>
+              <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
+            </TouchableOpacity>
+          </MatteGlassCard>
         </View>
 
         {/* Action Links */}
         <View style={styles.linksSection}>
           <Text style={styles.sectionTitle}>More</Text>
-          <View style={styles.linksCard}>
+          <MatteGlassCard style={styles.linksCard} padding={0}>
             <TouchableOpacity
               style={styles.linkRow}
               onPress={handleHostEvent}
               activeOpacity={0.7}
             >
               <View style={styles.linkLeft}>
-                <Ionicons name="mic-outline" size={20} color="#99E1D9" />
+                <Ionicons name="mic-outline" size={20} color="#FF6B4A" />
                 <Text style={styles.linkLabel}>Host an Event</Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
@@ -251,7 +249,7 @@ const ProfileScreen: React.FC = () => {
               activeOpacity={0.7}
             >
               <View style={styles.linkLeft}>
-                <Ionicons name="chatbubble-outline" size={20} color="#99E1D9" />
+                <Ionicons name="chatbubble-outline" size={20} color="#FF6B4A" />
                 <Text style={styles.linkLabel}>Contact Support</Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
@@ -265,12 +263,12 @@ const ProfileScreen: React.FC = () => {
               activeOpacity={0.7}
             >
               <View style={styles.linkLeft}>
-                <Ionicons name="share-social-outline" size={20} color="#99E1D9" />
+                <Ionicons name="share-social-outline" size={20} color="#FF6B4A" />
                 <Text style={styles.linkLabel}>Invite Friends</Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
             </TouchableOpacity>
-          </View>
+          </MatteGlassCard>
         </View>
 
         {/* Log Out */}
@@ -318,7 +316,7 @@ const styles = StyleSheet.create({
     height: 90,
     borderRadius: 45,
     borderWidth: 2.5,
-    borderColor: '#99E1D9',
+    borderColor: '#FF6B4A',
   },
   editAvatar: {
     position: 'absolute',
@@ -327,7 +325,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#99E1D9',
+    backgroundColor: '#FF6B4A',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
@@ -353,28 +351,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 10,
-    backgroundColor: 'rgba(153,225,217,0.1)',
+    backgroundColor: 'rgba(255,107,74,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(153,225,217,0.2)',
+    borderColor: 'rgba(255,107,74,0.2)',
   },
   qrButtonText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontFamily: fonts.bodyBold,
   },
   // Location Button — Prominent
   locationButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     marginHorizontal: 20,
     marginBottom: 24,
-    backgroundColor: '#161B24',
     borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(228,52,20,0.2)',
   },
   locationLeft: {
     flexDirection: 'row',
@@ -409,7 +400,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(153,225,217,0.1)',
+    backgroundColor: 'rgba(255,107,74,0.1)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -417,7 +408,7 @@ const styles = StyleSheet.create({
   locationEditText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontFamily: fonts.bodyBold,
   },
   // Settings Section
@@ -433,11 +424,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   settingsCard: {
-    backgroundColor: '#161B24',
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-    overflow: 'hidden',
   },
   settingRow: {
     flexDirection: 'row',
@@ -468,14 +455,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   followingEntryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#161B24',
     borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(153,225,217,0.15)',
   },
   followingEntryLeft: {
     flexDirection: 'row',
@@ -486,7 +466,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: 'rgba(153,225,217,0.12)',
+    backgroundColor: 'rgba(255,107,74,0.12)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -504,7 +484,7 @@ const styles = StyleSheet.create({
   followingEntryCount: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontFamily: fonts.bodyBold,
   },
   // Friends Section
@@ -513,14 +493,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   friendsEntryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#161B24',
     borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(228,52,20,0.15)',
   },
   friendsEntryLeft: {
     flexDirection: 'row',
@@ -553,11 +526,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   linksCard: {
-    backgroundColor: '#161B24',
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-    overflow: 'hidden',
   },
   linkRow: {
     flexDirection: 'row',
@@ -609,10 +578,10 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#99E1D9',
+    backgroundColor: '#FF6B4A',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#99E1D9',
+    shadowColor: '#FF6B4A',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

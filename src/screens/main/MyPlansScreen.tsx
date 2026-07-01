@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store';
 import { mockEvents } from '../../services/mockData';
 import { Event } from '../../types';
+import GlassPill from '../../components/ui/GlassPill';
 import { fonts } from '../../theme/fonts';
 
 type TabType = 'upcoming' | 'saved' | 'past';
@@ -184,7 +185,7 @@ const MyPlansScreen: React.FC = () => {
               <Ionicons
                 name={getWeatherIcon(event) as any}
                 size={14}
-                color="#99E1D9"
+                color="#FF6B4A"
               />
               <Text style={styles.weatherText}>{getWeatherLabel(event)}</Text>
             </View>
@@ -242,23 +243,14 @@ const MyPlansScreen: React.FC = () => {
       {/* Tabs */}
       <View style={styles.tabsContainer}>
         {tabs.map((tab) => (
-          <TouchableOpacity
+          <GlassPill
             key={tab.key}
-            style={[styles.tab, activeTab === tab.key && styles.tabActive]}
+            label={tab.label}
+            active={activeTab === tab.key}
             onPress={() => setActiveTab(tab.key)}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}>
-              {tab.label}
-            </Text>
-            {tab.count > 0 && (
-              <View style={[styles.tabBadge, activeTab === tab.key && styles.tabBadgeActive]}>
-                <Text style={[styles.tabBadgeText, activeTab === tab.key && styles.tabBadgeTextActive]}>
-                  {tab.count}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
+            badge={tab.count > 0 ? tab.count : undefined}
+
+          />
         ))}
       </View>
 
@@ -301,52 +293,7 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 16,
   },
-  tab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 24,
-    backgroundColor: '#1A1F2B',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-  },
-  tabActive: {
-    backgroundColor: '#E43414',
-    borderColor: '#E43414',
-  },
-  tabText: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.6)',
-    fontWeight: '500',
-    fontFamily: fonts.bodyBold,
-  },
-  tabTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '500',
-    fontFamily: fonts.bodyBold,
-  },
-  tabBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 6,
-  },
-  tabBadgeActive: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-  tabBadgeText: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.6)',
-  },
-  tabBadgeTextActive: {
-    color: '#FFFFFF',
-  },
+
   listContent: {
     paddingHorizontal: 20,
     paddingBottom: 100,
@@ -372,7 +319,7 @@ const styles = StyleSheet.create({
   dayOfWeek: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#99E1D9',
+    color: '#FF6B4A',
     marginBottom: 2,
     letterSpacing: 0.5,
   },
@@ -437,7 +384,7 @@ const styles = StyleSheet.create({
   },
   weatherText: {
     fontSize: 12,
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontWeight: '500',
   },
   arrow: {

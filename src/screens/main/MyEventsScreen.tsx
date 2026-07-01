@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   dateBadge: {
     width: 44,
     alignItems: 'center',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 10,
     paddingVertical: 6,
   },
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   statusConfirmed: {
-    color: '#99E1D9',
+    color: '#FF6B4A',
   },
   statusInterested: {
     color: '#E43414',

@@ -33,7 +33,7 @@ const VIBE_OPTIONS: VibeOption[] = [
   { id: 'watch_parties', label: 'Watch Parties', icon: '🍿', color: '#F97316' },
   { id: 'live_shows', label: 'Live Shows', icon: '🎤', color: '#E43414' },
   { id: 'foodie', label: 'Foodie', icon: '🍲', color: '#22C55E' },
-  { id: 'music', label: 'Music', icon: '🎸', color: '#99E1D9' },
+  { id: 'music', label: 'Music', icon: '🎸', color: '#FF6B4A' },
   { id: 'sports', label: 'Sports', icon: '🏃', color: '#EAB308' },
   { id: 'theater', label: 'Theater & Arts', icon: '🎭', color: '#EC4899' },
 ];
@@ -138,7 +138,7 @@ const VibeQuiz: React.FC = () => {
         <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
             <LinearGradient
-              colors={['#99E1D9', '#E43414']}
+              colors={['#FF6B4A', '#E43414']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={[styles.progressFill, { width: '100%' }]}
@@ -264,7 +264,7 @@ const VibeQuiz: React.FC = () => {
             activeOpacity={0.88}
           >
             <LinearGradient
-              colors={canContinue ? ['#99E1D9', '#E43414'] : ['#333', '#333']}
+              colors={canContinue ? ['#FF6B4A', '#E43414'] : ['#333', '#333']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={[styles.continueBtn, !canContinue && styles.continueBtnDisabled]}
@@ -342,11 +342,11 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.5)',
   },
   counterNumberActive: {
-    color: '#99E1D9',
+    color: '#FF6B4A',
   },
   counterHint: {
     fontSize: 13,
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontWeight: '500',
   },
   chipGrid: {
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   },
   chip: {
     width: (width - 60) / 2,
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 16,
     borderWidth: 2,
     borderColor: 'rgba(255,255,255,0.08)',
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   chipSelected: {
-    borderColor: '#99E1D9',
+    borderColor: '#FF6B4A',
   },
   chipBackground: {
     ...StyleSheet.absoluteFill,

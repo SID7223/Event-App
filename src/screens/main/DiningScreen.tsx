@@ -18,6 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { mockRestaurants, filterRestaurants } from '../../services/mockData';
 import { Restaurant } from '../../types';
+import GlassPill from '../../components/ui/GlassPill';
 import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
@@ -58,27 +59,6 @@ const DiningScreen: React.FC = () => {
     } else {
       Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`);
     }
-  };
-
-  const renderFilterChip = (label: string, filter: FilterType, icon: string) => {
-    const isActive = activeFilter === filter;
-    return (
-      <TouchableOpacity
-        key={filter}
-        style={[styles.filterChip, isActive && styles.filterChipActive]}
-        onPress={() => setActiveFilter(filter)}
-        activeOpacity={0.7}
-      >
-        <Ionicons
-          name={icon as any}
-          size={16}
-          color={isActive ? '#FFFFFF' : 'rgba(255,255,255,0.6)'}
-        />
-        <Text style={[styles.filterChipText, isActive && styles.filterChipTextActive]}>
-          {label}
-        </Text>
-      </TouchableOpacity>
-    );
   };
 
   const renderRestaurantCard = ({ item }: { item: Restaurant }) => (
@@ -161,7 +141,7 @@ const DiningScreen: React.FC = () => {
             onPress={() => handleCall(item.phone)}
             activeOpacity={0.8}
           >
-            <Ionicons name="call-outline" size={18} color="#99E1D9" />
+            <Ionicons name="call-outline" size={18} color="#FF6B4A" />
             <Text style={styles.callBtnText}>Call to Book</Text>
           </TouchableOpacity>
           
@@ -205,11 +185,11 @@ const DiningScreen: React.FC = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.filtersContainer}
       >
-        {renderFilterChip('All', 'all', 'grid')}
-        {renderFilterChip('Open Now', 'open', 'time')}
-        {renderFilterChip('Live Music', 'live_music', 'musical-notes')}
-        {renderFilterChip('Budget', 'budget', 'wallet')}
-        {renderFilterChip('Fine Dining', 'fine_dining', 'wine')}
+        <GlassPill label="All" icon="grid" active={activeFilter === 'all'} onPress={() => setActiveFilter('all')} />
+        <GlassPill label="Open Now" icon="time" active={activeFilter === 'open'} onPress={() => setActiveFilter('open')} />
+        <GlassPill label="Live Music" icon="musical-notes" active={activeFilter === 'live_music'} onPress={() => setActiveFilter('live_music')} />
+        <GlassPill label="Budget" icon="wallet" active={activeFilter === 'budget'} onPress={() => setActiveFilter('budget')} />
+        <GlassPill label="Fine Dining" icon="wine" active={activeFilter === 'fine_dining'} onPress={() => setActiveFilter('fine_dining')} />
       </ScrollView>
 
       {/* Restaurant List */}
@@ -276,43 +256,18 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 16,
   },
-  filterChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 24,
-    backgroundColor: '#1A1F2B',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-  },
-  filterChipActive: {
-    backgroundColor: '#E43414',
-    borderColor: '#E43414',
-  },
-  filterChipText: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.6)',
-    fontWeight: '500',
-    fontFamily: fonts.bodyBold,
-  },
-  filterChipTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '500',
-    fontFamily: fonts.bodyBold,
-  },
+
   restaurantList: {
     paddingHorizontal: 20,
     paddingBottom: 100,
     gap: 16,
   },
   restaurantCard: {
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 18,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.10)',
   },
   imageContainer: {
     height: 160,
@@ -430,7 +385,7 @@ const styles = StyleSheet.create({
   },
   distanceText: {
     fontSize: 13,
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontWeight: '500',
   },
   locationDot: {
@@ -456,9 +411,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   tagHighlight: {
-    backgroundColor: 'rgba(153,225,217,0.15)',
+    backgroundColor: 'rgba(255,107,74,0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(153,225,217,0.3)',
+    borderColor: 'rgba(255,107,74,0.3)',
   },
   tagOpen: {
     backgroundColor: 'rgba(52,199,89,0.12)',
@@ -469,7 +424,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   tagTextHighlight: {
-    color: '#99E1D9',
+    color: '#FF6B4A',
   },
   tagTextOpen: {
     color: '#34C759',
@@ -499,14 +454,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   callBtn: {
-    backgroundColor: 'rgba(153,225,217,0.15)',
+    backgroundColor: 'rgba(255,107,74,0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(153,225,217,0.3)',
+    borderColor: 'rgba(255,107,74,0.3)',
   },
   callBtnText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontFamily: fonts.bodyBold,
   },
   directionsBtn: {

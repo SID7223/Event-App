@@ -6,18 +6,18 @@ export const colors = {
     elevated: '#1C2130',
   },
   gradient: {
-    primary: ['#99E1D9', '#E43414'] as const,
-    cyan: ['#99E1D9', '#B2D5E5'] as const,
+    primary: ['#FF6B4A', '#E43414'] as const,
+    cyan: ['#FF6B4A', '#E43414'] as const,
     orange: ['#E43414', '#E43414'] as const,
     dark: ['#12161D', '#0A0C12'] as const,
     card: ['rgba(22,27,36,0.95)', 'rgba(22,27,36,0.7)'] as const,
   },
   accent: {
-    cyan: '#99E1D9',
-    candyBlue: '#B2D5E5',
+    cyan: '#FF6B4A',
+    candyBlue: '#E43414',
     orange: '#E43414',
-    orangeLight: '#E43414',
-    blue: '#B2D5E5',
+    orangeLight: '#FF6B4A',
+    blue: '#E43414',
     red: '#E43414',
     green: '#2ED573',
     purple: '#A855F7',
@@ -32,7 +32,7 @@ export const colors = {
   border: {
     light: 'rgba(255,255,255,0.07)',
     medium: 'rgba(255,255,255,0.12)',
-    focus: 'rgba(153,225,217,0.5)',
+    focus: 'rgba(255,107,74,0.5)',
   },
   glass: {
     light: 'rgba(255,255,255,0.04)',
@@ -46,11 +46,11 @@ export const colors = {
   },
   tab: {
     active: '#E43414',
-    activeExplore: '#78a7adff',
+    activeExplore: '#FF6B4A',
     inactive: 'rgba(255,255,255,0.4)',
   },
   status: {
-    confirmed: '#99E1D9',
+    confirmed: '#FF6B4A',
     interested: '#E43414',
     past: 'rgba(255,255,255,0.4)',
   },

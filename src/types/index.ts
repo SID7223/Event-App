@@ -1,3 +1,7 @@
+export type BookingType = 'external_link' | 'whatsapp' | 'in_app';
+export type DataSource = 'ticketwala' | 'bookme' | 'manual_entry' | 'user_host';
+export type PakistanCity = 'lahore' | 'karachi' | 'islamabad';
+
 export interface Event {
   id: string;
   title: string;
@@ -17,6 +21,11 @@ export interface Event {
   isFavorite: boolean;
   isFeatured: boolean;
   neighborhood?: string;
+  city?: PakistanCity;
+  bookingType?: BookingType;
+  externalLink?: string | null;
+  whatsappNumber?: string | null;
+  dataSource?: DataSource;
 }
 
 export interface Category {
@@ -107,6 +116,9 @@ export interface Movie {
   director: string;
   cast: string[];
   ageRating: string;
+  city?: PakistanCity;
+  bookingType?: BookingType;
+  externalLink?: string | null;
 }
 
 export interface Cinema {
@@ -115,6 +127,7 @@ export interface Cinema {
   address: string;
   distance: string; // e.g., "1.2 km"
   neighborhood: string;
+  city?: PakistanCity;
 }
 
 export interface MovieShowtime {
@@ -126,6 +139,9 @@ export interface MovieShowtime {
   format: '2D' | '3D' | 'IMAX' | '4DX';
   price: number;
   availableSeats: number;
+  bookingType?: BookingType;
+  externalLink?: string | null;
+  whatsappNumber?: string | null;
 }
 
 export interface MovieWithShowtimes extends Movie {
@@ -153,6 +169,10 @@ export interface Restaurant {
   openingHours: string;
   tags: string[];
   featured: boolean;
+  city?: PakistanCity;
+  bookingType?: BookingType;
+  whatsappNumber?: string | null;
+  externalLink?: string | null;
 }
 
 // Venue / Organizer types
@@ -170,6 +190,7 @@ export interface Venue {
   followerCount: number;
   eventCount: number;
   tags: string[];
+  city?: PakistanCity;
 }
 
 // Organizer Profile type (distinct from Venue)
@@ -185,6 +206,7 @@ export interface Organizer {
   followerCount: number;
   eventCount: number;
   tags: string[];
+  city?: PakistanCity;
 }
 
 // Social types

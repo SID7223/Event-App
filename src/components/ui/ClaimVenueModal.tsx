@@ -162,7 +162,7 @@ const ClaimVenueModal: React.FC<ClaimVenueModalProps> = ({ visible, onClose, ven
                         <Text style={[styles.dropdownText, role === r && styles.dropdownTextActive]}>
                           {r}
                         </Text>
-                        {role === r && <Ionicons name="checkmark" size={16} color="#99E1D9" />}
+                        {role === r && <Ionicons name="checkmark" size={16} color="#FF6B4A" />}
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.6)',
   },
   container: {
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '85%',
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   venueHighlight: {
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontWeight: '500',
     fontFamily: fonts.bodyBold,
   },
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(255,255,255,0.04)',
   },
   dropdownItemActive: {
-    backgroundColor: 'rgba(153,225,217,0.08)',
+    backgroundColor: 'rgba(255,107,74,0.08)',
   },
   dropdownText: {
     fontSize: 15,
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   dropdownTextActive: {
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontWeight: '500',
     fontFamily: fonts.bodyBold,
   },
@@ -377,8 +377,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.08)',
   },
   toggleBtnActive: {
-    backgroundColor: 'rgba(153,225,217,0.15)',
-    borderColor: 'rgba(153,225,217,0.3)',
+    backgroundColor: 'rgba(255,107,74,0.15)',
+    borderColor: 'rgba(255,107,74,0.3)',
   },
   toggleText: {
     fontSize: 14,
@@ -398,12 +398,12 @@ const styles = StyleSheet.create({
     gap: 8,
     height: 52,
     borderRadius: 14,
-    backgroundColor: '#99E1D9',
+    backgroundColor: '#FF6B4A',
     marginTop: 8,
     marginBottom: 12,
   },
   submitBtnDisabled: {
-    backgroundColor: 'rgba(153,225,217,0.2)',
+    backgroundColor: 'rgba(255,107,74,0.2)',
   },
   submitBtnText: {
     fontSize: 16,
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 52,
     borderRadius: 14,
-    backgroundColor: '#99E1D9',
+    backgroundColor: '#FF6B4A',
     justifyContent: 'center',
     alignItems: 'center',
   },

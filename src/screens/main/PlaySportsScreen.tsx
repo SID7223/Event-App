@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import GlassPill from '../../components/ui/GlassPill';
 import { fonts } from '../../theme/fonts';
 
 interface PlayVenue {
@@ -326,16 +327,13 @@ const PlaySportsScreen: React.FC = () => {
         contentContainerStyle={styles.filterScroll}
       >
         {PLAY_FILTERS.map((filter, i) => (
-          <TouchableOpacity
+          <GlassPill
             key={filter}
-            style={[styles.filterChip, activeFilter === i && styles.filterChipActive]}
+            label={filter}
+            active={activeFilter === i}
             onPress={() => setActiveFilter(i)}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.filterText, activeFilter === i && styles.filterTextActive]}>
-              {filter}
-            </Text>
-          </TouchableOpacity>
+
+          />
         ))}
       </ScrollView>
 
@@ -406,29 +404,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     gap: 8,
   },
-  filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-  },
-  filterChipActive: {
-    backgroundColor: '#99E1D9',
-    borderColor: '#99E1D9',
-  },
-  filterText: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.65)',
-    fontWeight: '500',
-    fontFamily: fonts.bodyBold,
-  },
-  filterTextActive: {
-    color: '#0A0C12',
-    fontWeight: '500',
-    fontFamily: fonts.bodyBold,
-  },
+
   // List
   listContent: {
     paddingHorizontal: 20,
@@ -456,11 +432,11 @@ const styles = StyleSheet.create({
   },
   // Venue Card
   venueCard: {
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.10)',
   },
   imageContainer: {
     position: 'relative',
@@ -557,7 +533,7 @@ const styles = StyleSheet.create({
   },
   distanceText: {
     fontSize: 12,
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontWeight: '500',
     fontFamily: fonts.bodyBold,
   },
@@ -594,12 +570,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
-    backgroundColor: 'rgba(153,225,217,0.08)',
+    backgroundColor: 'rgba(255,107,74,0.08)',
   },
   tagText: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontFamily: fonts.bodyBold,
   },
   // Actions

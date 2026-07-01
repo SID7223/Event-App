@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store';
+import GlassPill from '../../components/ui/GlassPill';
 import { fonts } from '../../theme/fonts';
 import { getVenueById, getOrganizerById } from '../../services/mockData';
 import FollowingRow, { FollowingEntity } from '../../components/ui/FollowingRow';
@@ -22,7 +23,6 @@ const FollowingScreen: React.FC = () => {
   const { followedVenues, followedOrganizers, unfollowEntity } = useAuth();
   const [activeTab, setActiveTab] = useState<TabKey>('all');
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const tabIndicator = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -55,13 +55,6 @@ const FollowingScreen: React.FC = () => {
 
   const handleTabChange = (tab: TabKey) => {
     setActiveTab(tab);
-    const tabIndex = tab === 'all' ? 0 : tab === 'venues' ? 1 : 2;
-    Animated.spring(tabIndicator, {
-      toValue: tabIndex,
-      useNativeDriver: true,
-      tension: 60,
-      friction: 8,
-    }).start();
   };
 
   const handleItemPress = (item: FollowingEntity) => {
@@ -119,20 +112,14 @@ const FollowingScreen: React.FC = () => {
 
       {/* Segmented Control */}
       <View style={styles.tabContainer}>
-        {tabs.map((tab, index) => (
-          <TouchableOpacity
+        {tabs.map((tab) => (
+          <GlassPill
             key={tab.key}
-            style={[styles.tab, activeTab === tab.key && styles.tabActive]}
+            label={tab.label}
+            active={activeTab === tab.key}
             onPress={() => handleTabChange(tab.key)}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}>
-              {tab.label}
-            </Text>
-            {activeTab === tab.key && (
-              <Animated.View style={styles.tabIndicator} />
-            )}
-          </TouchableOpacity>
+
+          />
         ))}
       </View>
 
@@ -205,39 +192,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 16,
     marginBottom: 8,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: 12,
-    padding: 3,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: 'center',
-    borderRadius: 10,
-    position: 'relative',
-  },
-  tabActive: {
-    backgroundColor: '#161B24',
-  },
-  tabText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.5)',
-    fontFamily: fonts.body,
-  },
-  tabTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '500',
-    fontFamily: fonts.body,
-  },
-  tabIndicator: {
-    position: 'absolute',
-    bottom: 4,
-    left: '30%',
-    right: '30%',
-    height: 2,
-    borderRadius: 1,
-    backgroundColor: '#99E1D9',
+    gap: 8,
   },
   // List
   listContainer: {
@@ -283,7 +238,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#99E1D9',
+    backgroundColor: '#FF6B4A',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 12,

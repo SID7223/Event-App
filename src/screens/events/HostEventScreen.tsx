@@ -331,7 +331,7 @@ const HostEventScreen: React.FC = () => {
           <Animated.View style={{ opacity: fadeAnim }}>
             {/* Banner */}
             <View style={styles.banner}>
-              <Ionicons name="sparkles" size={24} color="#99E1D9" />
+              <Ionicons name="sparkles" size={24} color="#FF6B4A" />
               <Text style={styles.bannerText}>
                 Share your event with the local community
               </Text>
@@ -360,7 +360,7 @@ const HostEventScreen: React.FC = () => {
                       <Ionicons
                         name={(allVibes.find(v => v.id === selectedCategory)?.icon as any) || 'pricetag'}
                         size={18}
-                        color="#99E1D9"
+                        color="#FF6B4A"
                       />
                       <Text style={styles.pickerValue}>
                         {allVibes.find(v => v.id === selectedCategory)?.label}
@@ -553,15 +553,15 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 16,
     marginBottom: 24,
-    backgroundColor: 'rgba(153,225,217,0.08)',
+    backgroundColor: 'rgba(255,107,74,0.08)',
     borderRadius: 12,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(153,225,217,0.15)',
+    borderColor: 'rgba(255,107,74,0.15)',
   },
   bannerText: {
     fontSize: 14,
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontWeight: '500',
     flex: 1,
   },
@@ -581,7 +581,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   fieldInput: {
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 12,
     height: 52,
     paddingHorizontal: 16,
@@ -609,7 +609,7 @@ const styles = StyleSheet.create({
   },
   // Picker Button
   pickerBtn: {
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 12,
     height: 52,
     paddingHorizontal: 16,
@@ -638,7 +638,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     height: 56,
     borderRadius: 14,
-    backgroundColor: '#99E1D9',
+    backgroundColor: '#FF6B4A',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -675,7 +675,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '60%',

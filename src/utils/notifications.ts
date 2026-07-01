@@ -121,7 +121,7 @@ const ensureOrganizerChannel = async (): Promise<void> => {
       name: 'Organizer Updates',
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#99E1D9',
+      lightColor: '#FF6B4A',
     });
   }
 };

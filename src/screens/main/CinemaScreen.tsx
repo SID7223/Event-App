@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
     height: POSTER_HEIGHT,
     borderRadius: 16,
     overflow: 'hidden',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   posterImage: {
     width: '100%',
@@ -483,14 +483,14 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   genreTag: {
-    backgroundColor: 'rgba(153,225,217,0.15)',
+    backgroundColor: 'rgba(255,107,74,0.15)',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 12,
   },
   genreTagText: {
     fontSize: 12,
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontWeight: '500',
   },
   synopsisSection: {
@@ -526,16 +526,16 @@ const styles = StyleSheet.create({
     paddingTop: 24,
   },
   cinemaCard: {
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.10)',
   },
   cinemaCardActive: {
-    borderColor: 'rgba(153,225,217,0.4)',
-    backgroundColor: 'rgba(153,225,217,0.05)',
+    borderColor: 'rgba(255,107,74,0.4)',
+    backgroundColor: 'rgba(255,107,74,0.05)',
   },
   cinemaInfo: {
     marginBottom: 12,
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
   },
   cinemaDistance: {
     fontSize: 13,
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontWeight: '500',
     fontFamily: fonts.body,
   },
@@ -570,7 +570,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   showtimeChip: {
-    backgroundColor: '#99E1D9',
+    backgroundColor: '#FF6B4A',
     borderRadius: 10,
     padding: 10,
     minWidth: 80,

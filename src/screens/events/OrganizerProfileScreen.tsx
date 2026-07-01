@@ -18,6 +18,7 @@ import { fonts } from '../../theme/fonts';
 import { getOrganizerById, getEventsByOrganizer } from '../../services/mockData';
 import { Event } from '../../types';
 import ClaimVenueModal from '../../components/ui/ClaimVenueModal';
+import MatteGlassCard from '../../components/ui/MatteGlassCard';
 
 const { width } = Dimensions.get('window');
 
@@ -176,7 +177,7 @@ const OrganizerProfileScreen: React.FC = () => {
           <Text style={styles.organizerBio}>{organizer.bio}</Text>
 
           {/* Metrics Row */}
-          <View style={styles.metricsRow}>
+          <MatteGlassCard style={styles.metricsRow}>
             <View style={styles.metricItem}>
               <Text style={styles.metricNumber}>{formatFollowers(organizer.followerCount)}</Text>
               <Text style={styles.metricLabel}>Followers</Text>
@@ -191,7 +192,7 @@ const OrganizerProfileScreen: React.FC = () => {
               <Ionicons name="star" size={16} color="#FFD700" />
               <Text style={styles.metricNumber}>{organizer.rating}</Text>
             </View>
-          </View>
+          </MatteGlassCard>
 
           {/* Action Buttons */}
           <View style={styles.actionRow}>
@@ -225,7 +226,7 @@ const OrganizerProfileScreen: React.FC = () => {
                 onPress={handleWebsite}
                 activeOpacity={0.8}
               >
-                <Ionicons name="globe-outline" size={20} color="#99E1D9" />
+                <Ionicons name="globe-outline" size={20} color="#FF6B4A" />
               </TouchableOpacity>
             )}
           </View>
@@ -416,10 +417,7 @@ const styles = StyleSheet.create({
   metricsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161B24',
     borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
     marginBottom: 20,
     width: '100%',
   },
@@ -530,9 +528,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 24,
-    backgroundColor: '#1A1F2B',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.10)',
   },
   tabActive: {
     backgroundColor: '#E43414',
@@ -697,7 +695,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.10)',
   },
   claimText: {
     fontSize: 13,
@@ -705,7 +703,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   claimHighlight: {
-    color: 'rgba(153,225,217,0.7)',
+    color: 'rgba(255,107,74,0.7)',
     fontWeight: '500',
     fontFamily: fonts.bodyBold,
   },

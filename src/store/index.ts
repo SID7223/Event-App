@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User, UserLocation, Event as AppEvent, Friend } from '../types';
+import { User, UserLocation, Event as AppEvent, Friend, PakistanCity } from '../types';
 import { scheduleEventReminder, cancelEventReminder, scheduleTopicNotification, cancelTopicNotification } from '../utils/notifications';
 
 interface AuthState {
@@ -49,6 +49,8 @@ interface AuthState {
   isRSVPPrivate: (eventId: string) => boolean;
   submitEvent: (event: Omit<AppEvent, 'id' | 'attendees' | 'rating' | 'isFavorite' | 'isFeatured'>) => void;
   completeOnboarding: (data: { user: User; location: UserLocation; preferences: string[] }) => void;
+  userSelectedCity: PakistanCity;
+  setUserSelectedCity: (city: PakistanCity) => void;
 }
 
 interface AppState {
@@ -84,6 +86,7 @@ export const useAuth = create<AuthState>()(
         hideRSVPs: false,
       },
       privateRSVPs: [],
+      userSelectedCity: 'lahore',
       
       login: (user: User) => set({ isLoggedIn: true, user }),
       
@@ -322,6 +325,8 @@ export const useAuth = create<AuthState>()(
       isRSVPPrivate: (eventId: string) => {
         return get().privateRSVPs.includes(eventId);
       },
+
+      setUserSelectedCity: (city: PakistanCity) => set({ userSelectedCity: city }),
       
       submitEvent: (eventData) => {
         const { pendingEvents } = get();

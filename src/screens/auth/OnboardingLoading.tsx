@@ -140,7 +140,7 @@ const OnboardingLoading: React.FC = () => {
               ]}
             >
               <LinearGradient
-                colors={['#99E1D9', '#E43414']}
+                colors={['#FF6B4A', '#E43414']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.logoGradient}
@@ -168,7 +168,7 @@ const OnboardingLoading: React.FC = () => {
                   <Ionicons
                     name={step.icon as any}
                     size={20}
-                    color={index <= currentStep ? '#99E1D9' : 'rgba(255,255,255,0.3)'}
+                    color={index <= currentStep ? '#FF6B4A' : 'rgba(255,255,255,0.3)'}
                   />
                 </View>
                 <Text
@@ -195,7 +195,7 @@ const OnboardingLoading: React.FC = () => {
           {/* Location Info */}
           {location && (
             <View style={styles.locationInfo}>
-              <Ionicons name="location" size={16} color="#99E1D9" />
+              <Ionicons name="location" size={16} color="#FF6B4A" />
               <Text style={styles.locationText}>{location.fullAddress}</Text>
             </View>
           )}
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
   step: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     padding: 16,
     gap: 14,

@@ -16,6 +16,8 @@ import { useAuth, useApp } from '../../store';
 import { mockEvents, sortVibesByPreferences, getAttendingFriends, getEventsWithFriendAttendance } from '../../services/mockData';
 import { Event, VibeCategory, Friend } from '../../types';
 import AnimatedHamburger from '../../components/ui/AnimatedHamburger';
+import GlassPill from '../../components/ui/GlassPill';
+import { BlurView } from 'expo-blur';
 import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
@@ -213,7 +215,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
           {/* RSVP Button */}
           <View style={styles.rsvpButton}>
             <LinearGradient
-              colors={['#99E1D9', '#E43414']}
+              colors={['#FF6B4A', '#E43414']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.rsvpGradient}
@@ -364,15 +366,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
 
         {/* Search Bar */}
         <TouchableOpacity
-          style={styles.searchBar}
           onPress={() => navigation.navigate('ExploreTab')}
           activeOpacity={0.85}
+          style={styles.searchBarWrap}
         >
-          <Ionicons name="search-outline" size={18} color="rgba(255,255,255,0.4)" />
-          <Text style={styles.searchPlaceholder}>Search events...</Text>
-          <TouchableOpacity style={styles.filterBtn} activeOpacity={0.7}>
-            <Ionicons name="options-outline" size={18} color="rgba(255,255,255,0.5)" />
-          </TouchableOpacity>
+          <BlurView intensity={40} tint="dark" style={styles.searchBarBlur}>
+            <Ionicons name="search-outline" size={18} color="rgba(255,255,255,0.4)" />
+            <Text style={styles.searchPlaceholder}>Search events...</Text>
+            <TouchableOpacity style={styles.filterBtn} activeOpacity={0.7}>
+              <Ionicons name="options-outline" size={18} color="rgba(255,255,255,0.5)" />
+            </TouchableOpacity>
+          </BlurView>
         </TouchableOpacity>
 
         {/* Featured Event Banner */}
@@ -386,74 +390,30 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.vibesContainer}
           >
-            {/* All chip (always first) */}
-            <TouchableOpacity
-              style={[styles.vibeChip, (!activeVibe || activeVibe === 'all') && styles.vibeChipActive]}
+            <GlassPill
+              label="All"
+              icon="flash"
+              active={!activeVibe || activeVibe === 'all'}
               onPress={() => handleVibePress('all')}
-              activeOpacity={0.7}
-            >
-              <Ionicons
-                name="flash"
-                size={16}
-                color={!activeVibe || activeVibe === 'all' ? '#FFFFFF' : 'rgba(255,255,255,0.6)'}
-              />
-              <Text style={[styles.vibeLabel, (!activeVibe || activeVibe === 'all') && styles.vibeLabelActive]}>
-                All
-              </Text>
-            </TouchableOpacity>
-
-            {/* Friends chip (always second) */}
-            <TouchableOpacity
-              style={[styles.vibeChip, activeVibe === 'friends' && styles.vibeChipActive]}
+              activeTextColor="#FF6B4A"
+            />
+            <GlassPill
+              label="Friends"
+              icon="people"
+              active={activeVibe === 'friends'}
               onPress={() => handleVibePress('friends')}
-              activeOpacity={0.7}
-            >
-              <Ionicons
-                name="people"
-                size={16}
-                color={activeVibe === 'friends' ? '#FFFFFF' : 'rgba(255,255,255,0.6)'}
+              activeTextColor="#FF6B4A"
+            />
+            {sortedVibes.map((vibe) => (
+              <GlassPill
+                key={vibe.id}
+                label={vibe.label}
+                icon={vibe.icon as any}
+                active={activeVibe === vibe.id}
+                onPress={() => handleVibePress(vibe.id)}
+                activeTextColor="#FF6B4A"
               />
-              <Text style={[styles.vibeLabel, activeVibe === 'friends' && styles.vibeLabelActive]}>
-                Friends
-              </Text>
-            </TouchableOpacity>
-            
-            {/* Dynamic vibe chips based on preferences */}
-            {sortedVibes.map((vibe) => {
-              const isActive = activeVibe === vibe.id;
-              const isPreferred = (preferences || []).some(p => 
-                p.toLowerCase().includes(vibe.id.toLowerCase()) || 
-                vibe.id.toLowerCase().includes(p.toLowerCase()) ||
-                p.toLowerCase().includes(vibe.label.toLowerCase()) ||
-                vibe.label.toLowerCase().includes(p.toLowerCase())
-              );
-              
-              return (
-                <TouchableOpacity
-                  key={vibe.id}
-                  style={[
-                    styles.vibeChip, 
-                    isActive && styles.vibeChipActive,
-                    isPreferred && !isActive && styles.vibeChipPreferred,
-                  ]}
-                  onPress={() => handleVibePress(vibe.id)}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons
-                    name={vibe.icon as any}
-                    size={16}
-                    color={isActive ? '#FFFFFF' : isPreferred ? '#99E1D9' : 'rgba(255,255,255,0.6)'}
-                  />
-                  <Text style={[
-                    styles.vibeLabel, 
-                    isActive && styles.vibeLabelActive,
-                    isPreferred && !isActive && styles.vibeLabelPreferred,
-                  ]}>
-                    {vibe.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+            ))}
           </ScrollView>
         </View>
 
@@ -461,7 +421,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
-              <Ionicons name="trending-up" size={18} color="#99E1D9" />
+              <Ionicons name="trending-up" size={18} color="#FF6B4A" />
               <Text style={styles.sectionTitle}>Popular in {neighborhood}</Text>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('ExploreTab')}>
@@ -564,18 +524,21 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontFamily: fonts.body,
   },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#161B24',
-    borderRadius: 16,
-    height: 52,
+  searchBarWrap: {
     marginHorizontal: 20,
     marginBottom: 20,
+  },
+  searchBarBlur: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderRadius: 16,
+    height: 52,
     paddingHorizontal: 16,
     gap: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.10)',
+    overflow: 'hidden',
   },
   searchPlaceholder: {
     flex: 1,
@@ -598,7 +561,7 @@ const styles = StyleSheet.create({
     height: 220,
     borderRadius: 20,
     overflow: 'hidden',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   featuredImage: {
     width: '100%',
@@ -690,40 +653,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     gap: 10,
   },
-  vibeChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 24,
-    backgroundColor: '#1A1F2B',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-  },
-  vibeChipActive: {
-    backgroundColor: '#E43414',
-    borderColor: '#E43414',
-  },
-  vibeChipPreferred: {
-    borderColor: 'rgba(153,225,217,0.4)',
-    backgroundColor: 'rgba(153,225,217,0.1)',
-  },
-  vibeLabel: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.6)',
-    fontWeight: '500',
-    fontFamily: fonts.bodyBold,
-  },
-  vibeLabelActive: {
-    color: '#FFFFFF',
-    fontWeight: '500',
-    fontFamily: fonts.bodyBold,
-  },
-  vibeLabelPreferred: {
-    color: '#99E1D9',
-    fontFamily: fonts.bodyBold,
-  },
+
   // Sections
   section: {
     marginBottom: 28,
@@ -761,7 +691,7 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 16,
     overflow: 'hidden',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   popularImage: {
     width: '100%',
@@ -817,11 +747,11 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: '#161B24',
+    borderColor: 'rgba(255,255,255,0.10)',
   },
   friendAttendeeText: {
     fontSize: 11,
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontWeight: '500',
     flex: 1,
     fontFamily: fonts.bodyBold,
@@ -841,11 +771,11 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     borderWidth: 1.5,
-    borderColor: '#161B24',
+    borderColor: 'rgba(255,255,255,0.10)',
   },
   upcomingFriendText: {
     fontSize: 11,
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontWeight: '500',
     flex: 1,
     fontFamily: fonts.bodyBold,
@@ -870,7 +800,7 @@ const styles = StyleSheet.create({
   upcomingCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     padding: 12,
     gap: 12,

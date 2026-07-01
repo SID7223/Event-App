@@ -136,7 +136,7 @@ const AuthScreen: React.FC = () => {
     if (/[A-Z]/.test(pwd) && /[0-9]/.test(pwd) && /[^A-Za-z0-9]/.test(pwd)) {
       return { level: 4, label: 'Strong', color: '#2ED573' };
     }
-    return { level: 3, label: 'Good', color: '#99E1D9' };
+    return { level: 3, label: 'Good', color: '#FF6B4A' };
   };
 
   const passwordStrength = getPasswordStrength(password);
@@ -370,7 +370,7 @@ const AuthScreen: React.FC = () => {
               disabled={isLoading}
             >
               <LinearGradient
-                colors={isLoading ? ['#666', '#666'] : ['#99E1D9', '#E43414']}
+                colors={isLoading ? ['#666', '#666'] : ['#FF6B4A', '#E43414']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={[styles.actionBtn, isLoading && styles.actionBtnDisabled]}
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
   },
   toggleBackground: {
     flexDirection: 'row',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     padding: 4,
     position: 'relative',
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     top: 4,
     width: (width - 48 - 4) / 2,
     height: '100%',
-    backgroundColor: '#99E1D9',
+    backgroundColor: '#FF6B4A',
     borderRadius: 12,
   },
   toggleOption: {
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     height: 54,
     gap: 10,
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     height: 56,
     paddingHorizontal: 18,
@@ -609,7 +609,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   termsLink: {
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontWeight: '500',
   },
 });

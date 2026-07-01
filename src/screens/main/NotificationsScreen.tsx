@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   },
   badge: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(153, 225, 217, 0.15)',
+    backgroundColor: 'rgba(255,107,74, 0.15)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,

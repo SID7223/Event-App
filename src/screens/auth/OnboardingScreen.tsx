@@ -123,7 +123,7 @@ const OnboardingScreen: React.FC = () => {
               activeOpacity={0.88}
             >
               <LinearGradient
-                colors={['#99E1D9', '#E43414']}
+                colors={['#FF6B4A', '#E43414']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.btn}
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   },
   dotActive: {
     width: 28,
-    backgroundColor: '#99E1D9',
+    backgroundColor: '#FF6B4A',
   },
   dotInactive: {
     width: 8,

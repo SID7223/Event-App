@@ -83,9 +83,9 @@ const CalendarScreen: React.FC = () => {
         cellBg = '#E43414';
         textColor = '#FFFFFF';
       } else if (isEventDay2) {
-        borderColor = '#99E1D9';
+        borderColor = '#FF6B4A';
       } else if (isEventDay12) {
-        borderColor = '#99E1D9';
+        borderColor = '#FF6B4A';
       } else if (isEventDay25) {
         borderColor = '#E43414';
       } else if (isEventDay29) {
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   calendarCard: {
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 20,
     padding: 16,
     marginBottom: 24,
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
   eventCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 16,
     padding: 12,
     gap: 12,

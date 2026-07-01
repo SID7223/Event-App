@@ -197,7 +197,7 @@ const EditProfileScreen: React.FC = () => {
             style={styles.saveBtn}
           >
             <LinearGradient
-              colors={['#99E1D9', '#E43414']}
+              colors={['#FF6B4A', '#E43414']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.saveBtnGradient}
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     height: 90,
     borderRadius: 45,
     borderWidth: 2,
-    borderColor: '#99E1D9',
+    borderColor: '#FF6B4A',
   },
   cameraBtn: {
     position: 'absolute',
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#99E1D9',
+    backgroundColor: '#FF6B4A',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   fieldInput: {
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 12,
     height: 52,
     paddingHorizontal: 16,
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 9,
     borderRadius: 20,
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
   },

@@ -14,6 +14,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { mockEvents } from '../../services/mockData';
+import GlassPill from '../../components/ui/GlassPill';
+import { BlurView } from 'expo-blur';
 import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
@@ -143,7 +145,7 @@ const ExploreScreen: React.FC = () => {
             />
             <View style={styles.hubCardOverlay} />
             <View style={styles.hubCardContent}>
-              <View style={[styles.hubIconWrap, { backgroundColor: 'rgba(153,225,217,0.85)' }]}>
+              <View style={[styles.hubIconWrap, { backgroundColor: 'rgba(255,107,74,0.85)' }]}>
                 <Ionicons name="restaurant" size={20} color="#0A0C12" />
               </View>
               <Text style={styles.hubCardTitle}>Dining</Text>
@@ -175,36 +177,35 @@ const ExploreScreen: React.FC = () => {
 
       {/* Search Bar */}
       <View style={styles.searchWrapper}>
-        <Ionicons name="search-outline" size={17} color="rgba(255,255,255,0.4)" />
-        <TextInput
-          style={styles.searchInput}
-          placeholder='"Concerts in Jakarta"'
-          placeholderTextColor="rgba(255,255,255,0.35)"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          returnKeyType="search"
-          onSubmitEditing={Keyboard.dismiss}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <Ionicons name="close-circle" size={17} color="rgba(255,255,255,0.4)" />
-          </TouchableOpacity>
-        )}
+        <BlurView intensity={40} tint="dark" style={styles.searchBlur}>
+          <Ionicons name="search-outline" size={17} color="rgba(255,255,255,0.4)" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder='"Concerts in Jakarta"'
+            placeholderTextColor="rgba(255,255,255,0.35)"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
+            onSubmitEditing={Keyboard.dismiss}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={17} color="rgba(255,255,255,0.4)" />
+            </TouchableOpacity>
+          )}
+        </BlurView>
       </View>
 
       {/* Filter Tabs */}
       <View style={styles.filterRow}>
         {FILTER_TABS.map((tab, i) => (
-          <TouchableOpacity
+          <GlassPill
             key={tab}
-            style={[styles.filterChip, activeFilter === i && styles.filterChipActive]}
+            label={tab}
+            active={activeFilter === i}
             onPress={() => setActiveFilter(i)}
-            activeOpacity={0.8}
-          >
-            <Text style={[styles.filterText, activeFilter === i && styles.filterTextActive]}>
-              {tab}
-            </Text>
-          </TouchableOpacity>
+
+          />
         ))}
       </View>
 
@@ -306,18 +307,21 @@ const styles = StyleSheet.create({
 
   /* ── Search ── */
   searchWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#161B24',
-    borderRadius: 14,
-    height: 48,
     marginHorizontal: 20,
     marginTop: 16,
     marginBottom: 14,
+    borderRadius: 14,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+  },
+  searchBlur: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    height: 48,
     paddingHorizontal: 14,
     gap: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.07)',
   },
   searchInput: {
     flex: 1,
@@ -337,29 +341,7 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 8,
   },
-  filterChip: {
-    paddingHorizontal: 18,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-  },
-  filterChipActive: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#FFFFFF',
-  },
-  filterText: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.65)',
-    fontWeight: '500',
-    fontFamily: fonts.bodyBold,
-  },
-  filterTextActive: {
-    color: '#0A0C12',
-    fontWeight: '500',
-    fontFamily: fonts.bodyBold,
-  },
+
 
   /* ── List ── */
   listContent: {
@@ -389,7 +371,7 @@ const styles = StyleSheet.create({
     height: 84,
     borderRadius: 14,
     resizeMode: 'cover',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   dateBadge: {
     position: 'absolute',

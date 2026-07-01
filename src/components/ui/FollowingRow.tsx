@@ -63,7 +63,7 @@ const FollowingRow: React.FC<FollowingRowProps> = ({ item, onPress, onUnfollow }
             <Ionicons
               name={item.type === 'venue' ? 'location' : 'mic'}
               size={12}
-              color={item.type === 'venue' ? '#E43414' : '#99E1D9'}
+              color={item.type === 'venue' ? '#E43414' : '#FF6B4A'}
             />
             <Text style={[styles.badge, item.type === 'venue' ? styles.venueBadge : styles.organizerBadge]}>
               {item.type === 'venue' ? 'Venue' : 'Organizer'}
@@ -80,11 +80,11 @@ const FollowingRow: React.FC<FollowingRowProps> = ({ item, onPress, onUnfollow }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.10)',
   },
   row: {
     flexDirection: 'row',
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     color: '#E43414',
   },
   organizerBadge: {
-    color: '#99E1D9',
+    color: '#FF6B4A',
   },
   unfollowBtn: {
     width: 40,

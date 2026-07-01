@@ -97,7 +97,7 @@ const SplashScreen: React.FC = () => {
             activeOpacity={0.88}
           >
             <LinearGradient
-              colors={['#99E1D9', '#E43414']}
+              colors={['#FF6B4A', '#E43414']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.getStartedBtn}
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   zLogo: {
     fontSize: 52,
     fontWeight: '900',
-    color: '#99E1D9',
+    color: '#FF6B4A',
     includeFontPadding: false,
     lineHeight: 58,
   },

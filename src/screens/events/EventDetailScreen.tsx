@@ -204,14 +204,14 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
           {/* Quick Info Bar */}
           <View style={styles.quickInfoBar}>
             <View style={styles.quickInfoItem}>
-              <Ionicons name="calendar" size={16} color="#99E1D9" />
+              <Ionicons name="calendar" size={16} color="#FF6B4A" />
               <Text style={styles.quickInfoText}>
                 {getMonth(event.date)} {getDay(event.date)}
               </Text>
             </View>
             <View style={styles.quickInfoDivider} />
             <View style={styles.quickInfoItem}>
-              <Ionicons name="time" size={16} color="#99E1D9" />
+              <Ionicons name="time" size={16} color="#FF6B4A" />
               <Text style={styles.quickInfoText}>{formatTime(event.time)}</Text>
             </View>
             <View style={styles.quickInfoDivider} />
@@ -220,11 +220,11 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
               onPress={handleVenuePress}
               activeOpacity={0.7}
             >
-              <Ionicons name="location" size={16} color="#99E1D9" />
+              <Ionicons name="location" size={16} color="#FF6B4A" />
               <Text style={[styles.quickInfoText, styles.venueLink]} numberOfLines={1}>
                 {event.venue}
               </Text>
-              <Ionicons name="open-outline" size={12} color="rgba(153,225,217,0.7)" />
+              <Ionicons name="open-outline" size={12} color="rgba(255,107,74,0.7)" />
             </TouchableOpacity>
           </View>
 
@@ -253,7 +253,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
             </View>
             <View style={styles.socialProofDivider} />
             <View style={styles.socialProofBadge}>
-              <Ionicons name="people" size={16} color="#99E1D9" />
+              <Ionicons name="people" size={16} color="#FF6B4A" />
               <Text style={styles.socialProofText}>
                 <Text style={styles.socialProofNumber}>{localsInterested}+</Text> locals interested
               </Text>
@@ -266,7 +266,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
             <View style={styles.detailCard}>
               <View style={styles.detailRow}>
                 <View style={styles.detailIconContainer}>
-                  <Ionicons name="calendar-outline" size={20} color="#99E1D9" />
+                  <Ionicons name="calendar-outline" size={20} color="#FF6B4A" />
                 </View>
                 <View style={styles.detailContent}>
                   <Text style={styles.detailLabel}>Date</Text>
@@ -278,7 +278,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
               
               <View style={styles.detailRow}>
                 <View style={styles.detailIconContainer}>
-                  <Ionicons name="time-outline" size={20} color="#99E1D9" />
+                  <Ionicons name="time-outline" size={20} color="#FF6B4A" />
                 </View>
                 <View style={styles.detailContent}>
                   <Text style={styles.detailLabel}>Time</Text>
@@ -294,7 +294,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
                 activeOpacity={0.7}
               >
                 <View style={styles.detailIconContainer}>
-                  <Ionicons name="location-outline" size={20} color="#99E1D9" />
+                  <Ionicons name="location-outline" size={20} color="#FF6B4A" />
                 </View>
                 <View style={styles.detailContent}>
                   <Text style={styles.detailLabel}>Venue</Text>
@@ -326,7 +326,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
                 </View>
                 <View style={styles.hostedByAction}>
                   <Text style={styles.hostedByViewText}>View Profile</Text>
-                  <Ionicons name="chevron-forward" size={16} color="#99E1D9" />
+                  <Ionicons name="chevron-forward" size={16} color="#FF6B4A" />
                 </View>
               </TouchableOpacity>
             </View>
@@ -343,7 +343,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
             <Text style={styles.sectionTitle}>Event Stats</Text>
             <View style={styles.statsContainer}>
               <View style={styles.statItem}>
-                <Ionicons name="people-outline" size={24} color="#99E1D9" />
+                <Ionicons name="people-outline" size={24} color="#FF6B4A" />
                 <Text style={styles.statNumber}>{event.attendees.toLocaleString()}</Text>
                 <Text style={styles.statLabel}>Attendees</Text>
               </View>
@@ -395,7 +395,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
               style={styles.mainBtnContainer}
             >
               <LinearGradient
-                colors={isSaved ? ['#E43414', '#FF6B6B'] : ['#99E1D9', '#E43414']}
+                colors={isSaved ? ['#E43414', '#FF6B6B'] : ['#FF6B4A', '#E43414']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.mainBtn}
@@ -417,7 +417,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
               style={styles.mainBtnContainer}
             >
               <LinearGradient
-                colors={['#99E1D9', '#E43414']}
+                colors={['#FF6B4A', '#E43414']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.mainBtn}
@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 16,
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   venueLink: {
-    color: '#99E1D9',
+    color: '#FF6B4A',
     textDecorationLine: 'underline',
     maxWidth: 120,
   },
@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.heading,
   },
   pricePill: {
-    backgroundColor: '#99E1D9',
+    backgroundColor: '#FF6B4A',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -616,11 +616,11 @@ const styles = StyleSheet.create({
   },
   // Detail Card
   detailCard: {
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.10)',
   },
   detailRow: {
     flexDirection: 'row',
@@ -631,7 +631,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: 'rgba(153,225,217,0.1)',
+    backgroundColor: 'rgba(255,107,74,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -662,11 +662,11 @@ const styles = StyleSheet.create({
   hostedByCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.10)',
   },
   hostedByAvatar: {
     width: 48,
@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
   hostedByViewText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#99E1D9',
+    color: '#FF6B4A',
   },
   description: {
     fontSize: 14,
@@ -705,11 +705,11 @@ const styles = StyleSheet.create({
   // Stats
   statsContainer: {
     flexDirection: 'row',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.10)',
   },
   statItem: {
     flex: 1,

@@ -19,6 +19,7 @@ import { fonts } from '../../theme/fonts';
 import { getVenueById, getEventsByVenue } from '../../services/mockData';
 import { Event } from '../../types';
 import ClaimVenueModal from '../../components/ui/ClaimVenueModal';
+import MatteGlassCard from '../../components/ui/MatteGlassCard';
 
 const { width } = Dimensions.get('window');
 
@@ -175,7 +176,7 @@ const VenueProfileScreen: React.FC = () => {
           </View>
 
           {/* Stats Row */}
-          <View style={styles.statsRow}>
+          <MatteGlassCard style={styles.statsRow}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{formatFollowers(venue.followerCount)}</Text>
               <Text style={styles.statLabel}>Followers</Text>
@@ -190,7 +191,7 @@ const VenueProfileScreen: React.FC = () => {
               <Ionicons name="star" size={14} color="#FFD700" />
               <Text style={styles.statNumber}>{venue.rating}</Text>
             </View>
-          </View>
+          </MatteGlassCard>
 
           {/* Follow + Map Buttons */}
           <View style={styles.actionRow}>
@@ -214,7 +215,7 @@ const VenueProfileScreen: React.FC = () => {
               onPress={handleMapLink}
               activeOpacity={0.8}
             >
-              <Ionicons name="map-outline" size={20} color="#99E1D9" />
+              <Ionicons name="map-outline" size={20} color="#FF6B4A" />
               <Text style={styles.mapBtnText}>Map</Text>
             </TouchableOpacity>
 
@@ -224,7 +225,7 @@ const VenueProfileScreen: React.FC = () => {
                 onPress={handleWebsite}
                 activeOpacity={0.8}
               >
-                <Ionicons name="globe-outline" size={20} color="#99E1D9" />
+                <Ionicons name="globe-outline" size={20} color="#FF6B4A" />
               </TouchableOpacity>
             )}
           </View>
@@ -390,10 +391,7 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161B24',
     borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
     marginBottom: 16,
     gap: 16,
   },
@@ -459,23 +457,23 @@ const styles = StyleSheet.create({
     height: 48,
     paddingHorizontal: 20,
     borderRadius: 14,
-    backgroundColor: 'rgba(153,225,217,0.1)',
+    backgroundColor: 'rgba(255,107,74,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(153,225,217,0.2)',
+    borderColor: 'rgba(255,107,74,0.2)',
   },
   mapBtnText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#99E1D9',
+    color: '#FF6B4A',
     fontFamily: fonts.bodyBold,
   },
   websiteBtn: {
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: 'rgba(153,225,217,0.1)',
+    backgroundColor: 'rgba(255,107,74,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(153,225,217,0.2)',
+    borderColor: 'rgba(255,107,74,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -660,7 +658,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.10)',
   },
   claimText: {
     fontSize: 13,
@@ -668,7 +666,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   claimHighlight: {
-    color: 'rgba(153,225,217,0.7)',
+    color: 'rgba(255,107,74,0.7)',
     fontWeight: '500',
     fontFamily: fonts.bodyBold,
   },

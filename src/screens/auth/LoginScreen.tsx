@@ -120,7 +120,7 @@ const LoginScreen: React.FC = () => {
             {/* Login Button */}
             <TouchableOpacity onPress={handleLogin} activeOpacity={0.88}>
               <LinearGradient
-                colors={['#99E1D9', '#E43414']}
+                colors={['#FF6B4A', '#E43414']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.loginBtn}
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     height: 56,
     paddingHorizontal: 18,
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#161B24',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     height: 54,
     gap: 10,

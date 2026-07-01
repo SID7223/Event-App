@@ -1,19 +1,15 @@
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  ViewStyle,
-} from 'react-native';
+import { View, StyleSheet, ViewStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 
-interface GlassCardProps {
+interface MatteGlassCardProps {
   children: React.ReactNode;
   style?: ViewStyle;
   padding?: number;
 }
 
-const GlassCard: React.FC<GlassCardProps> = ({
+const MatteGlassCard: React.FC<MatteGlassCardProps> = ({
   children,
   style,
   padding = 16,
@@ -44,30 +40,23 @@ const GlassCard: React.FC<GlassCardProps> = ({
 
 const styles = StyleSheet.create({
   borderWrapper: {
-    borderRadius: 24,
+    borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 32,
-    elevation: 8,
   },
   borderGradient: {
-    borderRadius: 24,
+    borderRadius: 20,
     padding: 1,
   },
   blurSurface: {
-    borderRadius: 23,
+    borderRadius: 19,
     backgroundColor: 'rgba(20,18,16,0.6)',
     overflow: 'hidden',
   },
   orangeGlow: {
     ...StyleSheet.absoluteFill,
-    borderRadius: 23,
+    borderRadius: 19,
   },
-  content: {
-    position: 'relative',
-  },
+  content: {},
 });
 
-export default GlassCard;
+export default MatteGlassCard;
