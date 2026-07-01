@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import { fonts } from '../../theme/fonts';
@@ -18,6 +19,7 @@ import EmptyState from '../../components/layout/EmptyState';
 import { mockNotifications } from '../../services/mockData';
 
 const NotificationsScreen: React.FC = () => {
+  const navigation = useNavigation();
   const [notifications, setNotifications] = useState(mockNotifications);
   const [badgeCount, setBadgeCount] = useState(
     mockNotifications.filter((n) => !n.read).length
@@ -60,6 +62,9 @@ const NotificationsScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <Ionicons name="chevron-back" size={24} color={colors.text.primary} />
+        </TouchableOpacity>
         <Text style={styles.title}>Notifications</Text>
         <TouchableOpacity onPress={markAllRead}>
           <Text style={styles.markAllRead}>Mark all read</Text>
@@ -132,6 +137,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.lg,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
   },
   title: {
     fontSize: 28,

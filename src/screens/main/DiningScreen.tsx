@@ -9,7 +9,6 @@ import {
   Image,
   Linking,
   Alert,
-  FlatList,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -168,47 +167,51 @@ const DiningScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Dining</Text>
-        <View style={styles.headerRight} />
-      </View>
-
-      {/* Subtitle */}
-      <View style={styles.subtitleContainer}>
-        <Text style={styles.subtitle}>Local Restaurants</Text>
-        <Text style={styles.restaurantCount}>{filteredRestaurants.length} spots</Text>
-      </View>
-
-      {/* Filter Chips */}
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filtersContainer}
-      >
-        <GlassPill label="All" icon="grid" active={activeFilter === 'all'} onPress={() => setActiveFilter('all')} />
-        <GlassPill label="Open Now" icon="time" active={activeFilter === 'open'} onPress={() => setActiveFilter('open')} />
-        <GlassPill label="Live Music" icon="musical-notes" active={activeFilter === 'live_music'} onPress={() => setActiveFilter('live_music')} />
-        <GlassPill label="Budget" icon="wallet" active={activeFilter === 'budget'} onPress={() => setActiveFilter('budget')} />
-        <GlassPill label="Fine Dining" icon="wine" active={activeFilter === 'fine_dining'} onPress={() => setActiveFilter('fine_dining')} />
-      </ScrollView>
-
-      {/* Restaurant List */}
-      <FlatList
-        data={filteredRestaurants}
-        renderItem={renderRestaurantCard}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.restaurantList}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.restaurantList}
         style={{ flex: 1 }}
-      />
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Dining</Text>
+          <View style={styles.headerRight} />
+        </View>
+
+        {/* Subtitle */}
+        <View style={styles.subtitleContainer}>
+          <Text style={styles.subtitle}>Local Restaurants</Text>
+          <Text style={styles.restaurantCount}>{filteredRestaurants.length} spots</Text>
+        </View>
+
+        {/* Filter Chips */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filtersContainer}
+        >
+          <GlassPill label="All" icon="grid" active={activeFilter === 'all'} onPress={() => setActiveFilter('all')} />
+          <GlassPill label="Open Now" icon="time" active={activeFilter === 'open'} onPress={() => setActiveFilter('open')} />
+          <GlassPill label="Live Music" icon="musical-notes" active={activeFilter === 'live_music'} onPress={() => setActiveFilter('live_music')} />
+          <GlassPill label="Budget" icon="wallet" active={activeFilter === 'budget'} onPress={() => setActiveFilter('budget')} />
+          <GlassPill label="Fine Dining" icon="wine" active={activeFilter === 'fine_dining'} onPress={() => setActiveFilter('fine_dining')} />
+        </ScrollView>
+
+        {/* Restaurant List */}
+        {filteredRestaurants.map((item, index) => (
+          <View key={item.id}>
+            {index > 0 && <View style={{ height: 16 }} />}
+            {renderRestaurantCard({ item })}
+          </View>
+        ))}
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -261,15 +264,16 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.4)',
   },
   filtersContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
     gap: 10,
-    marginBottom: 16,
+    paddingVertical: 12,
   },
 
   restaurantList: {
     paddingHorizontal: 20,
+    paddingTop: 12,
     paddingBottom: 100,
-    gap: 16,
+    gap: 0,
   },
   restaurantCard: {
     backgroundColor: 'rgba(255,255,255,0.06)',

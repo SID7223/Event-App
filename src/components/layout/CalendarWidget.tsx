@@ -123,7 +123,7 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
             >
               {selected ? (
                 <LinearGradient
-                  colors={colors.gradient.cyan}
+                  colors={[...colors.gradient.cyan]}
                   style={styles.selectedDayGradient}
                 >
                   <Text style={[styles.dayText, styles.selectedDayText]}>

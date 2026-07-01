@@ -364,7 +364,7 @@ export const useAuth = create<AuthState>()(
           rating: 0,
           isFavorite: false,
           isFeatured: false,
-          city: useApp.getState().userSelectedCity || 'lahore',
+          city: (useApp.getState().userSelectedCity || 'lahore') as PakistanCity,
           bookingType: 'in_app',
           dataSource: 'user_host',
         };

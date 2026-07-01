@@ -271,9 +271,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#FFFFFF',
     height: '100%',
-    outlineWidth: 0,
-    outlineColor: 'transparent',
-    outlineStyle: 'none',
   },
   eyeBtn: {
     padding: 4,

@@ -138,9 +138,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     padding: 0,
     margin: 0,
-    outlineWidth: 0,
-    outlineColor: 'transparent',
-    outlineStyle: 'none',
   },
   voiceButton: {
     marginLeft: 10,

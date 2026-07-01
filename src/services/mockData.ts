@@ -1487,35 +1487,35 @@ export const pakistanRestaurants: Restaurant[] = [
 export const getTaggedEvents = (): Event[] => {
   return mockEvents.map(e => {
     const loc = (e.location + ' ' + (e.neighborhood || '')).toLowerCase();
-    let city = 'jakarta';
-    if (loc.includes('bali') || loc.includes('kuta') || loc.includes('nusa')) city = 'bali';
-    else if (loc.includes('bandung') || loc.includes('dago') || loc.includes('gedung sate')) city = 'bandung';
+    let city: PakistanCity = 'lahore';
+    if (loc.includes('bali') || loc.includes('kuta') || loc.includes('nusa')) city = 'karachi' as PakistanCity;
+    else if (loc.includes('bandung') || loc.includes('dago') || loc.includes('gedung sate')) city = 'islamabad' as PakistanCity;
     return { ...e, city };
   });
 };
 
 export const getTaggedCinemas = (): Cinema[] => {
-  return mockCinemas.map(c => ({ ...c, city: 'jakarta' }));
+  return mockCinemas.map(c => ({ ...c, city: 'lahore' as PakistanCity }));
 };
 
 export const getTaggedRestaurants = (): Restaurant[] => {
-  return mockRestaurants.map(r => ({ ...r, city: 'jakarta' }));
+  return mockRestaurants.map(r => ({ ...r, city: 'lahore' as PakistanCity }));
 };
 
 export const getTaggedMovies = (): Movie[] => {
-  return mockMovies.map(m => ({ ...m, city: 'jakarta' }));
+  return mockMovies.map(m => ({ ...m, city: 'lahore' as PakistanCity }));
 };
 
 export const getTaggedShowtimes = (): MovieShowtime[] => {
-  return mockShowtimes.map(s => ({ ...s, city: 'jakarta' }));
+  return mockShowtimes.map(s => ({ ...s, city: 'lahore' as PakistanCity }));
 };
 
 export const getTaggedVenues = (): Venue[] => {
   return mockVenues.map(v => {
     const loc = (v.address + ' ' + (v.neighborhood || '')).toLowerCase();
-    let city = 'jakarta';
-    if (loc.includes('bali') || loc.includes('kuta') || loc.includes('nusa')) city = 'bali';
-    else if (loc.includes('bandung') || loc.includes('dago') || loc.includes('gedung sate')) city = 'bandung';
+    let city: PakistanCity = 'lahore';
+    if (loc.includes('bali') || loc.includes('kuta') || loc.includes('nusa')) city = 'karachi' as PakistanCity;
+    else if (loc.includes('bandung') || loc.includes('dago') || loc.includes('gedung sate')) city = 'islamabad' as PakistanCity;
     return { ...v, city };
   });
 };

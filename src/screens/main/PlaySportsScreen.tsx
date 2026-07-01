@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   TouchableOpacity,
   ScrollView,
   Image,
@@ -308,52 +307,55 @@ const PlaySportsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Play</Text>
-          <Text style={styles.headerSubtitle}>Find courts & tables nearby</Text>
-        </View>
-        <View style={styles.headerRight} />
-      </View>
-
-      {/* Filter Chips */}
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filterScroll}
-      >
-        {PLAY_FILTERS.map((filter, i) => (
-          <GlassPill
-            key={filter}
-            label={filter}
-            active={activeFilter === i}
-            onPress={() => setActiveFilter(i)}
-
-          />
-        ))}
-      </ScrollView>
-
-      {/* Venue List */}
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => item.id}
-        renderItem={renderVenue}
-        contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        contentContainerStyle={styles.listContent}
         style={{ flex: 1 }}
-        ListEmptyComponent={
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <View style={styles.headerCenter}>
+            <Text style={styles.headerTitle}>Play</Text>
+            <Text style={styles.headerSubtitle}>Find courts & tables nearby</Text>
+          </View>
+          <View style={styles.headerRight} />
+        </View>
+
+        {/* Filter Chips */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterScroll}
+        >
+          {PLAY_FILTERS.map((filter, i) => (
+            <GlassPill
+              key={filter}
+              label={filter}
+              active={activeFilter === i}
+              onPress={() => setActiveFilter(i)}
+            />
+          ))}
+        </ScrollView>
+
+        {/* Venue List */}
+        {filtered.length > 0 ? (
+          filtered.map((item, index) => (
+            <View key={item.id}>
+              {index > 0 && <View style={styles.separator} />}
+              {renderVenue({ item })}
+            </View>
+          ))
+        ) : (
           <View style={styles.emptyState}>
             <Ionicons name="search-outline" size={40} color="rgba(255,255,255,0.15)" />
             <Text style={styles.emptyTitle}>No venues found</Text>
             <Text style={styles.emptySub}>Try a different filter</Text>
           </View>
-        }
-      />
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 };

@@ -11,6 +11,11 @@ import EditProfileScreen from '../screens/events/EditProfileScreen';
 import FollowingScreen from '../screens/main/FollowingScreen';
 import FriendsScreen from '../screens/social/FriendsScreen';
 import HostEventScreen from '../screens/events/HostEventScreen';
+import NotificationsScreen from '../screens/main/NotificationsScreen';
+import CinemaScreen from '../screens/main/CinemaScreen';
+import DiningScreen from '../screens/main/DiningScreen';
+import PlaySportsScreen from '../screens/main/PlaySportsScreen';
+import SettingsScreen from '../screens/main/SettingsScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -23,6 +28,11 @@ export type RootStackParamList = {
   Following: undefined;
   Friends: undefined;
   HostEvent: undefined;
+  Notifications: undefined;
+  Cinema: undefined;
+  Dining: undefined;
+  PlaySports: undefined;
+  Settings: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -74,6 +84,11 @@ const AppNavigator: React.FC = () => {
             component={HostEventScreen}
             options={{ presentation: 'card' }}
           />
+          <Stack.Screen name="Notifications" component={NotificationsScreen} />
+          <Stack.Screen name="Cinema" component={CinemaScreen} />
+          <Stack.Screen name="Dining" component={DiningScreen} />
+          <Stack.Screen name="PlaySports" component={PlaySportsScreen} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />
         </>
       )}
     </Stack.Navigator>

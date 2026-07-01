@@ -290,9 +290,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.07)',
-    outlineWidth: 0,
-    outlineColor: 'transparent',
-    outlineStyle: 'none',
   },
   fieldInputError: {
     borderColor: '#E43414',
