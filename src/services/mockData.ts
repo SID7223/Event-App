@@ -1142,6 +1142,385 @@ export const getEventsByOrganizer = (organizerId: string): Event[] => {
   return mockEvents.filter(e => e.organizerId === organizerId);
 };
 
+// ==================== PAKISTAN SEED DATA ====================
+
+export const pakistanOrganizers: Organizer[] = [
+  {
+    id: 'pak-org-1',
+    name: 'Pakistan Comedy Association',
+    avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200',
+    coverImage: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800',
+    bio: 'Bringing the best stand-up comedy and improv shows to Karachi and Lahore.',
+    website: 'https://ticketwala.pk',
+    instagram: '@pkcomedy',
+    rating: 4.8,
+    followerCount: 15000,
+    eventCount: 12,
+    tags: ['Comedy', 'Stand-up', 'Karachi Events'],
+  },
+  {
+    id: 'pak-org-2',
+    name: 'Smash Sports PK',
+    avatar: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=200',
+    coverImage: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
+    bio: 'Premium sports event organizers and venue managers in Lahore and Islamabad.',
+    website: 'https://playtomic.io',
+    instagram: '@smashpadel.pk',
+    rating: 4.9,
+    followerCount: 22000,
+    eventCount: 35,
+    tags: ['Sports', 'Padel', 'Turf', 'Fitness'],
+  }
+];
+
+export const pakistanVenues: Venue[] = [
+  {
+    id: 'pak-ven-1',
+    name: 'Pakistan American Cultural Center (PACC)',
+    type: 'venue',
+    logo: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200',
+    coverImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800',
+    bio: 'Historic cultural center in Karachi hosting theater plays, stand-up comedy, and educational workshops.',
+    address: 'Plot 11, Fatima Jinnah Road, Cantt, Karachi',
+    neighborhood: 'Cantt',
+    website: 'https://pacc.edu.pk',
+    rating: 4.5,
+    followerCount: 32000,
+    eventCount: 18,
+    tags: ['Cultural Center', 'Theater', 'Comedy', 'Art'],
+    city: 'karachi',
+  },
+  {
+    id: 'pak-ven-2',
+    name: 'Smash Padel Club DHA Phase 6',
+    type: 'venue',
+    logo: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=200',
+    coverImage: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
+    bio: 'Pakistan\'s premier padel tennis facility with state-of-the-art panoramic courts and pro-shop.',
+    address: 'DHA Phase 6, Lahore',
+    neighborhood: 'DHA Phase 6',
+    website: 'https://playtomic.io/smash-padel',
+    rating: 4.8,
+    followerCount: 8900,
+    eventCount: 50,
+    tags: ['Sports', 'Padel', 'Fitness', 'Outdoor'],
+    city: 'lahore',
+  },
+  {
+    id: 'pak-ven-3',
+    name: 'Universal Cinemas Emporium Mall',
+    type: 'venue',
+    logo: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=200',
+    coverImage: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800',
+    bio: 'Pakistan\'s largest multiplex cinema featuring IMAX and ultra-premium screening halls.',
+    address: 'Emporium Mall, Johar Town, Lahore',
+    neighborhood: 'Johar Town',
+    website: 'https://universalcinemas.com',
+    rating: 4.7,
+    followerCount: 45000,
+    eventCount: 365,
+    tags: ['Cinema', 'IMAX', 'Movies', 'Entertainment'],
+    city: 'lahore',
+  }
+];
+
+export const pakistanEvents: Event[] = [
+  {
+    id: 'pak-event-1',
+    title: 'Comedy Night at the Pakistan American Cultural Center (PACC)',
+    description: 'Get ready for an evening filled with laughter! Karachi\'s top stand-up comedians gather at PACC for a hilarious live show. Don\'t miss out on this night of pure comedy.',
+    category: 'Comedy',
+    image: 'https://images.unsplash.com/photo-1516280440614-37939bbacd6a?w=800',
+    price: 1500,
+    location: 'Plot 11, Fatima Jinnah Road, Cantt, Karachi',
+    date: '2026-07-10',
+    time: '20:00',
+    organizer: 'Pakistan Comedy Association',
+    organizerId: 'pak-org-1',
+    venue: 'PACC Auditorium',
+    venueId: 'pak-ven-1',
+    attendees: 450,
+    rating: 4.7,
+    isFavorite: false,
+    isFeatured: true,
+    neighborhood: 'Cantt',
+    city: 'karachi',
+    bookingType: 'external_link',
+    externalLink: 'https://ticketwala.pk/event/comedy-night-pacc',
+    dataSource: 'ticketwala',
+  },
+  {
+    id: 'pak-event-2',
+    title: 'Padel Match Slot - Smash Padel DHA Phase 6',
+    description: 'Book your 90-minute court slot at Lahore\'s premier sports venue. Enjoy a fast-paced game of Padel tennis with friends on state-of-the-art courts.',
+    category: 'Sports',
+    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
+    price: 4000,
+    location: 'DHA Phase 6, Lahore',
+    date: '2026-07-05',
+    time: '18:00',
+    organizer: 'Smash Sports PK',
+    organizerId: 'pak-org-2',
+    venue: 'Smash Padel Club',
+    venueId: 'pak-ven-2',
+    attendees: 12,
+    rating: 4.8,
+    isFavorite: false,
+    isFeatured: false,
+    neighborhood: 'DHA Phase 6',
+    city: 'lahore',
+    bookingType: 'whatsapp',
+    whatsappNumber: '+923001234567',
+    dataSource: 'manual_entry',
+  },
+  {
+    id: 'pak-event-3',
+    title: 'Atif Aslam Live in Concert Lahore',
+    description: 'Experience the magic of Pakistan\'s global superstar Atif Aslam live in Lahore. Performing all his hit songs with a full live band at Alhamra Art Council.',
+    category: 'Music',
+    image: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800',
+    price: 3500,
+    location: 'Mall Road, Lahore',
+    date: '2026-07-25',
+    time: '19:30',
+    organizer: 'Smash Sports PK',
+    organizerId: 'pak-org-2',
+    venue: 'Alhamra Open Air Theater',
+    venueId: 'pak-ven-2',
+    attendees: 5000,
+    rating: 4.9,
+    isFavorite: false,
+    isFeatured: true,
+    neighborhood: 'Mall Road',
+    city: 'lahore',
+    bookingType: 'external_link',
+    externalLink: 'https://ticketwala.pk/event/atif-aslam-live-lahore',
+    dataSource: 'ticketwala',
+  },
+  {
+    id: 'pak-event-4',
+    title: 'Islamabad Literature Festival',
+    description: 'A three-day literary extravaganza featuring talks, panel discussions, book launches, poetry readings, and musical performances.',
+    category: 'Workshops',
+    image: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800',
+    price: 0,
+    location: 'Shakarparian, Islamabad',
+    date: '2026-07-12',
+    time: '10:00',
+    organizer: 'Pakistan Comedy Association',
+    organizerId: 'pak-org-1',
+    venue: 'Lok Virsa Museum',
+    venueId: 'pak-ven-1',
+    attendees: 1200,
+    rating: 4.6,
+    isFavorite: false,
+    isFeatured: true,
+    neighborhood: 'Shakarparian',
+    city: 'islamabad',
+    bookingType: 'in_app',
+    dataSource: 'manual_entry',
+  }
+];
+
+export const pakistanMovies: Movie[] = [
+  {
+    id: 'pak-mov-1',
+    title: 'The Legend of Maula Jatt',
+    genre: ['Action', 'Drama'],
+    duration: 150,
+    rating: 4.9,
+    poster: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400',
+    releaseDate: '2026-07-01',
+    synopsis: 'An epic action-drama focusing on the legendary rivalry between local hero Maula Jatt and the brutal clan leader Noori Natt.',
+    director: 'Bilal Lashari',
+    cast: ['Fawad Khan', 'Hamza Ali Abbasi', 'Mahira Khan'],
+    ageRating: 'PG-13',
+    city: 'lahore',
+    bookingType: 'external_link',
+    externalLink: 'https://bookme.pk/movies/the-legend-of-maula-jatt-emporium',
+    dataSource: 'bookme',
+  }
+];
+
+export const pakistanCinemas: Cinema[] = [
+  {
+    id: 'pak-cine-1',
+    name: 'Universal Cinemas Emporium Mall',
+    address: 'Emporium Mall, Johar Town, Lahore',
+    distance: '2.0 km',
+    neighborhood: 'Johar Town',
+    city: 'lahore',
+  },
+  {
+    id: 'pak-cine-2',
+    name: 'Nueplex Cinemas DHA',
+    address: 'DHA Phase 8, Karachi',
+    distance: '1.5 km',
+    neighborhood: 'DHA Phase 8',
+    city: 'karachi',
+  },
+  {
+    id: 'pak-cine-3',
+    name: 'Centaurus Cineplex',
+    address: 'Centaurus Mall, F-8, Islamabad',
+    distance: '3.0 km',
+    neighborhood: 'F-8',
+    city: 'islamabad',
+  }
+];
+
+export const pakistanShowtimes: MovieShowtime[] = [
+  {
+    id: 'pak-st-1',
+    movieId: 'pak-mov-1',
+    cinemaId: 'pak-cine-1',
+    date: '2026-07-01',
+    time: '18:00',
+    format: 'IMAX',
+    price: 1200,
+    availableSeats: 85,
+    bookingType: 'external_link',
+    externalLink: 'https://bookme.pk/movies/the-legend-of-maula-jatt-emporium',
+    dataSource: 'bookme',
+    city: 'lahore',
+  },
+  {
+    id: 'pak-st-2',
+    movieId: 'pak-mov-1',
+    cinemaId: 'pak-cine-2',
+    date: '2026-07-01',
+    time: '21:00',
+    format: '3D',
+    price: 1000,
+    availableSeats: 120,
+    bookingType: 'external_link',
+    externalLink: 'https://bookme.pk/movies/the-legend-of-maula-jatt-nueplex',
+    dataSource: 'bookme',
+    city: 'karachi',
+  },
+  {
+    id: 'pak-st-3',
+    movieId: 'pak-mov-1',
+    cinemaId: 'pak-cine-3',
+    date: '2026-07-01',
+    time: '19:30',
+    format: '2D',
+    price: 800,
+    availableSeats: 64,
+    bookingType: 'external_link',
+    externalLink: 'https://bookme.pk/movies/the-legend-of-maula-jatt-centaurus',
+    dataSource: 'bookme',
+    city: 'islamabad',
+  }
+];
+
+export const pakistanRestaurants: Restaurant[] = [
+  {
+    id: 'pak-rest-1',
+    name: 'Haveli Restaurant Lahore',
+    cuisine: 'Mughlai & Traditional',
+    image: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=400',
+    priceRange: '$$$',
+    rating: 4.8,
+    reviewCount: 3200,
+    address: 'Food Street, Fort Road, Lahore',
+    neighborhood: 'Walled City',
+    distance: '4.2 km',
+    phone: '+923004001234',
+    isOpen: true,
+    hasLiveMusic: false,
+    openingHours: '16:00 - 01:00',
+    tags: ['Heritage View', 'Popular', 'Rooftop'],
+    featured: true,
+    city: 'lahore',
+    bookingType: 'external_link',
+    externalLink: 'https://haveli.com.pk/reservations',
+    dataSource: 'manual_entry',
+  },
+  {
+    id: 'pak-rest-2',
+    name: 'Kolachi Restaurant Karachi',
+    cuisine: 'Traditional BBQ & Seafood',
+    image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400',
+    priceRange: '$$$$',
+    rating: 4.9,
+    reviewCount: 9800,
+    address: 'Do Darya, Beach Avenue, Phase 8, DHA, Karachi',
+    neighborhood: 'DHA Phase 8',
+    distance: '6.0 km',
+    phone: '+922111111111',
+    isOpen: true,
+    hasLiveMusic: true,
+    openingHours: '18:00 - 01:00',
+    tags: ['Waterfront', 'Fine Dining', 'Live Music Tonight'],
+    featured: true,
+    city: 'karachi',
+    bookingType: 'whatsapp',
+    whatsappNumber: '+923008881234',
+    dataSource: 'manual_entry',
+  },
+  {
+    id: 'pak-rest-3',
+    name: 'Monal Restaurant Islamabad',
+    cuisine: 'Pakistani Traditional & Continental',
+    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400',
+    priceRange: '$$$',
+    rating: 4.8,
+    reviewCount: 4500,
+    address: 'Pir Sohawa, Margalla Hills, Islamabad',
+    neighborhood: 'Margalla Hills',
+    distance: '8.5 km',
+    phone: '+92512898044',
+    isOpen: true,
+    hasLiveMusic: true,
+    openingHours: '12:00 - 00:00',
+    tags: ['Scenic View', 'Fine Dining', 'Live Music Tonight'],
+    featured: true,
+    city: 'islamabad',
+    bookingType: 'whatsapp',
+    whatsappNumber: '+923005559999',
+    dataSource: 'manual_entry',
+  }
+];
+
+// Helper functions to tag existing Indonesian mock data with city
+export const getTaggedEvents = (): Event[] => {
+  return mockEvents.map(e => {
+    const loc = (e.location + ' ' + (e.neighborhood || '')).toLowerCase();
+    let city = 'jakarta';
+    if (loc.includes('bali') || loc.includes('kuta') || loc.includes('nusa')) city = 'bali';
+    else if (loc.includes('bandung') || loc.includes('dago') || loc.includes('gedung sate')) city = 'bandung';
+    return { ...e, city };
+  });
+};
+
+export const getTaggedCinemas = (): Cinema[] => {
+  return mockCinemas.map(c => ({ ...c, city: 'jakarta' }));
+};
+
+export const getTaggedRestaurants = (): Restaurant[] => {
+  return mockRestaurants.map(r => ({ ...r, city: 'jakarta' }));
+};
+
+export const getTaggedMovies = (): Movie[] => {
+  return mockMovies.map(m => ({ ...m, city: 'jakarta' }));
+};
+
+export const getTaggedShowtimes = (): MovieShowtime[] => {
+  return mockShowtimes.map(s => ({ ...s, city: 'jakarta' }));
+};
+
+export const getTaggedVenues = (): Venue[] => {
+  return mockVenues.map(v => {
+    const loc = (v.address + ' ' + (v.neighborhood || '')).toLowerCase();
+    let city = 'jakarta';
+    if (loc.includes('bali') || loc.includes('kuta') || loc.includes('nusa')) city = 'bali';
+    else if (loc.includes('bandung') || loc.includes('dago') || loc.includes('gedung sate')) city = 'bandung';
+    return { ...v, city };
+  });
+};
+
+
 // ============================================================
 // SOCIAL: Mock Friends & Attendance
 // ============================================================

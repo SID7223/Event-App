@@ -1,8 +1,20 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User, UserLocation, Event as AppEvent, Friend } from '../types';
+import { User, UserLocation, Event as AppEvent, Movie, Restaurant, Cinema, MovieShowtime } from '../types';
 import { scheduleEventReminder, cancelEventReminder, scheduleTopicNotification, cancelTopicNotification } from '../utils/notifications';
+import { 
+  getTaggedEvents, 
+  getTaggedCinemas, 
+  getTaggedRestaurants, 
+  getTaggedMovies, 
+  getTaggedShowtimes, 
+  pakistanEvents, 
+  pakistanMovies, 
+  pakistanRestaurants, 
+  pakistanCinemas, 
+  pakistanShowtimes 
+} from '../services/mockData';
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -55,9 +67,24 @@ interface AppState {
   activeVibe: string | null;
   searchQuery: string;
   isSearching: boolean;
+  userSelectedCity: string;
+  events: AppEvent[];
+  movies: Movie[];
+  restaurants: Restaurant[];
+  cinemas: Cinema[];
+  showtimes: MovieShowtime[];
+  
   setActiveVibe: (vibe: string | null) => void;
   setSearchQuery: (query: string) => void;
   setIsSearching: (isSearching: boolean) => void;
+  setUserSelectedCity: (city: string) => void;
+  setEvents: (events: AppEvent[]) => void;
+  setMovies: (movies: Movie[]) => void;
+  setRestaurants: (restaurants: Restaurant[]) => void;
+  setCinemas: (cinemas: Cinema[]) => void;
+  setShowtimes: (showtimes: MovieShowtime[]) => void;
+  addEvent: (event: AppEvent) => void;
+  seedPakistanData: () => void;
 }
 
 export const useAuth = create<AuthState>()(
@@ -332,8 +359,14 @@ export const useAuth = create<AuthState>()(
           rating: 0,
           isFavorite: false,
           isFeatured: false,
+          city: useApp.getState().userSelectedCity || 'lahore',
+          bookingType: 'in_app',
+          dataSource: 'user_host',
         };
         set({ pendingEvents: [...pendingEvents, newEvent] });
+        
+        // Also inject into general events list for immediate UI updates
+        useApp.getState().addEvent(newEvent);
       },
       
       completeOnboarding: (data: { user: User; location: UserLocation; preferences: string[] }) => {
@@ -366,13 +399,36 @@ export const useAuth = create<AuthState>()(
 
 export const useApp = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       activeVibe: null,
       searchQuery: '',
       isSearching: false,
+      userSelectedCity: 'lahore',
+      events: [...getTaggedEvents(), ...pakistanEvents],
+      movies: [...getTaggedMovies(), ...pakistanMovies],
+      restaurants: [...getTaggedRestaurants(), ...pakistanRestaurants],
+      cinemas: [...getTaggedCinemas(), ...pakistanCinemas],
+      showtimes: [...getTaggedShowtimes(), ...pakistanShowtimes],
+      
       setActiveVibe: (vibe: string | null) => set({ activeVibe: vibe }),
       setSearchQuery: (query: string) => set({ searchQuery: query }),
       setIsSearching: (isSearching: boolean) => set({ isSearching }),
+      setUserSelectedCity: (city: string) => set({ userSelectedCity: city }),
+      setEvents: (events: AppEvent[]) => set({ events }),
+      setMovies: (movies: Movie[]) => set({ movies }),
+      setRestaurants: (restaurants: Restaurant[]) => set({ restaurants }),
+      setCinemas: (cinemas: Cinema[]) => set({ cinemas }),
+      setShowtimes: (showtimes: MovieShowtime[]) => set({ showtimes }),
+      addEvent: (event: AppEvent) => set({ events: [event, ...get().events] }),
+      seedPakistanData: () => {
+        set({
+          events: [...getTaggedEvents(), ...pakistanEvents],
+          movies: [...getTaggedMovies(), ...pakistanMovies],
+          restaurants: [...getTaggedRestaurants(), ...pakistanRestaurants],
+          cinemas: [...getTaggedCinemas(), ...pakistanCinemas],
+          showtimes: [...getTaggedShowtimes(), ...pakistanShowtimes],
+        });
+      },
     }),
     {
       name: 'app-storage',
@@ -390,6 +446,12 @@ export const useApp = create<AppState>()(
       })),
       partialize: (state) => ({
         activeVibe: state.activeVibe,
+        userSelectedCity: state.userSelectedCity,
+        events: state.events,
+        movies: state.movies,
+        restaurants: state.restaurants,
+        cinemas: state.cinemas,
+        showtimes: state.showtimes,
       }),
     }
   )

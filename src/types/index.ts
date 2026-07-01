@@ -17,6 +17,11 @@ export interface Event {
   isFavorite: boolean;
   isFeatured: boolean;
   neighborhood?: string;
+  city?: string;
+  bookingType?: 'external_link' | 'whatsapp' | 'in_app';
+  externalLink?: string | null;
+  whatsappNumber?: string | null;
+  dataSource?: 'ticketwala' | 'bookme' | 'manual_entry' | 'user_host';
 }
 
 export interface Category {
@@ -107,6 +112,11 @@ export interface Movie {
   director: string;
   cast: string[];
   ageRating: string;
+  city?: string;
+  bookingType?: 'external_link' | 'whatsapp' | 'in_app';
+  externalLink?: string | null;
+  whatsappNumber?: string | null;
+  dataSource?: 'ticketwala' | 'bookme' | 'manual_entry' | 'user_host';
 }
 
 export interface Cinema {
@@ -115,6 +125,7 @@ export interface Cinema {
   address: string;
   distance: string; // e.g., "1.2 km"
   neighborhood: string;
+  city?: string;
 }
 
 export interface MovieShowtime {
@@ -126,6 +137,11 @@ export interface MovieShowtime {
   format: '2D' | '3D' | 'IMAX' | '4DX';
   price: number;
   availableSeats: number;
+  bookingType?: 'external_link' | 'whatsapp' | 'in_app';
+  externalLink?: string | null;
+  whatsappNumber?: string | null;
+  dataSource?: 'ticketwala' | 'bookme' | 'manual_entry' | 'user_host';
+  city?: string;
 }
 
 export interface MovieWithShowtimes extends Movie {
@@ -153,6 +169,11 @@ export interface Restaurant {
   openingHours: string;
   tags: string[];
   featured: boolean;
+  city?: string;
+  bookingType?: 'external_link' | 'whatsapp' | 'in_app';
+  externalLink?: string | null;
+  whatsappNumber?: string | null;
+  dataSource?: 'ticketwala' | 'bookme' | 'manual_entry' | 'user_host';
 }
 
 // Venue / Organizer types
@@ -170,6 +191,7 @@ export interface Venue {
   followerCount: number;
   eventCount: number;
   tags: string[];
+  city?: string;
 }
 
 // Organizer Profile type (distinct from Venue)
