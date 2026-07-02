@@ -445,15 +445,10 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
               onPress={handleBookingPress}
               style={styles.mainBtnContainer}
             >
-              <LinearGradient
-                colors={['#FF6B4A', '#E43414']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.mainBtn}
-              >
-                <Ionicons name="ticket-outline" size={22} color="#FFFFFF" />
-                <Text style={styles.mainBtnText}>Get Tickets</Text>
-              </LinearGradient>
+              <View style={styles.arrowBtnRow}>
+                <Text style={styles.arrowBtnText}>Get Tickets</Text>
+                <Ionicons name="arrow-forward" size={18} color="#FFF44F" />
+              </View>
             </TouchableOpacity>
           )}
           
@@ -822,6 +817,23 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     gap: 8,
+  },
+  arrowBtnRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 56,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,244,79,0.1)',
+    borderWidth: 1.5,
+    borderColor: '#FFF44F',
+    paddingHorizontal: 20,
+    gap: 8,
+  },
+  arrowBtnText: {
+    color: '#FFF44F',
+    fontSize: 16,
+    fontFamily: fonts.button,
   },
   mainBtnText: {
     color: '#FFFFFF',

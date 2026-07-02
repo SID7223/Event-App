@@ -369,20 +369,22 @@ const AuthScreen: React.FC = () => {
               activeOpacity={0.88}
               disabled={isLoading}
             >
-              <LinearGradient
-                colors={isLoading ? ['#666', '#666'] : ['#FF6B4A', '#E43414']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={[styles.actionBtn, isLoading && styles.actionBtnDisabled]}
-              >
-                {isLoading ? (
-                  <ActivityIndicator color="#FFFFFF" size="small" />
-                ) : (
-                  <Text style={styles.actionBtnText}>
-                    {mode === 'login' ? 'Login' : 'Create Account'}
-                  </Text>
-                )}
-              </LinearGradient>
+              <View style={[styles.retroBtnOuter, isLoading && styles.actionBtnDisabled]}>
+                <View style={styles.retroBtnInner}>
+                  {isLoading ? (
+                    <ActivityIndicator color="#0A0C12" size="small" />
+                  ) : (
+                    <>
+                      <Text style={styles.retroBtnText}>
+                        {mode === 'login' ? 'Login' : 'Create Account'}
+                      </Text>
+                      <View style={styles.retroBtnArrow}>
+                        <Ionicons name="arrow-forward" size={12} color="#0A0C12" />
+                      </View>
+                    </>
+                  )}
+                </View>
+              </View>
             </TouchableOpacity>
 
             {/* Terms (Signup only) */}
@@ -601,6 +603,40 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     textTransform: 'uppercase',
     fontFamily: fonts.bodyBold,
+  },
+  retroBtnOuter: {
+    height: 56,
+    borderWidth: 1.5,
+    borderColor: '#FFF44F',
+    borderRadius: 8,
+    padding: 2,
+    marginBottom: 16,
+    justifyContent: 'center',
+  },
+  retroBtnInner: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#FFF44F',
+    borderRadius: 6,
+  },
+  retroBtnText: {
+    color: '#0A0C12',
+    fontSize: 15,
+    fontWeight: '500',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    fontFamily: fonts.bodyBold,
+  },
+  retroBtnArrow: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   termsText: {
     fontSize: 13,

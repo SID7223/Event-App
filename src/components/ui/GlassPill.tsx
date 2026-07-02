@@ -93,36 +93,37 @@ const GlassPill: React.FC<GlassPillProps> = ({
 const styles = StyleSheet.create({
   wrapper: {},
   borderGradient: {
-    borderRadius: 24,
+    borderRadius: 14,
     padding: 1,
   },
   borderCompact: {
-    borderRadius: 18,
+    borderRadius: 12,
   },
   blurSurface: {
-    borderRadius: 23,
+    borderRadius: 13,
     backgroundColor: 'rgba(255,255,255,0.03)',
     overflow: 'hidden',
   },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 7,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
   },
   contentCompact: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    gap: 4,
   },
   label: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: fonts.button,
     letterSpacing: 0.2,
   },
   labelCompact: {
-    fontSize: 13,
+    fontSize: 12,
   },
   badge: {
     backgroundColor: 'rgba(255,255,255,0.10)',

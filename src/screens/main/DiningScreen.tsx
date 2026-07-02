@@ -152,12 +152,16 @@ const DiningScreen: React.FC = () => {
           {/* Action Buttons */}
           <View style={styles.actionButtons}>
             <TouchableOpacity
-              style={[styles.actionBtn, styles.callBtn]}
+              style={styles.retroActionOuter}
               onPress={handleBookingClick}
               activeOpacity={0.8}
             >
-              <Ionicons name={iconName as any} size={18} color={iconColor} />
-              <Text style={styles.callBtnText}>{callLabel}</Text>
+              <View style={styles.retroActionInner}>
+                <Text style={styles.retroActionText}>{callLabel}</Text>
+                <View style={styles.retroActionArrow}>
+                  <Ionicons name="arrow-forward" size={12} color="#0A0C12" />
+                </View>
+              </View>
             </TouchableOpacity>
           </View>
         </View>
@@ -485,6 +489,40 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#FFFFFF',
     fontFamily: fonts.bodyBold,
+  },
+  retroActionOuter: {
+    flex: 1,
+    height: 44,
+    borderWidth: 1.5,
+    borderColor: '#FFF44F',
+    borderRadius: 8,
+    padding: 2,
+    justifyContent: 'center',
+  },
+  retroActionInner: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#FFF44F',
+    borderRadius: 6,
+  },
+  retroActionText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#0A0C12',
+    fontFamily: fonts.bodyBold,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  retroActionArrow: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

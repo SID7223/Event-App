@@ -21,6 +21,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../../store';
 import { allVibes } from '../../services/mockData';
+import { fonts } from '../../theme/fonts';
 
 interface HostEventFormData {
   title: string;
@@ -478,22 +479,26 @@ const HostEventScreen: React.FC = () => {
 
             {/* Submit Button */}
             <TouchableOpacity
-              style={[styles.submitBtn, isSubmitting && styles.submitBtnDisabled]}
+              style={[styles.retroSubmitOuter, isSubmitting && styles.submitBtnDisabled]}
               onPress={handleSubmit(onSubmit)}
               disabled={isSubmitting}
               activeOpacity={0.85}
             >
-              {isSubmitting ? (
-                <View style={styles.submitLoading}>
-                  <Ionicons name="hourglass-outline" size={20} color="#0A0C12" />
-                  <Text style={styles.submitBtnText}>Submitting...</Text>
-                </View>
-              ) : (
-                <View style={styles.submitContent}>
-                  <Ionicons name="rocket-outline" size={20} color="#0A0C12" />
-                  <Text style={styles.submitBtnText}>Submit for Review</Text>
-                </View>
-              )}
+              <View style={styles.retroSubmitInner}>
+                {isSubmitting ? (
+                  <>
+                    <Ionicons name="hourglass-outline" size={18} color="#0A0C12" />
+                    <Text style={styles.retroSubmitText}>Submitting...</Text>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.retroSubmitText}>Submit for Review</Text>
+                    <View style={styles.retroSubmitArrow}>
+                      <Ionicons name="arrow-forward" size={12} color="#0A0C12" />
+                    </View>
+                  </>
+                )}
+              </View>
             </TouchableOpacity>
 
             <Text style={styles.disclaimer}>
@@ -660,6 +665,41 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     color: '#0A0C12',
+  },
+  retroSubmitOuter: {
+    marginHorizontal: 20,
+    marginTop: 8,
+    height: 56,
+    borderWidth: 1.5,
+    borderColor: '#FFF44F',
+    borderRadius: 8,
+    padding: 2,
+    justifyContent: 'center',
+  },
+  retroSubmitInner: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#FFF44F',
+    borderRadius: 6,
+  },
+  retroSubmitText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#0A0C12',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    fontFamily: fonts.bodyBold,
+  },
+  retroSubmitArrow: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   disclaimer: {
     fontSize: 12,

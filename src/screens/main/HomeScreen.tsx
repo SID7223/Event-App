@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   Modal,
   TextInput,
   Keyboard,
+  FlatList,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -50,80 +52,23 @@ const formatTime = (time: string) => {
   return `${h12}:${m} ${ampm}`;
 };
 
-const getGreetingSubtext = (upcomingEvents: Event[]): string => {
-  const today = new Date().toISOString().split('T')[0];
-  const now = new Date();
-  const currentHour = now.getHours();
-
-  // Find events happening today
-  const todayEvents = upcomingEvents.filter(e => e.date === today);
-
-  // Find events happening in the next 3 hours
-  const soonEvents = upcomingEvents.filter(e => {
-    const eventDate = new Date(`${e.date}T${e.time}`);
-    const diffHours = (eventDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-    return diffHours >= 0 && diffHours <= 3;
-  });
-
-  // Priority 1: Event happening very soon (within 3 hours)
-  if (soonEvents.length > 0) {
-    const nextEvent = soonEvents[0];
-    const category = nextEvent.category.toLowerCase();
-
-    if (category.includes('sport') || category.includes('gym') || category.includes('fitness') || category.includes('play')) {
-      return `Ready to sweat? 💪`;
-    } else if (category.includes('dining') || category.includes('restaurant') || category.includes('food') || category.includes('cafe')) {
-      return `Dinner plans tonight? 🍽️`;
-    } else if (category.includes('cinema') || category.includes('movie') || category.includes('film')) {
-      return `Movie night awaits! 🎬`;
-    } else {
-      return `${nextEvent.title} is coming up!`;
-    }
-  }
-
-  // Priority 2: Events today
-  if (todayEvents.length > 0) {
-    const nextEvent = todayEvents[0];
-    const category = nextEvent.category.toLowerCase();
-
-    if (category.includes('sport') || category.includes('gym') || category.includes('fitness') || category.includes('play')) {
-      return `Time to play today! ⚽`;
-    } else if (category.includes('dining') || category.includes('restaurant') || category.includes('food') || category.includes('cafe')) {
-      return `Hungry for today? 🍕`;
-    } else if (category.includes('cinema') || category.includes('movie') || category.includes('film')) {
-      return `What\'s showing today? 🎬`;
-    } else {
-      return `Excited for today?`;
-    }
-  }
-
-  // Priority 3: Upcoming events this week
-  if (upcomingEvents.length > 0) {
-    const nextEvent = upcomingEvents[0];
-    const category = nextEvent.category.toLowerCase();
-
-    if (category.includes('sport') || category.includes('gym') || category.includes('fitness') || category.includes('play')) {
-      return `Plan your next workout 💪`;
-    } else if (category.includes('dining') || category.includes('restaurant') || category.includes('food') || category.includes('cafe')) {
-      return `Where to eat next? 🍽️`;
-    } else if (category.includes('cinema') || category.includes('movie') || category.includes('film')) {
-      return `Check what\'s playing 🎬`;
-    } else {
-      return `Explore upcoming events`;
-    }
-  }
-
-  // Fallback: Time-based greeting
-  if (currentHour >= 5 && currentHour < 12) {
-    return 'Ready to explore?';
-  } else if (currentHour >= 12 && currentHour < 17) {
-    return 'What\'s happening today?';
-  } else if (currentHour >= 17 && currentHour < 21) {
-    return 'Let\'s go out!';
+const getSearchPlaceholder = (): string => {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) {
+    return 'Find events near you';
+  } else if (hour >= 12 && hour < 17) {
+    return 'Discover what\'s happening';
+  } else if (hour >= 17 && hour < 21) {
+    return 'Plans for tonight?';
   } else {
-    return 'Discover something new';
+    return 'Explore late night events';
   }
 };
+
+interface HomeScreenProps {
+  onOpenSidebar?: () => void;
+  sidebarVisible?: boolean;
+}
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -140,46 +85,9 @@ const HomeScreen: React.FC = () => {
   const [dynamicGreeting, setDynamicGreeting] = useState(() =>
     getDynamicGreeting(undefined, undefined, user?.firstName)
   );
-
-  // Update greeting when app comes to foreground
   useEffect(() => {
     setDynamicGreeting(getDynamicGreeting(undefined, undefined, user?.firstName));
   }, [user?.firstName]);
-
-  // Render greeting with emoji after last word
-  const renderGreetingWithEmoji = () => {
-    const isLong = dynamicGreeting.length > 30;
-    const baseFontSize = isLong ? 22 : 28;
-    
-    // If no emoji source, just return plain text
-    if (!weatherIconSource) {
-      return (
-        <Text 
-          style={[styles.greeting, { fontSize: baseFontSize }]} 
-          numberOfLines={2} 
-          adjustsFontSizeToFit={true}
-        >
-          {dynamicGreeting}
-        </Text>
-      );
-    }
-
-    return (
-      <View style={styles.greetingWithEmoji}>
-        <Text 
-          style={[styles.greeting, { fontSize: baseFontSize }]} 
-          numberOfLines={2} 
-          adjustsFontSizeToFit={true}
-        >
-          {dynamicGreeting}
-        </Text>
-        <Image 
-          source={weatherIconSource} 
-          style={{ width: baseFontSize, height: baseFontSize }}
-        />
-      </View>
-    );
-  };
 
   // Time-of-day and weather
   const timeOfDay: TimeOfDay = getTimeOfDay();
@@ -215,12 +123,38 @@ const HomeScreen: React.FC = () => {
     return sortVibesByPreferences(preferences || []);
   }, [preferences]);
 
-  // Get featured event (highest rated isFeatured event)
-  const featuredEvent = useMemo(() => {
+  // Get featured events (top 5 highest rated isFeatured events)
+  const featuredEvents = useMemo(() => {
     return filteredEventsList
       .filter(e => e.isFeatured)
-      .sort((a, b) => b.rating - a.rating)[0];
+      .sort((a, b) => b.rating - a.rating)
+      .slice(0, 5);
   }, [filteredEventsList]);
+
+  const [featuredIndex, setFeaturedIndex] = useState(0);
+  const featuredFlatListRef = useRef<FlatList<Event>>(null);
+  const dotAnimations = useRef<Animated.Value[]>([]).current;
+
+  // Initialize dot animations
+  useEffect(() => {
+    featuredEvents.forEach((_, i) => {
+      if (!dotAnimations[i]) {
+        dotAnimations[i] = new Animated.Value(i === 0 ? 1 : 0);
+      }
+    });
+  }, [featuredEvents.length]);
+
+  // Animate dots on index change
+  useEffect(() => {
+    featuredEvents.forEach((_, i) => {
+      Animated.spring(dotAnimations[i], {
+        toValue: i === featuredIndex ? 1 : 0,
+        useNativeDriver: false,
+        tension: 50,
+        friction: 7,
+      }).start();
+    });
+  }, [featuredIndex, featuredEvents.length]);
 
   // Filter events based on active vibe
   const filteredEvents = useMemo(() => {
@@ -328,62 +262,101 @@ const HomeScreen: React.FC = () => {
   };
 
   const renderFeaturedBanner = () => {
-    if (!featuredEvent) return null;
+    if (featuredEvents.length === 0) return null;
+
+    const screenWidth = Dimensions.get('window').width;
+    const cardWidth = screenWidth - 40;
 
     return (
-      <TouchableOpacity
-        style={styles.featuredBanner}
-        onPress={() => navigation.navigate('EventDetail', { eventId: featuredEvent.id })}
-        activeOpacity={0.9}
-      >
-        <Image source={{ uri: featuredEvent.image }} style={styles.featuredImage} />
-        <LinearGradient
-          colors={['rgba(10,12,18,0.3)', 'rgba(10,12,18,0.5)', 'rgba(10,12,18,0.95)']}
-          locations={[0, 0.4, 1]}
-          style={styles.featuredGradient}
+      <View style={styles.featuredOuter}>
+        {/* Badge — outside card, top-left */}
+        <View style={styles.featuredBadgePill}>
+          <Ionicons name="star" size={12} color="#FFD700" />
+          <Text style={styles.featuredBadgePillText}>Featured Today</Text>
+        </View>
+
+        {/* Swipable cards */}
+        <FlatList
+          ref={featuredFlatListRef}
+          data={featuredEvents}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          snapToAlignment="center"
+          decelerationRate="fast"
+          onMomentumScrollEnd={(e) => {
+            const index = Math.round(e.nativeEvent.contentOffset.x / cardWidth);
+            setFeaturedIndex(index);
+          }}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[styles.featuredBanner, { width: cardWidth, marginHorizontal: 20 }]}
+              onPress={() => navigation.navigate('EventDetail', { eventId: item.id })}
+              activeOpacity={0.9}
+            >
+              <Image source={{ uri: item.image }} style={styles.featuredImage} />
+              <LinearGradient
+                colors={['rgba(10,12,18,0.9)', 'rgba(10,12,18,0.5)', 'rgba(10,12,18,0.7)']}
+                locations={[0, 0.5, 1]}
+                style={styles.featuredGradient}
+              />
+
+              {/* Title at top */}
+              <View style={styles.featuredTop}>
+                <Text style={styles.featuredTitle} numberOfLines={2}>{item.title}</Text>
+              </View>
+
+              {/* Meta at bottom-left, Arrow at bottom-right */}
+              <View style={styles.featuredBottom}>
+                <View style={styles.featuredMeta}>
+                  <View style={styles.featuredMetaItem}>
+                    <Ionicons name="calendar-outline" size={14} color="rgba(255,255,255,0.8)" />
+                    <Text style={styles.featuredMetaText}>
+                      {getMonth(item.date)} {getDay(item.date)}
+                    </Text>
+                  </View>
+                  <View style={styles.featuredMetaItem}>
+                    <Ionicons name="time-outline" size={14} color="rgba(255,255,255,0.8)" />
+                    <Text style={styles.featuredMetaText}>{formatTime(item.time)}</Text>
+                  </View>
+                  <View style={styles.featuredMetaItem}>
+                    <Ionicons name="location-outline" size={14} color="rgba(255,255,255,0.8)" />
+                    <Text style={styles.featuredMetaText} numberOfLines={1}>{item.venue}</Text>
+                  </View>
+                </View>
+
+                <Ionicons name="arrow-forward" size={20} color="#FFF44F" />
+              </View>
+            </TouchableOpacity>
+          )}
         />
 
-        {/* Featured Badge */}
-        <View style={styles.featuredBadge}>
-          <Ionicons name="star" size={12} color="#FFD700" />
-          <Text style={styles.featuredBadgeText}>Featured Today</Text>
-        </View>
-
-        {/* Featured Info */}
-        <View style={styles.featuredInfo}>
-          <Text style={styles.featuredTitle} numberOfLines={2}>{featuredEvent.title}</Text>
-
-          <View style={styles.featuredMeta}>
-            <View style={styles.featuredMetaItem}>
-              <Ionicons name="calendar-outline" size={14} color="rgba(255,255,255,0.8)" />
-              <Text style={styles.featuredMetaText}>
-                {getMonth(featuredEvent.date)} {getDay(featuredEvent.date)}
-              </Text>
-            </View>
-            <View style={styles.featuredMetaItem}>
-              <Ionicons name="time-outline" size={14} color="rgba(255,255,255,0.8)" />
-              <Text style={styles.featuredMetaText}>{formatTime(featuredEvent.time)}</Text>
-            </View>
-            <View style={styles.featuredMetaItem}>
-              <Ionicons name="location-outline" size={14} color="rgba(255,255,255,0.8)" />
-              <Text style={styles.featuredMetaText} numberOfLines={1}>{featuredEvent.venue}</Text>
-            </View>
+        {/* Pagination dots */}
+        {featuredEvents.length > 1 && (
+          <View style={styles.paginationDots}>
+            {featuredEvents.map((_, i) => {
+              const width = dotAnimations[i]?.interpolate({
+                inputRange: [0, 1],
+                outputRange: [6, 20],
+              }) || 6;
+              const opacity = dotAnimations[i]?.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.4, 1],
+              }) || 0.4;
+              return (
+                <Animated.View
+                  key={i}
+                  style={[
+                    styles.dot,
+                    { width, opacity },
+                  ]}
+                />
+              );
+            })}
           </View>
-
-          {/* RSVP Button */}
-          <View style={styles.rsvpButton}>
-            <LinearGradient
-              colors={['#FF6B4A', '#E43414']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.rsvpGradient}
-            >
-              <Text style={styles.rsvpText}>View Event</Text>
-              <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
-            </LinearGradient>
-          </View>
-        </View>
-      </TouchableOpacity>
+        )}
+      </View>
     );
   };
 
@@ -513,7 +486,9 @@ const HomeScreen: React.FC = () => {
             onPress={() => setShowCityPicker(true)}
             activeOpacity={0.7}
           >
-            <Ionicons name="location" size={14} color="#E43414" />
+            {weatherIconSource ? (
+              <Image source={weatherIconSource} style={styles.locationWeatherIcon} />
+            ) : null}
             <Text style={styles.locationText}>
               {userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}
             </Text>
@@ -529,11 +504,15 @@ const HomeScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Greeting with Weather Emoji */}
+        {/* Greeting */}
         <View style={styles.greetingContainer}>
-          <View style={styles.greetingRow}>
-            {renderGreetingWithEmoji()}
-          </View>
+          <Text
+            style={styles.greeting}
+            numberOfLines={2}
+            adjustsFontSizeToFit={true}
+          >
+            {dynamicGreeting}
+          </Text>
         </View>
 
         {/* Search Bar */}
@@ -543,7 +522,7 @@ const HomeScreen: React.FC = () => {
             <TextInput
               ref={searchInputRef}
               style={styles.searchInput}
-              placeholder={getGreetingSubtext(upcomingEvents)}
+              placeholder={getSearchPlaceholder()}
               placeholderTextColor="rgba(255,255,255,0.35)"
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -742,6 +721,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#FFFFFF',
   },
+  locationWeatherIcon: {
+    width: 16,
+    height: 16,
+  },
   notifBtn: {
     width: 42,
     height: 42,
@@ -756,27 +739,11 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     zIndex: 1,
   },
-  greetingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  greetingWithEmoji: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
   greeting: {
-    flex: 1,
+    fontSize: 28,
     fontWeight: '500',
     fontFamily: fonts.heading,
     color: '#FFFFFF',
-  },
-  greetingSubtext: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.5)',
-    marginTop: 4,
-    fontFamily: fonts.body,
   },
   searchBarWrap: {
     marginHorizontal: 20,
@@ -870,9 +837,30 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.3)',
   },
   // Featured Banner Styles
-  featuredBanner: {
-    marginHorizontal: 20,
+  featuredOuter: {
     marginBottom: 24,
+  },
+  featuredBadgePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginHorizontal: 20,
+    marginBottom: 10,
+    backgroundColor: 'rgba(255,244,79,0.15)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,244,79,0.3)',
+    alignSelf: 'flex-start',
+  },
+  featuredBadgePillText: {
+    fontSize: 10,
+    fontWeight: '500',
+    color: '#FFF44F',
+    fontFamily: fonts.body,
+  },
+  featuredBanner: {
     height: 220,
     borderRadius: 20,
     overflow: 'hidden',
@@ -891,46 +879,32 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  featuredBadge: {
+  featuredTop: {
     position: 'absolute',
-    top: 12,
-    left: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,215,0,0.3)',
-  },
-  featuredBadgeText: {
-    fontSize: 10,
-    fontWeight: '500',
-    color: '#FFD700',
-    fontFamily: fonts.body,
-  },
-  featuredInfo: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 16,
+    top: 16,
+    left: 16,
+    right: 16,
   },
   featuredTitle: {
     fontSize: 18,
     fontWeight: '500',
     color: '#FFFFFF',
-    marginBottom: 8,
     lineHeight: 24,
     fontFamily: fonts.heading,
+  },
+  featuredBottom: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
   },
   featuredMeta: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
-    marginBottom: 12,
   },
   featuredMetaItem: {
     flexDirection: 'row',
@@ -942,24 +916,17 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.8)',
     fontFamily: fonts.body,
   },
-  rsvpButton: {
-    alignSelf: 'flex-start',
-  },
-  rsvpGradient: {
+  paginationDots: {
     flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 12,
     gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: 10,
   },
-  rsvpText: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#FFFFFF',
-    fontFamily: fonts.bodyBold,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
+  dot: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#FFF44F',
   },
   // Vibe Filters
   vibesSection: {
@@ -1004,6 +971,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.5)',
     fontWeight: '500',
     fontFamily: fonts.body,
+    flexShrink: 0,
   },
   popularContainer: {
     paddingHorizontal: 20,

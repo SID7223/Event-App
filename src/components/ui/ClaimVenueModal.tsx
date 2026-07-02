@@ -211,13 +211,17 @@ const ClaimVenueModal: React.FC<ClaimVenueModalProps> = ({ visible, onClose, ven
 
               {/* Submit */}
               <TouchableOpacity
-                style={[styles.submitBtn, !isFormValid && styles.submitBtnDisabled]}
+                style={[styles.retroSubmitOuter, !isFormValid && styles.submitBtnDisabled]}
                 onPress={handleSubmit}
                 disabled={!isFormValid}
                 activeOpacity={0.8}
               >
-                <Ionicons name="shield-checkmark-outline" size={20} color="#FFFFFF" />
-                <Text style={styles.submitBtnText}>Submit Claim Request</Text>
+                <View style={styles.retroSubmitInner}>
+                  <Text style={styles.retroSubmitText}>Submit Claim Request</Text>
+                  <View style={styles.retroSubmitArrow}>
+                    <Ionicons name="arrow-forward" size={12} color="#0A0C12" />
+                  </View>
+                </View>
               </TouchableOpacity>
 
               <Text style={styles.disclaimer}>
@@ -412,6 +416,41 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodyBold,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
+  },
+  retroSubmitOuter: {
+    height: 52,
+    borderWidth: 1.5,
+    borderColor: '#FFF44F',
+    borderRadius: 8,
+    padding: 2,
+    marginTop: 8,
+    marginBottom: 12,
+    justifyContent: 'center',
+  },
+  retroSubmitInner: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#FFF44F',
+    borderRadius: 6,
+  },
+  retroSubmitText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#0A0C12',
+    fontFamily: fonts.bodyBold,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+  },
+  retroSubmitArrow: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   disclaimer: {
     fontSize: 11,

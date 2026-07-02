@@ -9,8 +9,6 @@ import {
   ViewStyle,
   GestureResponderEvent,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { fonts } from '../../theme/fonts';
 
@@ -26,10 +24,13 @@ interface GradientButtonProps {
 }
 
 const sizes = {
-  sm: { height: 44, fontSize: 14, paddingH: 16 },
-  md: { height: 52, fontSize: 16, paddingH: 20 },
-  lg: { height: 58, fontSize: 17, paddingH: 24 },
+  sm: { height: 40, fontSize: 11, paddingH: 14 },
+  md: { height: 46, fontSize: 12, paddingH: 18 },
+  lg: { height: 52, fontSize: 13, paddingH: 22 },
 };
+
+const LEMON = '#FFF44F';
+const DARK = '#0A0C12';
 
 const GradientButton: React.FC<GradientButtonProps> = ({
   title,
@@ -64,85 +65,56 @@ const GradientButton: React.FC<GradientButtonProps> = ({
   const sizeConfig = sizes[size];
 
   const renderPrimary = () => (
-    <LinearGradient
-      colors={['#3DE2D1', '#FF5A3C']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
-      style={[styles.gradient, { height: sizeConfig.height, borderRadius: 16 }]}
-    >
-      {loading ? (
-        <ActivityIndicator color="#fff" size="small" />
-      ) : (
-        <View style={styles.row}>
-          {icon && <Ionicons name={icon} size={sizeConfig.fontSize} color="#fff" style={styles.icon} />}
-          <Text style={[styles.text, { fontSize: sizeConfig.fontSize }]}>{title}</Text>
-        </View>
-      )}
-    </LinearGradient>
+    <View style={[styles.retroOuter, { borderColor: LEMON }]}>
+      <View style={[styles.retroInner, { height: sizeConfig.height, backgroundColor: LEMON }]}>
+        {loading ? (
+          <ActivityIndicator color={DARK} size="small" />
+        ) : (
+          <View style={styles.row}>
+            {icon && <Ionicons name={icon} size={sizeConfig.fontSize} color={DARK} style={styles.icon} />}
+            <Text style={[styles.text, { fontSize: sizeConfig.fontSize }]}>{title}</Text>
+            <View style={styles.arrowWrap}>
+              <Ionicons name="arrow-forward" size={12} color={DARK} />
+            </View>
+          </View>
+        )}
+      </View>
+    </View>
   );
 
   const renderSecondary = () => (
-    <View
-      style={[
-        styles.secondaryContainer,
-        {
-          height: sizeConfig.height,
-          borderRadius: 16,
-          backgroundColor: 'rgba(255,255,255,0.08)',
-          borderColor: 'rgba(255,255,255,0.12)',
-        },
-      ]}
-    >
-      <BlurView intensity={20} tint="dark" style={styles.blurView}>
-        <View style={[styles.row, { paddingHorizontal: sizeConfig.paddingH }]}>
-          {loading ? (
-            <ActivityIndicator color="#fff" size="small" />
-          ) : (
-            <>
-              {icon && (
-                <Ionicons name={icon} size={sizeConfig.fontSize} color="#fff" style={styles.icon} />
-              )}
-              <Text style={[styles.text, { fontSize: sizeConfig.fontSize }]}>{title}</Text>
-            </>
-          )}
-        </View>
-      </BlurView>
+    <View style={[styles.retroOuter, { borderColor: 'rgba(255,255,255,0.2)' }]}>
+      <View style={[styles.retroInner, { height: sizeConfig.height, backgroundColor: 'rgba(255,255,255,0.08)' }]}>
+        {loading ? (
+          <ActivityIndicator color="#fff" size="small" />
+        ) : (
+          <View style={styles.row}>
+            {icon && <Ionicons name={icon} size={sizeConfig.fontSize} color="#fff" style={styles.icon} />}
+            <Text style={[styles.textSecondary, { fontSize: sizeConfig.fontSize }]}>{title}</Text>
+            <View style={[styles.arrowWrap, { backgroundColor: 'rgba(255,255,255,0.15)' }]}>
+              <Ionicons name="arrow-forward" size={12} color="#fff" />
+            </View>
+          </View>
+        )}
+      </View>
     </View>
   );
 
   const renderOutline = () => (
-    <View style={[styles.outlineContainer, { height: sizeConfig.height, borderRadius: 16 }]}>
-      <LinearGradient
-        colors={['rgba(61,226,209,0.3)', 'rgba(255,90,60,0.3)']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={[styles.outlineBorder, { borderRadius: 16 }]}
-      >
-        <View
-          style={[
-            styles.outlineInner,
-            { height: sizeConfig.height - 2, borderRadius: 15, paddingHorizontal: sizeConfig.paddingH },
-          ]}
-        >
-          {loading ? (
-            <ActivityIndicator color="#3DE2D1" size="small" />
-          ) : (
-            <>
-              {icon && (
-                <Ionicons name={icon} size={sizeConfig.fontSize} color="#3DE2D1" style={styles.icon} />
-              )}
-              <LinearGradient
-                colors={['#3DE2D1', '#FF5A3C']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.textGradient}
-              >
-                <Text style={[styles.textGradientInner, { fontSize: sizeConfig.fontSize }]}>{title}</Text>
-              </LinearGradient>
-            </>
-          )}
-        </View>
-      </LinearGradient>
+    <View style={[styles.retroOuter, { borderColor: LEMON }]}>
+      <View style={[styles.retroInner, { height: sizeConfig.height, backgroundColor: 'transparent' }]}>
+        {loading ? (
+          <ActivityIndicator color={LEMON} size="small" />
+        ) : (
+          <View style={styles.row}>
+            {icon && <Ionicons name={icon} size={sizeConfig.fontSize} color={LEMON} style={styles.icon} />}
+            <Text style={[styles.textOutline, { fontSize: sizeConfig.fontSize }]}>{title}</Text>
+            <View style={[styles.arrowWrap, { borderColor: LEMON, borderWidth: 1, backgroundColor: 'transparent' }]}>
+              <Ionicons name="arrow-forward" size={12} color={LEMON} />
+            </View>
+          </View>
+        )}
+      </View>
     </View>
   );
 
@@ -174,52 +146,55 @@ const GradientButton: React.FC<GradientButtonProps> = ({
 };
 
 const styles = StyleSheet.create({
-  gradient: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
+  retroOuter: {
+    borderWidth: 1.5,
+    borderRadius: 6,
+    padding: 2,
   },
-  secondaryContainer: {
-    overflow: 'hidden',
-  },
-  blurView: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  outlineContainer: {
-    overflow: 'hidden',
-  },
-  outlineBorder: {
-    padding: 1,
-  },
-  outlineInner: {
-    backgroundColor: 'rgba(0,0,0,0.7)',
+  retroInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 4,
+    paddingHorizontal: 18,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
+  },
+  arrowWrap: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   text: {
-    color: '#fff',
+    color: DARK,
     fontWeight: '500',
-    letterSpacing: 0.8,
+    letterSpacing: 1.2,
+    fontFamily: fonts.bodyBold,
+    textTransform: 'uppercase',
+  },
+  textSecondary: {
+    color: '#FFFFFF',
+    fontWeight: '500',
+    letterSpacing: 1.2,
+    fontFamily: fonts.bodyBold,
+    textTransform: 'uppercase',
+  },
+  textOutline: {
+    color: LEMON,
+    fontWeight: '500',
+    letterSpacing: 1.2,
     fontFamily: fonts.bodyBold,
     textTransform: 'uppercase',
   },
   icon: {
-    marginRight: 8,
-  },
-  textGradient: {},
-  textGradientInner: {
-    fontWeight: '500',
-    letterSpacing: 0.8,
-    fontFamily: fonts.bodyBold,
-    color: '#3DE2D1',
-    textTransform: 'uppercase',
+    marginRight: 0,
   },
 });
 
