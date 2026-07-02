@@ -48,13 +48,6 @@ const SplashScreen: React.FC = () => {
         useNativeDriver: true,
       }).start();
     }, 1400);
-
-    // Auto-navigate to Auth after 3 seconds
-    const timer = setTimeout(() => {
-      navigation.replace('Auth');
-    }, 3000);
-
-    return () => clearTimeout(timer);
   }, []);
 
   return (

@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Dimensions,
   TextInput,
   TouchableOpacity,
   ScrollView,
@@ -12,13 +11,10 @@ import {
   StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store';
 import { mockUser } from '../../services/mockData';
-
-const { width } = Dimensions.get('window');
 
 const SignupScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -128,7 +124,7 @@ const SignupScreen: React.FC = () => {
             <View style={[styles.inputWrapper, errors.phone ? styles.inputError : null]}>
               <TextInput
                 style={styles.input}
-                placeholder="Phone Number"
+                placeholder="Phone Number (optional)"
                 placeholderTextColor="rgba(255,255,255,0.35)"
                 value={phone}
                 onChangeText={setPhone}
@@ -185,20 +181,15 @@ const SignupScreen: React.FC = () => {
               activeOpacity={0.88}
               style={{ marginTop: 28 }}
             >
-              <LinearGradient
-                colors={['#FF6B4A', '#E43414']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.signupBtn}
-              >
+              <View style={styles.signupBtn}>
                 <Text style={styles.signupBtnText}>Sign Up</Text>
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
 
             {/* Login link */}
             <View style={styles.loginRow}>
               <Text style={styles.loginText}>Already have an account? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+              <TouchableOpacity onPress={() => navigation.navigate('Auth')}>
                 <Text style={styles.loginLink}>Login</Text>
               </TouchableOpacity>
             </View>
@@ -313,9 +304,10 @@ const styles = StyleSheet.create({
   },
   signupBtn: {
     height: 56,
-    borderRadius: 28,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#E43414',
   },
   signupBtnText: {
     color: '#FFFFFF',
@@ -335,7 +327,7 @@ const styles = StyleSheet.create({
   },
   loginLink: {
     fontSize: 15,
-    color: '#FFFFFF',
+    color: '#E43414',
     fontWeight: '500',
   },
 });

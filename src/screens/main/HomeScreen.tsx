@@ -623,7 +623,7 @@ const HomeScreen: React.FC = () => {
               <View style={styles.sectionHeader}>
                 <View style={styles.sectionTitleRow}>
                   <Ionicons name="trending-up" size={18} color="#FF6B4A" />
-                  <Text style={styles.sectionTitle}>Popular in {userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}</Text>
+                  <Text style={styles.sectionTitle} numberOfLines={1}>Popular in {userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}</Text>
                 </View>
                 <TouchableOpacity onPress={() => setActiveTab('ExploreTab')}>
                   <Text style={styles.seeAll}>See All</Text>
@@ -649,7 +649,7 @@ const HomeScreen: React.FC = () => {
               <View style={styles.sectionHeader}>
                 <View style={styles.sectionTitleRow}>
                   <Ionicons name="calendar" size={18} color="#E43414" />
-                  <Text style={styles.sectionTitle}>New & Upcoming</Text>
+                  <Text style={styles.sectionTitle} numberOfLines={1}>New & Upcoming</Text>
                 </View>
                 <TouchableOpacity onPress={() => setActiveTab('ExploreTab')}>
                   <Text style={styles.seeAll}>See All</Text>
@@ -953,13 +953,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    flex: 1,
+    minWidth: 0,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '500',
     color: '#FFFFFF',
     fontFamily: fonts.heading,
-    flex: 1,
+    flexShrink: 1,
   },
   sectionCount: {
     fontSize: 14,

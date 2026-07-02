@@ -50,9 +50,20 @@ const LocationStep: React.FC = () => {
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [error, setError] = useState('');
   
-  const pulseAnim = useRef(new Animated.Value(1)).current;
   const fadeIn = useRef(new Animated.Value(0)).current;
   const checkmarkScale = useRef(new Animated.Value(0)).current;
+  const ringScale = useRef(new Animated.Value(0)).current;
+  const ringOpacity = useRef(new Animated.Value(0)).current;
+  const bgGreen = useRef(new Animated.Value(0)).current;
+  const dottedRotation = useRef(new Animated.Value(0)).current;
+  const dotAnims = useRef(
+    Array.from({ length: 8 }, () => ({
+      x: new Animated.Value(0),
+      y: new Animated.Value(0),
+      opacity: new Animated.Value(0),
+      scale: new Animated.Value(0),
+    }))
+  ).current;
 
   useEffect(() => {
     Animated.timing(fadeIn, {
@@ -63,23 +74,87 @@ const LocationStep: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (isDetecting) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.2,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
+    if (selectedLocation) {
+      runConfirmAnimation();
     }
-  }, [isDetecting]);
+  }, [selectedLocation]);
+
+  const runConfirmAnimation = () => {
+    // Phase 1: Dots appear on circle boundary and orbit (0-1s)
+    const phase1 = dotAnims.map((dot) => {
+      dot.opacity.setValue(0);
+      dot.scale.setValue(0);
+      return Animated.parallel([
+        Animated.timing(dot.opacity, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(dot.scale, {
+          toValue: 1,
+          tension: 80,
+          friction: 8,
+          useNativeDriver: true,
+        }),
+      ]);
+    });
+
+    // Orbit rotation (counter-clockwise, 1 second)
+    const orbitAnim = Animated.loop(
+      Animated.timing(dottedRotation, {
+        toValue: -1,
+        duration: 800,
+        useNativeDriver: true,
+      })
+    );
+
+    // Phase 2: Dots fade out + green bg fills + tick pops (after 1s)
+    const phase2 = Animated.parallel([
+      // Dots fade out
+      ...dotAnims.map((dot) =>
+        Animated.timing(dot.opacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        })
+      ),
+      // Green background fill
+      Animated.timing(bgGreen, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      // Ring appears
+      Animated.spring(ringScale, {
+        toValue: 1,
+        tension: 60,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+      Animated.timing(ringOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      // Checkmark pops in
+      Animated.sequence([
+        Animated.delay(120),
+        Animated.spring(checkmarkScale, {
+          toValue: 1,
+          tension: 100,
+          friction: 6,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]);
+
+    // Run: orbit for 1s, then phase2
+    Animated.sequence([
+      Animated.parallel([Animated.parallel(phase1), orbitAnim]),
+      Animated.delay(800),
+      phase2,
+    ]).start();
+  };
 
   useEffect(() => {
     if (manualInput.length > 0) {
@@ -131,14 +206,6 @@ const LocationStep: React.FC = () => {
         
         setSelectedLocation(detectedLocation);
         setIsDetecting(false);
-        
-        // Show checkmark animation
-        Animated.spring(checkmarkScale, {
-          toValue: 1,
-          tension: 65,
-          friction: 11,
-          useNativeDriver: true,
-        }).start();
       }
     } catch (err) {
       setError('Could not detect location. Please enter manually.');
@@ -159,13 +226,6 @@ const LocationStep: React.FC = () => {
     setSelectedLocation(location);
     setManualInput(suggestion.full);
     setSuggestions([]);
-    
-    Animated.spring(checkmarkScale, {
-      toValue: 1,
-      tension: 65,
-      friction: 11,
-      useNativeDriver: true,
-    }).start();
   };
 
   const handleContinue = () => {
@@ -224,21 +284,77 @@ const LocationStep: React.FC = () => {
 
           {/* Location Icon */}
           <View style={styles.iconContainer}>
+            {/* Animated dots — orbit wrapper */}
+            {selectedLocation && (
+              <Animated.View
+                style={[
+                  styles.orbitWrapper,
+                  {
+                    transform: [{
+                      rotate: dottedRotation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ['0deg', '-360deg'],
+                      }),
+                    }],
+                  },
+                ]}
+              >
+                {dotAnims.map((dot, i) => {
+                  const angle = (2 * Math.PI / dotAnims.length) * i;
+                  const radius = 50;
+                  return (
+                    <Animated.View
+                      key={i}
+                      style={[
+                        styles.floatingDot,
+                        {
+                          opacity: dot.opacity,
+                          transform: [
+                            { translateX: Math.cos(angle) * radius },
+                            { translateY: Math.sin(angle) * radius },
+                            { scale: dot.scale },
+                          ],
+                        },
+                      ]}
+                    />
+                  );
+                })}
+              </Animated.View>
+            )}
+
+            {/* Green ring — appears after spin */}
+            {selectedLocation && (
+              <Animated.View
+                style={[
+                  styles.greenRing,
+                  {
+                    opacity: ringOpacity,
+                    transform: [{ scale: ringScale }],
+                  },
+                ]}
+              />
+            )}
+
+            {/* Main circle — fills green */}
             <Animated.View
               style={[
-                styles.pulseCircle,
-                { transform: [{ scale: pulseAnim }] },
+                styles.iconBackground,
+                {
+                  backgroundColor: bgGreen.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['rgba(255,255,255,0.06)', '#2ED573'],
+                  }),
+                },
               ]}
-            />
-            <View style={styles.iconBackground}>
+            >
               {selectedLocation ? (
                 <Animated.View style={{ transform: [{ scale: checkmarkScale }] }}>
-                  <Ionicons name="checkmark-circle" size={64} color="#2ED573" />
+                  <Ionicons name="checkmark" size={48} color="#FFFFFF" />
                 </Animated.View>
               ) : (
-                <Ionicons name="location" size={48} color="#FF6B4A" />
+                <Ionicons name="location" size={48} color="#FF6B4A" style={{ marginTop: 4 }} />
               )}
-            </View>
+            </Animated.View>
           </View>
 
           {/* Auto Detect Button */}
@@ -430,24 +546,43 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '500',
     color: '#FFFFFF',
-    marginBottom: 8,
+    marginBottom: 4,
     fontFamily: fonts.heading,
   },
   subtitle: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.5)',
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.45)',
     fontFamily: fonts.body,
   },
   iconContainer: {
     alignItems: 'center',
-    marginBottom: 32,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: 20,
+    width: 120,
+    height: 120,
   },
-  pulseCircle: {
+  orbitWrapper: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  floatingDot: {
+    position: 'absolute',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#2ED573',
+  },
+  greenRing: {
     position: 'absolute',
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: 'rgba(255,107,74,0.2)',
+    borderWidth: 3,
+    borderColor: '#2ED573',
   },
   iconBackground: {
     width: 100,
@@ -456,24 +591,21 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.06)',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255,107,74,0.3)',
   },
   detectBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    alignSelf: 'center',
     backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
-    height: 56,
+    height: 50,
     gap: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255,107,74,0.3)',
+    paddingHorizontal: 24,
     marginBottom: 24,
   },
   detectBtnDisabled: {
     opacity: 0.7,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   detectBtnText: {
     fontSize: 16,
