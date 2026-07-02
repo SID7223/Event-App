@@ -7,6 +7,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AppNavigator from './src/navigation';
 import { loadFonts } from './src/theme/fonts';
+import { fetchWeather, isWeatherCacheValid } from './src/utils/weather';
+import { useApp, useAuth } from './src/store';
 
 // Keep splash screen visible while fonts load
 SplashScreen.preventAutoHideAsync();
@@ -27,8 +29,18 @@ const DarkTheme = {
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const { weather, setWeather } = useApp();
+  const { userSelectedCity } = useAuth();
 
   useEffect(() => {
+    // Prefetch weather while fonts load — data ready by HomeScreen mount
+    const city = userSelectedCity || 'lahore';
+    if (!isWeatherCacheValid(weather) || weather?.city !== city.toLowerCase()) {
+      fetchWeather(city).then((data) => {
+        if (data) setWeather(data);
+      }).catch(() => {});
+    }
+
     loadFonts()
       .then(() => setFontsLoaded(true))
       .catch(console.error);
