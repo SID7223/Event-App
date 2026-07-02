@@ -469,6 +469,15 @@ export const useApp = create<AppState>()(
         cinemas: state.cinemas,
         showtimes: state.showtimes,
       }),
+      // Version bump: v2 strips stale weather data from old AsyncStorage
+      version: 2,
+      migrate: (persistedState: any, version: number) => {
+        if (version < 2 && persistedState) {
+          // Remove stale weather cached from previous versions
+          delete persistedState.weather;
+        }
+        return persistedState;
+      },
     }
   )
 );
