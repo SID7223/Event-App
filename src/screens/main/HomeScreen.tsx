@@ -24,13 +24,12 @@ import { fonts } from '../../theme/fonts';
 import {
   getTimeOfDay,
   GRADIENT_MAP,
-  getWeatherIconKey,
-  getWeatherIconKeyFromText,
+  getWeatherEmoji,
+  getWeatherEmojiFromText,
   fetchWeather,
   isWeatherCacheValid,
   TimeOfDay,
 } from '../../utils/weather';
-import { WEATHER_ICONS } from '../../assets/weatherIcons';
 
 const { width } = Dimensions.get('window');
 
@@ -94,10 +93,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
   // Time-of-day and weather
   const timeOfDay: TimeOfDay = getTimeOfDay();
   const gradientColors = GRADIENT_MAP[timeOfDay];
-  const weatherIconKey = weather
-    ? getWeatherIconKeyFromText(weather.condition, weather.isDay)
-    : getWeatherIconKey(800, timeOfDay !== 'night');
-  const weatherIconUri = WEATHER_ICONS[weatherIconKey];
+  const weatherEmoji = weather
+    ? getWeatherEmojiFromText(weather.condition, weather.isDay)
+    : getWeatherEmoji(800, timeOfDay !== 'night');
 
   // Fetch weather on mount and when city changes
   useEffect(() => {
@@ -444,9 +442,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
         <View style={styles.greetingContainer}>
           <View style={styles.greetingRow}>
             <Text style={styles.greeting}>{getGreeting()},</Text>
-            {weatherIconUri ? (
-              <Image source={{ uri: weatherIconUri }} style={styles.weatherIcon} />
-            ) : null}
+            <Text style={styles.weatherEmoji}>{weatherEmoji}</Text>
           </View>
           <Text style={styles.greetingSubtext}>{getGreetingSubtext()}</Text>
         </View>
@@ -622,10 +618,8 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: fonts.heading,
   },
-  weatherIcon: {
-    width: 30,
-    height: 30,
-    marginLeft: 6,
+  weatherEmoji: {
+    fontSize: 26,
   },
   greetingSubtext: {
     fontSize: 16,
