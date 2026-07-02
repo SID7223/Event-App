@@ -121,13 +121,14 @@ export const fetchWeather = async (city: string): Promise<WeatherData | null> =>
   const coords = CITY_COORDS[city.toLowerCase()];
   if (!coords) return null;
 
+  const apiKey = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
+  if (!apiKey) return null;
+
   try {
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${coords.lat}&lon=${coords.lon}&units=metric&appid=demo`;
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${coords.lat}&lon=${coords.lon}&units=metric&appid=${apiKey}`;
     const response = await fetch(url);
 
-    if (!response.ok) {
-      return generateFallbackWeather(city);
-    }
+    if (!response.ok) return null;
 
     const data = await response.json();
     const isDay = data.weather?.[0]?.icon?.endsWith('d') ?? true;
@@ -141,30 +142,8 @@ export const fetchWeather = async (city: string): Promise<WeatherData | null> =>
       city: city.toLowerCase(),
     };
   } catch {
-    return generateFallbackWeather(city);
+    return null;
   }
-};
-
-const generateFallbackWeather = (city: string): WeatherData => {
-  const hour = new Date().getHours();
-  const isDay = hour >= 6 && hour < 19;
-
-  const cityDefaults: Record<string, { condition: string; code: number }> = {
-    lahore: { condition: 'Haze', code: 741 },
-    karachi: { condition: 'Clear', code: 800 },
-    islamabad: { condition: 'Partly cloudy', code: 801 },
-  };
-
-  const fallback = cityDefaults[city.toLowerCase()] ?? { condition: 'Clear', code: 800 };
-
-  return {
-    condition: fallback.condition,
-    conditionCode: fallback.code,
-    tempC: isDay ? 32 : 26,
-    isDay,
-    fetchedAt: Date.now(),
-    city: city.toLowerCase(),
-  };
 };
 
 export const isWeatherCacheValid = (weather: WeatherData | null): boolean => {
