@@ -98,6 +98,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
     : getWeatherIconKey(800, timeOfDay !== 'night');
   const weatherIconSource = WEATHER_ICON_MAP[weatherIconKey];
 
+  // Debug: log weather state
+  useEffect(() => {
+    console.log('[Home] weather:', weather ? `${weather.condition} code=${weather.conditionCode} isDay=${weather.isDay}` : 'null');
+    console.log('[Home] weatherIconKey:', weatherIconKey);
+    console.log('[Home] timeOfDay:', timeOfDay);
+  }, [weather, weatherIconKey]);
+
   // Fetch weather on mount and when city changes
   useEffect(() => {
     if (isWeatherCacheValid(weather) && weather?.city === userSelectedCity.toLowerCase()) {

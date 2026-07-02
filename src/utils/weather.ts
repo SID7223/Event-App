@@ -122,18 +122,24 @@ export const fetchWeather = async (city: string): Promise<WeatherData | null> =>
   if (!coords) return null;
 
   const apiKey = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) {
+    console.warn('[Weather] EXPO_PUBLIC_WEATHER_API_KEY not set in .env');
+    return null;
+  }
 
   try {
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${coords.lat}&lon=${coords.lon}&units=metric&appid=${apiKey}`;
+    console.log('[Weather] Fetching:', url);
     const response = await fetch(url);
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.warn('[Weather] API error:', response.status);
+      return null;
+    }
 
     const data = await response.json();
     const isDay = data.weather?.[0]?.icon?.endsWith('d') ?? true;
-
-    return {
+    const result: WeatherData = {
       condition: data.weather?.[0]?.description ?? 'Clear',
       conditionCode: data.weather?.[0]?.id ?? 800,
       tempC: Math.round(data.main?.temp ?? 25),
@@ -141,7 +147,10 @@ export const fetchWeather = async (city: string): Promise<WeatherData | null> =>
       fetchedAt: Date.now(),
       city: city.toLowerCase(),
     };
-  } catch {
+    console.log('[Weather] Result:', result.condition, 'code=' + result.conditionCode, 'isDay=' + result.isDay);
+    return result;
+  } catch (e) {
+    console.warn('[Weather] Fetch failed:', e);
     return null;
   }
 };
