@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.1)',
   },
   appleBtn: {
-    backgroundColor: '#000000',
+    backgroundColor: '#8B2010',
   },
   socialBtnText: {
     fontSize: 15,

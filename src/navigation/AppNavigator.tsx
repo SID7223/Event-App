@@ -82,7 +82,7 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen
             name="HostEvent"
             component={HostEventScreen}
-            options={{ presentation: 'card' }}
+            options={{ presentation: 'card', animation: 'slide_from_left' }}
           />
           <Stack.Screen name="Notifications" component={NotificationsScreen} />
           <Stack.Screen name="Cinema" component={CinemaScreen} />

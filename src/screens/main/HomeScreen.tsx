@@ -18,7 +18,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth, useApp } from '../../store';
 import { sortVibesByPreferences, getAttendingFriends } from '../../services/mockData';
 import { Event, VibeCategory } from '../../types';
-import AnimatedHamburger from '../../components/ui/AnimatedHamburger';
 import GlassPill from '../../components/ui/GlassPill';
 import { BlurView } from 'expo-blur';
 import { useFilteredContent } from '../../hooks/useFilteredContent';
@@ -32,6 +31,7 @@ import {
   TimeOfDay,
 } from '../../utils/weather';
 import { WEATHER_ICON_MAP } from '../../assets/weatherIcons';
+import { getDynamicGreeting } from '../../utils/greetingEngine';
 
 const { width } = Dimensions.get('window');
 
@@ -50,49 +50,136 @@ const formatTime = (time: string) => {
   return `${h12}:${m} ${ampm}`;
 };
 
-const getGreeting = (): string => {
-  const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) {
-    return 'Good Morning';
-  } else if (hour >= 12 && hour < 17) {
-    return 'Good Afternoon';
-  } else if (hour >= 17 && hour < 21) {
-    return 'Good Evening';
-  } else {
-    return 'Good Night';
-  }
-};
+const getGreetingSubtext = (upcomingEvents: Event[]): string => {
+  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const currentHour = now.getHours();
 
-const getGreetingSubtext = (): string => {
-  const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) {
+  // Find events happening today
+  const todayEvents = upcomingEvents.filter(e => e.date === today);
+
+  // Find events happening in the next 3 hours
+  const soonEvents = upcomingEvents.filter(e => {
+    const eventDate = new Date(`${e.date}T${e.time}`);
+    const diffHours = (eventDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+    return diffHours >= 0 && diffHours <= 3;
+  });
+
+  // Priority 1: Event happening very soon (within 3 hours)
+  if (soonEvents.length > 0) {
+    const nextEvent = soonEvents[0];
+    const category = nextEvent.category.toLowerCase();
+
+    if (category.includes('sport') || category.includes('gym') || category.includes('fitness') || category.includes('play')) {
+      return `Ready to sweat? 💪`;
+    } else if (category.includes('dining') || category.includes('restaurant') || category.includes('food') || category.includes('cafe')) {
+      return `Dinner plans tonight? 🍽️`;
+    } else if (category.includes('cinema') || category.includes('movie') || category.includes('film')) {
+      return `Movie night awaits! 🎬`;
+    } else {
+      return `${nextEvent.title} is coming up!`;
+    }
+  }
+
+  // Priority 2: Events today
+  if (todayEvents.length > 0) {
+    const nextEvent = todayEvents[0];
+    const category = nextEvent.category.toLowerCase();
+
+    if (category.includes('sport') || category.includes('gym') || category.includes('fitness') || category.includes('play')) {
+      return `Time to play today! ⚽`;
+    } else if (category.includes('dining') || category.includes('restaurant') || category.includes('food') || category.includes('cafe')) {
+      return `Hungry for today? 🍕`;
+    } else if (category.includes('cinema') || category.includes('movie') || category.includes('film')) {
+      return `What\'s showing today? 🎬`;
+    } else {
+      return `Excited for today?`;
+    }
+  }
+
+  // Priority 3: Upcoming events this week
+  if (upcomingEvents.length > 0) {
+    const nextEvent = upcomingEvents[0];
+    const category = nextEvent.category.toLowerCase();
+
+    if (category.includes('sport') || category.includes('gym') || category.includes('fitness') || category.includes('play')) {
+      return `Plan your next workout 💪`;
+    } else if (category.includes('dining') || category.includes('restaurant') || category.includes('food') || category.includes('cafe')) {
+      return `Where to eat next? 🍽️`;
+    } else if (category.includes('cinema') || category.includes('movie') || category.includes('film')) {
+      return `Check what\'s playing 🎬`;
+    } else {
+      return `Explore upcoming events`;
+    }
+  }
+
+  // Fallback: Time-based greeting
+  if (currentHour >= 5 && currentHour < 12) {
     return 'Ready to explore?';
-  } else if (hour >= 12 && hour < 17) {
+  } else if (currentHour >= 12 && currentHour < 17) {
     return 'What\'s happening today?';
-  } else if (hour >= 17 && hour < 21) {
+  } else if (currentHour >= 17 && currentHour < 21) {
     return 'Let\'s go out!';
   } else {
     return 'Discover something new';
   }
 };
 
-interface HomeScreenProps {
-  onOpenSidebar?: () => void;
-  sidebarVisible?: boolean;
-}
-
-const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible = false }) => {
+const HomeScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { location, preferences, friendsList, privateRSVPs, privacySettings } = useAuth();
+  const { location, preferences, friendsList, privateRSVPs, privacySettings, user } = useAuth();
   const { activeVibe, setActiveVibe, setActiveTab, weather, setWeather } = useApp();
-  
+
   const [showCityPicker, setShowCityPicker] = useState(false);
   const { events: filteredEventsList, userSelectedCity } = useFilteredContent();
-  const [iconOpen, setIconOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<TextInput>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chipScrollRef = useRef<ScrollView>(null);
+
+  // Dynamic greeting based on time, day, and user name
+  const [dynamicGreeting, setDynamicGreeting] = useState(() =>
+    getDynamicGreeting(undefined, undefined, user?.firstName)
+  );
+
+  // Update greeting when app comes to foreground
+  useEffect(() => {
+    setDynamicGreeting(getDynamicGreeting(undefined, undefined, user?.firstName));
+  }, [user?.firstName]);
+
+  // Render greeting with emoji after last word
+  const renderGreetingWithEmoji = () => {
+    const isLong = dynamicGreeting.length > 30;
+    const baseFontSize = isLong ? 22 : 28;
+    
+    // If no emoji source, just return plain text
+    if (!weatherIconSource) {
+      return (
+        <Text 
+          style={[styles.greeting, { fontSize: baseFontSize }]} 
+          numberOfLines={2} 
+          adjustsFontSizeToFit={true}
+        >
+          {dynamicGreeting}
+        </Text>
+      );
+    }
+
+    return (
+      <View style={styles.greetingWithEmoji}>
+        <Text 
+          style={[styles.greeting, { fontSize: baseFontSize }]} 
+          numberOfLines={2} 
+          adjustsFontSizeToFit={true}
+        >
+          {dynamicGreeting}
+        </Text>
+        <Image 
+          source={weatherIconSource} 
+          style={{ width: baseFontSize, height: baseFontSize }}
+        />
+      </View>
+    );
+  };
 
   // Time-of-day and weather
   const timeOfDay: TimeOfDay = getTimeOfDay();
@@ -140,7 +227,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
     if (!activeVibe || activeVibe === 'all') {
       return filteredEventsList;
     }
-    
+
     // Special handling for "Friends" vibe — show events where friends are attending
     if (activeVibe === 'friends') {
       return filteredEventsList.filter(e => {
@@ -148,11 +235,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
         return attending.length > 0;
       });
     }
-    
+
     const vibe = sortedVibes.find(v => v.id === activeVibe);
     if (!vibe) return filteredEventsList;
-    
-    return filteredEventsList.filter(e => 
+
+    return filteredEventsList.filter(e =>
       e.category.toLowerCase().includes(vibe.label.toLowerCase()) ||
       e.category.toLowerCase().includes(vibe.id.toLowerCase())
     );
@@ -195,32 +282,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
       .slice(0, 6);
   }, [sectionSource]);
 
-  // Sync icon state when sidebar closes externally
-  useEffect(() => {
-    if (!sidebarVisible && iconOpen) {
-      setIconOpen(false);
-    }
-  }, [sidebarVisible]);
-
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
-
-  const handleHamburgerPress = useCallback(() => {
-    if (iconOpen) {
-      setIconOpen(false);
-      onOpenSidebar?.();
-    } else {
-      setIconOpen(true);
-      timerRef.current = setTimeout(() => {
-        onOpenSidebar?.();
-      }, 300);
-    }
-  }, [iconOpen, onOpenSidebar]);
-
   const handleVibePress = (vibeId: string) => {
     const newVibe = activeVibe === vibeId ? 'all' : vibeId;
     setActiveVibe(newVibe);
@@ -237,9 +298,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
     const cities = ['Lahore', 'Karachi', 'Islamabad'];
     return (
       <Modal visible={showCityPicker} transparent animationType="fade">
-        <TouchableOpacity 
-          style={styles.modalOverlay} 
-          activeOpacity={1} 
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
           onPress={() => setShowCityPicker(false)}
         >
           <View style={styles.cityDropdownContainer}>
@@ -268,7 +329,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
 
   const renderFeaturedBanner = () => {
     if (!featuredEvent) return null;
-    
+
     return (
       <TouchableOpacity
         style={styles.featuredBanner}
@@ -281,17 +342,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
           locations={[0, 0.4, 1]}
           style={styles.featuredGradient}
         />
-        
+
         {/* Featured Badge */}
         <View style={styles.featuredBadge}>
           <Ionicons name="star" size={12} color="#FFD700" />
           <Text style={styles.featuredBadgeText}>Featured Today</Text>
         </View>
-        
+
         {/* Featured Info */}
         <View style={styles.featuredInfo}>
           <Text style={styles.featuredTitle} numberOfLines={2}>{featuredEvent.title}</Text>
-          
+
           <View style={styles.featuredMeta}>
             <View style={styles.featuredMetaItem}>
               <Ionicons name="calendar-outline" size={14} color="rgba(255,255,255,0.8)" />
@@ -308,7 +369,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
               <Text style={styles.featuredMetaText} numberOfLines={1}>{featuredEvent.venue}</Text>
             </View>
           </View>
-          
+
           {/* RSVP Button */}
           <View style={styles.rsvpButton}>
             <LinearGradient
@@ -439,10 +500,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
       >
         {/* Header */}
         <View style={styles.header}>
-          <AnimatedHamburger
-            isOpen={iconOpen}
-            onPress={handleHamburgerPress}
-          />
+          <TouchableOpacity
+            style={styles.addEventBtn}
+            onPress={() => navigation.navigate('HostEvent')}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="add" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.locationContainer}
@@ -468,12 +532,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
         {/* Greeting with Weather Emoji */}
         <View style={styles.greetingContainer}>
           <View style={styles.greetingRow}>
-            <Text style={styles.greeting}>{getGreeting()},</Text>
-            {weatherIconSource ? (
-              <Image source={weatherIconSource} style={styles.weatherIcon} />
-            ) : null}
+            {renderGreetingWithEmoji()}
           </View>
-          <Text style={styles.greetingSubtext}>{getGreetingSubtext()}</Text>
         </View>
 
         {/* Search Bar */}
@@ -483,7 +543,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
             <TextInput
               ref={searchInputRef}
               style={styles.searchInput}
-              placeholder="Search events..."
+              placeholder={getGreetingSubtext(upcomingEvents)}
               placeholderTextColor="rgba(255,255,255,0.35)"
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -541,91 +601,91 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
           </View>
         ) : (
           <>
-        {/* Featured Event Banner */}
-        {renderFeaturedBanner()}
+            {/* Featured Event Banner */}
+            {renderFeaturedBanner()}
 
-        {/* Vibe Filters */}
-        <View style={styles.vibesSection}>
-          <ScrollView
-            ref={chipScrollRef}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.vibesContainer}
-          >
-            <GlassPill
-              label="All"
-              icon="flash"
-              active={!activeVibe || activeVibe === 'all'}
-              onPress={() => handleVibePress('all')}
-              activeTextColor="#FF6B4A"
-            />
-            <GlassPill
-              label="Friends"
-              icon="people"
-              active={activeVibe === 'friends'}
-              onPress={() => handleVibePress('friends')}
-              activeTextColor="#FF6B4A"
-            />
-            {sortedVibes.map((vibe) => (
-              <GlassPill
-                key={vibe.id}
-                label={vibe.label}
-                icon={vibe.icon as any}
-                active={activeVibe === vibe.id}
-                onPress={() => handleVibePress(vibe.id)}
-                activeTextColor="#FF6B4A"
-              />
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Popular in Neighborhood Section */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionTitleRow}>
-              <Ionicons name="trending-up" size={18} color="#FF6B4A" />
-              <Text style={styles.sectionTitle}>Popular in {userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}</Text>
+            {/* Vibe Filters */}
+            <View style={styles.vibesSection}>
+              <ScrollView
+                ref={chipScrollRef}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.vibesContainer}
+              >
+                <GlassPill
+                  label="All"
+                  icon="flash"
+                  active={!activeVibe || activeVibe === 'all'}
+                  onPress={() => handleVibePress('all')}
+                  activeTextColor="#FF6B4A"
+                />
+                <GlassPill
+                  label="Friends"
+                  icon="people"
+                  active={activeVibe === 'friends'}
+                  onPress={() => handleVibePress('friends')}
+                  activeTextColor="#FF6B4A"
+                />
+                {sortedVibes.map((vibe) => (
+                  <GlassPill
+                    key={vibe.id}
+                    label={vibe.label}
+                    icon={vibe.icon as any}
+                    active={activeVibe === vibe.id}
+                    onPress={() => handleVibePress(vibe.id)}
+                    activeTextColor="#FF6B4A"
+                  />
+                ))}
+              </ScrollView>
             </View>
-            <TouchableOpacity onPress={() => setActiveTab('ExploreTab')}>
-              <Text style={styles.seeAll}>See All</Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.popularContainer}
-          >
-            {popularInArea.length > 0 ? (
-              popularInArea.map(renderPopularEvent)
-            ) : (
-              <View style={styles.emptyState}>
-                <Text style={styles.emptyText}>No popular events in your area yet</Text>
-              </View>
-            )}
-          </ScrollView>
-        </View>
 
-        {/* New & Upcoming Section */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionTitleRow}>
-              <Ionicons name="calendar" size={18} color="#E43414" />
-              <Text style={styles.sectionTitle}>New & Upcoming</Text>
-            </View>
-            <TouchableOpacity onPress={() => setActiveTab('ExploreTab')}>
-              <Text style={styles.seeAll}>See All</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.upcomingContainer}>
-            {upcomingEvents.length > 0 ? (
-              upcomingEvents.map(renderUpcomingEvent)
-            ) : (
-              <View style={styles.emptyState}>
-                <Text style={styles.emptyText}>No upcoming events this week</Text>
+            {/* Popular in Neighborhood Section */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionTitleRow}>
+                  <Ionicons name="trending-up" size={18} color="#FF6B4A" />
+                  <Text style={styles.sectionTitle}>Popular in {userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}</Text>
+                </View>
+                <TouchableOpacity onPress={() => setActiveTab('ExploreTab')}>
+                  <Text style={styles.seeAll}>See All</Text>
+                </TouchableOpacity>
               </View>
-            )}
-          </View>
-        </View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.popularContainer}
+              >
+                {popularInArea.length > 0 ? (
+                  popularInArea.map(renderPopularEvent)
+                ) : (
+                  <View style={styles.emptyState}>
+                    <Text style={styles.emptyText}>No popular events in your area yet</Text>
+                  </View>
+                )}
+              </ScrollView>
+            </View>
+
+            {/* New & Upcoming Section */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionTitleRow}>
+                  <Ionicons name="calendar" size={18} color="#E43414" />
+                  <Text style={styles.sectionTitle}>New & Upcoming</Text>
+                </View>
+                <TouchableOpacity onPress={() => setActiveTab('ExploreTab')}>
+                  <Text style={styles.seeAll}>See All</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.upcomingContainer}>
+                {upcomingEvents.length > 0 ? (
+                  upcomingEvents.map(renderUpcomingEvent)
+                ) : (
+                  <View style={styles.emptyState}>
+                    <Text style={styles.emptyText}>No upcoming events this week</Text>
+                  </View>
+                )}
+              </View>
+            </View>
           </>
         )}
       </ScrollView>
@@ -660,6 +720,14 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     zIndex: 1,
   },
+  addEventBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -691,18 +759,18 @@ const styles = StyleSheet.create({
   greetingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
+  },
+  greetingWithEmoji: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   greeting: {
-    fontSize: 28,
+    flex: 1,
     fontWeight: '500',
-    color: '#FFFFFF',
     fontFamily: fonts.heading,
-  },
-  weatherIcon: {
-    width: 32,
-    height: 32,
-    marginLeft: 8,
+    color: '#FFFFFF',
   },
   greetingSubtext: {
     fontSize: 16,

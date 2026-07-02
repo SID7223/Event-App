@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Animated,
 } from 'react-native';
-import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,9 +20,10 @@ interface GlassNavbarProps {
   tabs: Tab[];
   activeIndex: number;
   onTabPress: (index: number) => void;
+  gradientColors?: readonly string[];
 }
 
-const GlassNavbar: React.FC<GlassNavbarProps> = ({ tabs, activeIndex, onTabPress }) => {
+const GlassNavbar: React.FC<GlassNavbarProps> = ({ tabs, activeIndex, onTabPress, gradientColors }) => {
   const panelScale = useRef(new Animated.Value(0.92)).current;
 
   useEffect(() => {
@@ -37,15 +37,20 @@ const GlassNavbar: React.FC<GlassNavbarProps> = ({ tabs, activeIndex, onTabPress
 
   return (
     <Animated.View style={[styles.floatingPanel, { transform: [{ scale: panelScale }] }]}>
-      <BlurView intensity={80} tint="dark" style={styles.blurContainer}>
+      <LinearGradient
+        colors={gradientColors?.slice(0, 2) as [string, string] ?? ['rgba(20,18,16,0.6)', 'rgba(20,18,16,0.6)']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.blurContainer}
+      >
         <LinearGradient
-          colors={['rgba(228, 52, 20, 0.12)', 'rgba(255,107,74, 0.08)']}
+          colors={['rgba(0,0,0,0.15)', 'rgba(0,0,0,0)']}
           start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}
           style={styles.gradientOverlay}
         />
         <LinearGradient
-          colors={['rgba(255,255,255,0.06)', 'rgba(255,255,255,0)']}
+          colors={['rgba(255,255,255,0.15)', 'rgba(255,255,255,0)']}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
           style={styles.topEdgeHighlight}
@@ -54,10 +59,10 @@ const GlassNavbar: React.FC<GlassNavbarProps> = ({ tabs, activeIndex, onTabPress
           {tabs.map((tab, index) => {
             const isActive = activeIndex === index;
             const iconName = isActive ? tab.icon : tab.iconOutline;
-            const color = isActive ? '#FFFFFF' : 'rgba(255,255,255,0.35)';
+            const color = '#FFFFFF';
 
             const handlePress = () => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => { });
               onTabPress(index);
             };
 
@@ -71,7 +76,7 @@ const GlassNavbar: React.FC<GlassNavbarProps> = ({ tabs, activeIndex, onTabPress
                 {isActive && (
                   <View style={styles.activeGlow}>
                     <LinearGradient
-                      colors={['rgba(228, 52, 20, 0.25)', 'rgba(228, 52, 20, 0)']}
+                      colors={['rgba(228, 51, 20, 1)', 'rgba(228, 52, 20, 0)']}
                       style={styles.glowGradient}
                     />
                   </View>
@@ -84,14 +89,13 @@ const GlassNavbar: React.FC<GlassNavbarProps> = ({ tabs, activeIndex, onTabPress
                     />
                   </View>
                 ) : (
-                  <Ionicons name={iconName} size={22} color={color} />
+                  <Ionicons name={iconName} size={24} color={color} />
                 )}
-                {isActive && <View style={styles.activeIndicator} />}
               </TouchableOpacity>
             );
           })}
         </View>
-      </BlurView>
+      </LinearGradient>
     </Animated.View>
   );
 };
@@ -99,40 +103,39 @@ const GlassNavbar: React.FC<GlassNavbarProps> = ({ tabs, activeIndex, onTabPress
 const styles = StyleSheet.create({
   floatingPanel: {
     position: 'absolute',
-    bottom: 28,
+    bottom: 20,
     left: 20,
     right: 20,
     zIndex: 999,
-    borderRadius: 40,
+    borderRadius: 24,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.55,
-    shadowRadius: 24,
-    elevation: 28,
+    shadowOpacity: 0.,
+    shadowRadius: 32,
+    elevation: 8,
   },
   blurContainer: {
-    borderRadius: 40,
+    borderRadius: 24,
     overflow: 'hidden',
-    backgroundColor: 'rgba(22, 27, 36, 0.55)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   gradientOverlay: {
     ...StyleSheet.absoluteFill,
-    borderRadius: 40,
+    borderRadius: 24,
   },
   topEdgeHighlight: {
     ...StyleSheet.absoluteFill,
-    borderRadius: 40,
+    borderRadius: 24,
     opacity: 0.5,
   },
   tabRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingVertical: 10,
-    paddingHorizontal: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 10,
   },
   tabItem: {
     flex: 1,
@@ -158,22 +161,22 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#E43414',
+    backgroundColor: '#FFFFFF',
   },
   avatarRing: {
     width: 26,
     height: 26,
     borderRadius: 13,
     borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.35)',
+    borderColor: 'rgba(255,255,255,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarRingActive: {
     borderColor: '#FFFFFF',
-    shadowColor: '#E43414',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 4,
   },

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import {
   View,
   StyleSheet,
@@ -13,9 +13,9 @@ import NotificationsScreen from '../screens/main/NotificationsScreen';
 import EventDetailScreen from '../screens/events/EventDetailScreen';
 import EditProfileScreen from '../screens/events/EditProfileScreen';
 import SettingsScreen from '../screens/main/SettingsScreen';
-import Sidebar from '../components/layout/Sidebar';
 import GlassNavbar from '../components/ui/GlassNavbar';
 import { useApp } from '../store';
+import { getTimeOfDay, GRADIENT_MAP } from '../utils/weather';
 
 type TabName = 'HomeTab' | 'ExploreTab' | 'PlansTab' | 'ProfileTab';
 
@@ -29,17 +29,11 @@ const TABS = [
 const MainNavigator: React.FC = () => {
   const activeTab = useApp((s) => s.activeTab);
   const setActiveTab = useApp((s) => s.setActiveTab);
-  const [sidebarVisible, setSidebarVisible] = useState(false);
-
-  const toggleSidebar = useCallback(() => {
-    setSidebarVisible((prev) => !prev);
-  }, []);
-  const closeSidebar = useCallback(() => setSidebarVisible(false), []);
 
   const renderScreen = () => {
     switch (activeTab) {
       case 'HomeTab':
-        return <HomeScreen onOpenSidebar={toggleSidebar} sidebarVisible={sidebarVisible} />;
+        return <HomeScreen />;
       case 'ExploreTab':
         return <ExploreScreen />;
       case 'PlansTab':
@@ -47,7 +41,7 @@ const MainNavigator: React.FC = () => {
       case 'ProfileTab':
         return <ProfileScreen />;
       default:
-        return <HomeScreen onOpenSidebar={toggleSidebar} sidebarVisible={sidebarVisible} />;
+        return <HomeScreen />;
     }
   };
 
@@ -61,9 +55,8 @@ const MainNavigator: React.FC = () => {
         tabs={TABS}
         activeIndex={TABS.findIndex(t => t.name === activeTab)}
         onTabPress={(index) => setActiveTab(TABS[index].name)}
+        gradientColors={GRADIENT_MAP[getTimeOfDay()]}
       />
-
-      <Sidebar visible={sidebarVisible} onClose={closeSidebar} />
     </View>
   );
 };

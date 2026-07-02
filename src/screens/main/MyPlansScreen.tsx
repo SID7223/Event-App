@@ -290,9 +290,14 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    gap: 8,
+    marginHorizontal: 20,
     marginBottom: 16,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderRadius: 40,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    padding: 4,
+    gap: 0,
   },
 
   listContent: {

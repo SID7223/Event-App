@@ -276,15 +276,6 @@ const ProfileScreen: React.FC = () => {
 
         <View style={{ height: 40 }} />
       </ScrollView>
-
-      {/* FAB - Host an Event */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={handleHostEvent}
-        activeOpacity={0.85}
-      >
-        <Ionicons name="add" size={28} color="#0A0C12" />
-      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -567,23 +558,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#E43414',
     fontFamily: fonts.bodyBold,
-  },
-  // FAB
-  fab: {
-    position: 'absolute',
-    bottom: 100,
-    right: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#FF6B4A',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#FF6B4A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
 });
 
