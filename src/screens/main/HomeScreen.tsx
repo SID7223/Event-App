@@ -8,6 +8,8 @@ import {
   Dimensions,
   Image,
   Modal,
+  TextInput,
+  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -87,6 +89,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
   const [showCityPicker, setShowCityPicker] = useState(false);
   const { events: filteredEventsList, userSelectedCity } = useFilteredContent();
   const [iconOpen, setIconOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<TextInput>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chipScrollRef = useRef<ScrollView>(null);
 
@@ -156,6 +160,21 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
 
   // Source list for sections — uses filteredEvents when a vibe filter is active
   const sectionSource = (!activeVibe || activeVibe === 'all') ? filteredEventsList : filteredEvents;
+
+  // Search results — filter by query across title, category, venue, neighborhood
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase().trim();
+    return sectionSource.filter(e =>
+      e.title.toLowerCase().includes(q) ||
+      e.category.toLowerCase().includes(q) ||
+      e.venue.toLowerCase().includes(q) ||
+      (e.neighborhood && e.neighborhood.toLowerCase().includes(q)) ||
+      e.description.toLowerCase().includes(q)
+    );
+  }, [searchQuery, sectionSource]);
+
+  const isSearching = searchQuery.trim().length > 0;
 
   // Get popular events in neighborhood
   const popularInArea = useMemo(() => {
@@ -458,20 +477,70 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
         </View>
 
         {/* Search Bar */}
-        <TouchableOpacity
-          onPress={() => setActiveTab('ExploreTab')}
-          activeOpacity={0.85}
-          style={styles.searchBarWrap}
-        >
+        <View style={styles.searchBarWrap}>
           <BlurView intensity={40} tint="dark" style={styles.searchBarBlur}>
             <Ionicons name="search-outline" size={18} color="rgba(255,255,255,0.4)" />
-            <Text style={styles.searchPlaceholder}>Search events...</Text>
-            <TouchableOpacity style={styles.filterBtn} activeOpacity={0.7}>
-              <Ionicons name="options-outline" size={18} color="rgba(255,255,255,0.5)" />
-            </TouchableOpacity>
+            <TextInput
+              ref={searchInputRef}
+              style={styles.searchInput}
+              placeholder="Search events..."
+              placeholderTextColor="rgba(255,255,255,0.35)"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              returnKeyType="search"
+              onSubmitEditing={() => Keyboard.dismiss()}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => { setSearchQuery(''); Keyboard.dismiss(); }} activeOpacity={0.7}>
+                <Ionicons name="close-circle" size={18} color="rgba(255,255,255,0.4)" />
+              </TouchableOpacity>
+            )}
           </BlurView>
-        </TouchableOpacity>
+        </View>
 
+        {/* Search Results */}
+        {isSearching ? (
+          <View style={styles.searchResultsSection}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="search" size={18} color="#FF6B4A" />
+              <Text style={styles.sectionTitle}>Results for "{searchQuery}"</Text>
+              <Text style={styles.sectionCount}>{searchResults.length}</Text>
+            </View>
+            {searchResults.length > 0 ? (
+              searchResults.map((event) => (
+                <TouchableOpacity
+                  key={event.id}
+                  style={styles.searchResultCard}
+                  onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
+                  activeOpacity={0.85}
+                >
+                  <Image source={{ uri: event.image }} style={styles.searchResultImage} />
+                  <View style={styles.searchResultInfo}>
+                    <Text style={styles.searchResultTitle} numberOfLines={1}>{event.title}</Text>
+                    <View style={styles.searchResultMeta}>
+                      <Ionicons name="location-outline" size={12} color="rgba(255,255,255,0.5)" />
+                      <Text style={styles.searchResultMetaText} numberOfLines={1}>{event.venue}</Text>
+                    </View>
+                    <View style={styles.searchResultMeta}>
+                      <Ionicons name="calendar-outline" size={12} color="rgba(255,255,255,0.5)" />
+                      <Text style={styles.searchResultMetaText}>{event.date} · {event.time}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.searchResultPriceBadge}>
+                    <Text style={styles.searchResultPrice}>{event.price === 0 ? 'Free' : `$${event.price}`}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <View style={styles.searchEmpty}>
+                <Ionicons name="search-outline" size={48} color="rgba(255,255,255,0.15)" />
+                <Text style={styles.searchEmptyText}>No events found</Text>
+                <Text style={styles.searchEmptySubtext}>Try a different search term</Text>
+              </View>
+            )}
+          </View>
+        ) : (
+          <>
         {/* Featured Event Banner */}
         {renderFeaturedBanner()}
 
@@ -557,6 +626,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
             )}
           </View>
         </View>
+          </>
+        )}
       </ScrollView>
       {renderCityPicker()}
     </SafeAreaView>
@@ -656,19 +727,79 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.10)',
     overflow: 'hidden',
   },
-  searchPlaceholder: {
+  searchInput: {
     flex: 1,
     fontSize: 14,
-    color: 'rgba(255,255,255,0.35)',
+    color: '#FFFFFF',
+    fontFamily: fonts.body,
+    paddingVertical: 0,
+  },
+  searchResultsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 24,
+  },
+  searchResultCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 14,
+    padding: 10,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  searchResultImage: {
+    width: 56,
+    height: 56,
+    borderRadius: 10,
+  },
+  searchResultInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  searchResultTitle: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#FFFFFF',
+    fontFamily: fonts.heading,
+    marginBottom: 4,
+  },
+  searchResultMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 2,
+  },
+  searchResultMetaText: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.5)',
     fontFamily: fonts.body,
   },
-  filterBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    justifyContent: 'center',
+  searchResultPriceBadge: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  searchResultPrice: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#0A0C12',
+    fontFamily: fonts.bodyBold,
+  },
+  searchEmpty: {
     alignItems: 'center',
+    paddingVertical: 40,
+    gap: 8,
+  },
+  searchEmptyText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: 'rgba(255,255,255,0.5)',
+  },
+  searchEmptySubtext: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.3)',
   },
   // Featured Banner Styles
   featuredBanner: {
@@ -792,6 +923,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#FFFFFF',
     fontFamily: fonts.heading,
+    flex: 1,
+  },
+  sectionCount: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#FF6B4A',
   },
   seeAll: {
     fontSize: 14,
