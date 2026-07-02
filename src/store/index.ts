@@ -461,7 +461,8 @@ export const useApp = create<AppState>()(
       partialize: (state) => ({
         activeVibe: state.activeVibe,
         userSelectedCity: state.userSelectedCity,
-        weather: state.weather,
+        // NOTE: weather is intentionally NOT persisted — it is time-sensitive
+        // and must be fetched fresh on every app start to show the correct icon.
         events: state.events,
         movies: state.movies,
         restaurants: state.restaurants,
