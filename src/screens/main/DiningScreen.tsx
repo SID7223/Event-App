@@ -46,7 +46,7 @@ const DiningScreen: React.FC = () => {
   }, [activeFilter, filteredDiningList]);
 
   const handleCall = (phone: string) => {
-    Linking.openURL(`tel:${phone}`);
+    Linking.openURL(`tel:${phone}`).catch(() => {});
   };
 
   const handleDirections = (address: string) => {
@@ -56,9 +56,9 @@ const DiningScreen: React.FC = () => {
       android: `geo:0,0?q=${query}`,
     });
     if (url) {
-      Linking.openURL(url);
+      Linking.openURL(url).catch(() => {});
     } else {
-      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`);
+      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`).catch(() => {});
     }
   };
 

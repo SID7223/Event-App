@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, UserLocation, Event as AppEvent, Friend, PakistanCity, Movie, Restaurant, Cinema, MovieShowtime } from '../types';
 import { scheduleEventReminder, cancelEventReminder, scheduleTopicNotification, cancelTopicNotification } from '../utils/notifications';
+import { WeatherData } from '../utils/weather';
 import { 
   getTaggedEvents, 
   getTaggedCinemas, 
@@ -66,20 +67,24 @@ interface AuthState {
 }
 
 interface AppState {
+  activeTab: 'HomeTab' | 'ExploreTab' | 'PlansTab' | 'ProfileTab';
   activeVibe: string | null;
   searchQuery: string;
   isSearching: boolean;
   userSelectedCity: string;
+  weather: WeatherData | null;
   events: AppEvent[];
   movies: Movie[];
   restaurants: Restaurant[];
   cinemas: Cinema[];
   showtimes: MovieShowtime[];
   
+  setActiveTab: (tab: 'HomeTab' | 'ExploreTab' | 'PlansTab' | 'ProfileTab') => void;
   setActiveVibe: (vibe: string | null) => void;
   setSearchQuery: (query: string) => void;
   setIsSearching: (isSearching: boolean) => void;
   setUserSelectedCity: (city: string) => void;
+  setWeather: (weather: WeatherData | null) => void;
   setEvents: (events: AppEvent[]) => void;
   setMovies: (movies: Movie[]) => void;
   setRestaurants: (restaurants: Restaurant[]) => void;
@@ -405,20 +410,24 @@ export const useAuth = create<AuthState>()(
 export const useApp = create<AppState>()(
   persist(
     (set, get) => ({
+      activeTab: 'HomeTab' as const,
       activeVibe: null,
       searchQuery: '',
       isSearching: false,
       userSelectedCity: 'lahore',
+      weather: null,
       events: [...getTaggedEvents(), ...pakistanEvents],
       movies: [...getTaggedMovies(), ...pakistanMovies],
       restaurants: [...getTaggedRestaurants(), ...pakistanRestaurants],
       cinemas: [...getTaggedCinemas(), ...pakistanCinemas],
       showtimes: [...getTaggedShowtimes(), ...pakistanShowtimes],
       
+      setActiveTab: (tab) => set({ activeTab: tab }),
       setActiveVibe: (vibe: string | null) => set({ activeVibe: vibe }),
       setSearchQuery: (query: string) => set({ searchQuery: query }),
       setIsSearching: (isSearching: boolean) => set({ isSearching }),
       setUserSelectedCity: (city: string) => set({ userSelectedCity: city }),
+      setWeather: (weather: WeatherData | null) => set({ weather }),
       setEvents: (events: AppEvent[]) => set({ events }),
       setMovies: (movies: Movie[]) => set({ movies }),
       setRestaurants: (restaurants: Restaurant[]) => set({ restaurants }),
@@ -452,6 +461,7 @@ export const useApp = create<AppState>()(
       partialize: (state) => ({
         activeVibe: state.activeVibe,
         userSelectedCity: state.userSelectedCity,
+        weather: state.weather,
         events: state.events,
         movies: state.movies,
         restaurants: state.restaurants,

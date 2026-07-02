@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   textGradient: {},
   text: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '500',
   },
   gradientText: {
     color: '#3DE2D1',

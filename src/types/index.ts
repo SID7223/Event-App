@@ -224,6 +224,10 @@ export interface Friend {
   isOnline: boolean;
 }
 
+export interface PrivacySettings {
+  hideRSVPs: boolean;
+}
+
 // QR Code type
 export interface QRCode {
   userId: string;

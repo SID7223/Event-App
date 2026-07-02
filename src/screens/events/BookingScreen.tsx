@@ -50,6 +50,7 @@ const seatColumns = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const BookingScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
+  const { eventId } = route.params;
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -417,7 +418,10 @@ const BookingScreen: React.FC = () => {
           </View>
           <Switch
             value={isPrivateRSVP}
-            onValueChange={setIsPrivateRSVP}
+            onValueChange={(val) => {
+              setIsPrivateRSVP(val);
+              togglePrivateRSVP(eventId);
+            }}
             trackColor={{ false: 'rgba(255,255,255,0.12)', true: '#FF6B4A' }}
             thumbColor={isPrivateRSVP ? '#FFFFFF' : 'rgba(255,255,255,0.4)'}
             ios_backgroundColor="rgba(255,255,255,0.12)"
@@ -597,13 +601,13 @@ const styles = StyleSheet.create({
   },
   ticketName: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '500',
     color: colors.text.primary,
     fontFamily: fonts.subheading,
   },
   ticketPrice: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '500',
     color: colors.accent.cyan,
     fontFamily: fonts.bodyBold,
   },
@@ -639,7 +643,7 @@ const styles = StyleSheet.create({
   },
   quantityValue: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '500',
     color: colors.text.primary,
     minWidth: 40,
     textAlign: 'center',
@@ -823,7 +827,7 @@ const styles = StyleSheet.create({
   },
   summaryTotalValue: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '500',
     color: colors.accent.cyan,
     fontFamily: fonts.bodyBold,
   },
@@ -843,7 +847,7 @@ const styles = StyleSheet.create({
   },
   successTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '500',
     color: colors.text.primary,
     marginBottom: 8,
     fontFamily: fonts.heading,
@@ -871,7 +875,7 @@ const styles = StyleSheet.create({
   },
   qrText: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: '500',
     color: '#fff',
   },
   qrHint: {

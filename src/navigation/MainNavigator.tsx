@@ -15,6 +15,7 @@ import EditProfileScreen from '../screens/events/EditProfileScreen';
 import SettingsScreen from '../screens/main/SettingsScreen';
 import Sidebar from '../components/layout/Sidebar';
 import GlassNavbar from '../components/ui/GlassNavbar';
+import { useApp } from '../store';
 
 type TabName = 'HomeTab' | 'ExploreTab' | 'PlansTab' | 'ProfileTab';
 
@@ -26,7 +27,8 @@ const TABS = [
 ];
 
 const MainNavigator: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabName>('HomeTab');
+  const activeTab = useApp((s) => s.activeTab);
+  const setActiveTab = useApp((s) => s.setActiveTab);
   const [sidebarVisible, setSidebarVisible] = useState(false);
 
   const toggleSidebar = useCallback(() => {

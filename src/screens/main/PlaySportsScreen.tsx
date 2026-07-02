@@ -225,12 +225,12 @@ const PlaySportsScreen: React.FC = () => {
   const handleCheckAvailability = (venue: PlayVenue) => {
     const phone = venue.whatsapp.replace(/[^0-9]/g, '');
     const message = encodeURIComponent(`Hi! I'd like to check availability at ${venue.name}.`);
-    Linking.openURL(`https://wa.me/${phone}?text=${message}`);
+    Linking.openURL(`https://wa.me/${phone}?text=${message}`).catch(() => {});
   };
 
   const handleDirections = (address: string) => {
     const query = encodeURIComponent(address);
-    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`);
+    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`).catch(() => {});
   };
 
   const renderVenue = ({ item }: { item: PlayVenue }) => (
@@ -265,6 +265,7 @@ const PlaySportsScreen: React.FC = () => {
           <View style={styles.ratingBadge}>
             <Ionicons name="star" size={13} color="#FFD700" />
             <Text style={styles.ratingText}>{item.rating}</Text>
+            <Text style={styles.reviewCountText}>({item.reviewCount})</Text>
           </View>
         </View>
 
@@ -551,6 +552,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#FFD700',
     fontFamily: fonts.bodyBold,
+  },
+  reviewCountText: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.45)',
+    fontFamily: fonts.body,
   },
   hoursRow: {
     flexDirection: 'row',

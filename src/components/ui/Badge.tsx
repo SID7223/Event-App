@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   text: {
     color: '#fff',
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: '500',
     lineHeight: 18,
   },
 });

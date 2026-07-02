@@ -12,6 +12,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
+import { fonts } from '../../theme/fonts';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: fonts.button,
     letterSpacing: 0.2,
   },
   labelCompact: {
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 11,
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: fonts.button,
     color: 'rgba(255,255,255,0.50)',
   },
   badgeTextActive: {

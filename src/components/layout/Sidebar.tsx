@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useApp } from '../../store';
 
 const { width } = Dimensions.get('window');
 const SIDEBAR_WIDTH = width * 0.78;
@@ -36,6 +37,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ visible, onClose }) => {
   const navigation = useNavigation<any>();
+  const setActiveTab = useApp((s) => s.setActiveTab);
   const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
 
@@ -73,11 +75,12 @@ const Sidebar: React.FC<SidebarProps> = ({ visible, onClose }) => {
   const handleMenuPress = (id: string) => {
     onClose();
     setTimeout(() => {
-      if (id === 'home') navigation.navigate('HomeTab');
-      else if (id === 'explore') navigation.navigate('ExploreTab');
-      else if (id === 'myevents') navigation.navigate('PlansTab');
-      else if (id === 'notifications') navigation.navigate('HomeTab', { screen: 'Notifications' });
-      else if (id === 'settings') navigation.navigate('ProfileTab', { screen: 'Settings' });
+      if (id === 'home') setActiveTab('HomeTab');
+      else if (id === 'explore') setActiveTab('ExploreTab');
+      else if (id === 'myevents') setActiveTab('PlansTab');
+      else if (id === 'notifications') navigation.navigate('Notifications');
+      else if (id === 'settings') navigation.navigate('Settings');
+      else if (id === 'favorites') setActiveTab('PlansTab');
     }, 200);
   };
 

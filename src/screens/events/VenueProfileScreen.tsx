@@ -75,13 +75,13 @@ const VenueProfileScreen: React.FC = () => {
   const handleMapLink = () => {
     if (venue) {
       const query = encodeURIComponent(venue.address);
-      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`);
+      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`).catch(() => {});
     }
   };
 
   const handleWebsite = () => {
     if (venue?.website) {
-      Linking.openURL(venue.website);
+      Linking.openURL(venue.website).catch(() => {});
     }
   };
 

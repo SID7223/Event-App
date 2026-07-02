@@ -80,13 +80,13 @@ const OrganizerProfileScreen: React.FC = () => {
   const handleInstagram = () => {
     if (organizer?.instagram) {
       const username = organizer.instagram.replace('@', '');
-      Linking.openURL(`https://instagram.com/${username}`);
+      Linking.openURL(`https://instagram.com/${username}`).catch(() => {});
     }
   };
 
   const handleWebsite = () => {
     if (organizer?.website) {
-      Linking.openURL(organizer.website);
+      Linking.openURL(organizer.website).catch(() => {});
     }
   };
 

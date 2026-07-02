@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: '500',
     color: colors.text.primary,
     fontFamily: fonts.heading,
   },

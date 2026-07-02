@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { getOrganizerById } from '../../services/mockData';
+import { getOrganizerById, getAttendingFriends } from '../../services/mockData';
 import { useAuth, useApp } from '../../store';
 import { requestNotificationPermissions } from '../../utils/notifications';
 import { handleVenueBooking, getBookingButtonLabel } from '../../utils/booking';
@@ -56,15 +56,16 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
   const { eventId } = route.params;
   const scrollY = useRef(new Animated.Value(0)).current;
   
-  const { savedEvents, toggleRSVP } = useAuth();
+  const { savedEvents, toggleRSVP, friendsList, privateRSVPs, privacySettings } = useAuth();
   const isSaved = savedEvents.includes(eventId);
   
   const events = useApp((state) => state.events);
   const event = events.find((e) => e.id === eventId) || events[0];
   
-  // Mock social proof data
-  const friendsGoing = Math.floor(Math.random() * 20) + 5;
-  const localsInterested = Math.floor(Math.random() * 500) + 100;
+  // Real social proof data from friends
+  const attendingFriends = getAttendingFriends(event.id, friendsList, privateRSVPs, privacySettings.hideRSVPs);
+  const friendsGoing = attendingFriends.length;
+  const localsInterested = Math.floor(event.attendees * 0.12) + 100;
 
   // Request notification permissions on mount
   useEffect(() => {
@@ -119,7 +120,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
         event.venue,
         event.location,
         [
-          { text: 'Get Directions', onPress: () => Linking.openURL(`https://maps.google.com/?q=${encodeURIComponent(event.location)}`) },
+          { text: 'Get Directions', onPress: () => Linking.openURL(`https://maps.google.com/?q=${encodeURIComponent(event.location)}`).catch(() => {}) },
           { text: 'Close', style: 'cancel' },
         ]
       );
@@ -233,17 +234,35 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
 
           {/* Social Proof Badge */}
           <View style={styles.socialProofContainer}>
-            <View style={styles.socialProofBadge}>
-              <Ionicons name="flame" size={16} color="#E43414" />
-              <Text style={styles.socialProofText}>
-                <Text style={styles.socialProofNumber}>{friendsGoing}</Text> friends going
-              </Text>
-            </View>
+            {friendsGoing > 0 ? (
+              <View style={styles.socialProofBadge}>
+                <View style={styles.socialProofAvatars}>
+                  {attendingFriends.slice(0, 3).map((friend, idx) => (
+                    <Image
+                      key={friend.id}
+                      source={{ uri: friend.avatar }}
+                      style={[styles.socialProofAvatar, { marginLeft: idx > 0 ? -8 : 0, zIndex: 3 - idx }]}
+                    />
+                  ))}
+                </View>
+                <Text style={styles.socialProofText}>
+                  <Text style={styles.socialProofNumber}>{friendsGoing}</Text>
+                  {friendsGoing === 1 ? ' friend' : ' friends'} going
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.socialProofBadge}>
+                <Ionicons name="flame" size={16} color="#E43414" />
+                <Text style={styles.socialProofText}>
+                  <Text style={styles.socialProofNumber}>{localsInterested}+</Text> locals interested
+                </Text>
+              </View>
+            )}
             <View style={styles.socialProofDivider} />
             <View style={styles.socialProofBadge}>
               <Ionicons name="people" size={16} color="#FF6B4A" />
               <Text style={styles.socialProofText}>
-                <Text style={styles.socialProofNumber}>{localsInterested}+</Text> locals interested
+                <Text style={styles.socialProofNumber}>{event.attendees.toLocaleString()}</Text> going
               </Text>
             </View>
           </View>
@@ -599,6 +618,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+  },
+  socialProofAvatars: {
+    flexDirection: 'row',
+  },
+  socialProofAvatar: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1.5,
+    borderColor: 'rgba(10,12,18,0.8)',
   },
   socialProofText: {
     fontSize: 13,

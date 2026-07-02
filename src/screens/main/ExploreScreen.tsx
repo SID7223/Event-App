@@ -59,11 +59,20 @@ const ExploreScreen: React.FC = () => {
   const { events: filteredEventsList, userSelectedCity } = useFilteredContent();
 
   const filtered = filteredEventsList.filter((e) => {
-    if (!searchQuery) return true;
-    return (
-      e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      e.location.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    if (searchQuery) {
+      const matchesSearch = e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        e.location.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!matchesSearch) return false;
+    }
+    const tab = FILTER_TABS[activeFilter];
+    if (tab === 'All' || tab === 'Events') return true;
+    if (tab === 'Artists') {
+      return e.category === 'Music' || e.category === 'Comedy' || e.category === 'Art';
+    }
+    if (tab === 'Venues') {
+      return e.category === 'Art' || e.category === 'Food' || e.category === 'Theater';
+    }
+    return true;
   });
 
   const renderItem = ({ item, index }: { item: typeof filteredEventsList[0]; index: number }) => {
@@ -110,72 +119,6 @@ const ExploreScreen: React.FC = () => {
         <Text style={styles.headerSubtitle}>Your city directory</Text>
       </View>
 
-      {/* City Directory Hub Grid */}
-      <View style={styles.hubSection}>
-        <Text style={styles.hubSectionTitle}>What are you looking for?</Text>
-        <View style={styles.hubGrid}>
-          {/* Cinema Card */}
-          <TouchableOpacity
-            style={styles.hubCard}
-            onPress={() => navigation.navigate('Cinema')}
-            activeOpacity={0.85}
-          >
-            <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400' }}
-              style={styles.hubCardImage}
-            />
-            <View style={styles.hubCardOverlay} />
-            <View style={styles.hubCardContent}>
-              <View style={[styles.hubIconWrap, { backgroundColor: 'rgba(228,52,20,0.85)' }]}>
-                <Ionicons name="film" size={20} color="#FFFFFF" />
-              </View>
-              <Text style={styles.hubCardTitle}>Cinema</Text>
-              <Text style={styles.hubCardSub}>Movies & showtimes</Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Dining Card */}
-          <TouchableOpacity
-            style={styles.hubCard}
-            onPress={() => navigation.navigate('Dining')}
-            activeOpacity={0.85}
-          >
-            <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400' }}
-              style={styles.hubCardImage}
-            />
-            <View style={styles.hubCardOverlay} />
-            <View style={styles.hubCardContent}>
-              <View style={[styles.hubIconWrap, { backgroundColor: 'rgba(255,107,74,0.85)' }]}>
-                <Ionicons name="restaurant" size={20} color="#0A0C12" />
-              </View>
-              <Text style={styles.hubCardTitle}>Dining</Text>
-              <Text style={styles.hubCardSub}>Restaurants & cafes</Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Play & Sports Card */}
-          <TouchableOpacity
-            style={styles.hubCard}
-            onPress={() => navigation.navigate('PlaySports')}
-            activeOpacity={0.85}
-          >
-            <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600&q=80' }}
-              style={styles.hubCardImage}
-            />
-            <View style={styles.hubCardOverlay} />
-            <View style={styles.hubCardContent}>
-              <View style={[styles.hubIconWrap, { backgroundColor: 'rgba(255,184,0,0.85)' }]}>
-                <Ionicons name="football" size={20} color="#0A0C12" />
-              </View>
-              <Text style={styles.hubCardTitle}>Play & Sports</Text>
-              <Text style={styles.hubCardSub}>Venues & courts</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </View>
-
       {/* Search Bar */}
       <View style={styles.searchWrapper}>
         <BlurView intensity={40} tint="dark" style={styles.searchBlur}>
@@ -210,7 +153,7 @@ const ExploreScreen: React.FC = () => {
         ))}
       </View>
 
-      {/* List */}
+      {/* Events List */}
       <FlatList
         data={filtered}
         renderItem={renderItem}
@@ -220,6 +163,75 @@ const ExploreScreen: React.FC = () => {
         onScrollBeginDrag={Keyboard.dismiss}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         style={{ flex: 1 }}
+        ListHeaderComponent={
+          <>
+            {/* City Directory Hub Grid */}
+            <View style={styles.hubSection}>
+              <Text style={styles.hubSectionTitle}>What are you looking for?</Text>
+              <View style={styles.hubGrid}>
+                {/* Cinema Card */}
+                <TouchableOpacity
+                  style={styles.hubCard}
+                  onPress={() => navigation.navigate('Cinema')}
+                  activeOpacity={0.85}
+                >
+                  <Image
+                    source={{ uri: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400' }}
+                    style={styles.hubCardImage}
+                  />
+                  <View style={styles.hubCardOverlay} />
+                  <View style={styles.hubCardContent}>
+                    <View style={[styles.hubIconWrap, { backgroundColor: 'rgba(228,52,20,0.85)' }]}>
+                      <Ionicons name="film" size={20} color="#FFFFFF" />
+                    </View>
+                    <Text style={styles.hubCardTitle}>Cinema</Text>
+                    <Text style={styles.hubCardSub}>Movies & showtimes</Text>
+                  </View>
+                </TouchableOpacity>
+
+                {/* Dining Card */}
+                <TouchableOpacity
+                  style={styles.hubCard}
+                  onPress={() => navigation.navigate('Dining')}
+                  activeOpacity={0.85}
+                >
+                  <Image
+                    source={{ uri: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400' }}
+                    style={styles.hubCardImage}
+                  />
+                  <View style={styles.hubCardOverlay} />
+                  <View style={styles.hubCardContent}>
+                    <View style={[styles.hubIconWrap, { backgroundColor: 'rgba(255,107,74,0.85)' }]}>
+                      <Ionicons name="restaurant" size={20} color="#0A0C12" />
+                    </View>
+                    <Text style={styles.hubCardTitle}>Dining</Text>
+                    <Text style={styles.hubCardSub}>Restaurants & cafes</Text>
+                  </View>
+                </TouchableOpacity>
+
+                {/* Play & Sports Card */}
+                <TouchableOpacity
+                  style={styles.hubCard}
+                  onPress={() => navigation.navigate('PlaySports')}
+                  activeOpacity={0.85}
+                >
+                  <Image
+                    source={{ uri: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600&q=80' }}
+                    style={styles.hubCardImage}
+                  />
+                  <View style={styles.hubCardOverlay} />
+                  <View style={styles.hubCardContent}>
+                    <View style={[styles.hubIconWrap, { backgroundColor: 'rgba(255,184,0,0.85)' }]}>
+                      <Ionicons name="football" size={20} color="#0A0C12" />
+                    </View>
+                    <Text style={styles.hubCardTitle}>Play & Sports</Text>
+                    <Text style={styles.hubCardSub}>Venues & courts</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </>
+        }
       />
     </SafeAreaView>
   );

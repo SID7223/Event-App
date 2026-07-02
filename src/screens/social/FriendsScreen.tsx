@@ -20,7 +20,7 @@ import { mockFriends } from '../../services/mockData';
 
 const FriendsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { friendsList, removeFriend } = useAuth();
+  const { friendsList, removeFriend, addFriend } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -34,6 +34,10 @@ const FriendsScreen: React.FC = () => {
 
   const friends = useMemo(() => {
     return mockFriends.filter(f => friendsList.includes(f.id));
+  }, [friendsList]);
+
+  const suggestedUsers = useMemo(() => {
+    return mockFriends.filter(f => !friendsList.includes(f.id));
   }, [friendsList]);
 
   const filteredFriends = useMemo(() => {
@@ -60,6 +64,10 @@ const FriendsScreen: React.FC = () => {
         },
       ]
     );
+  };
+
+  const handleAddFriend = (friend: Friend) => {
+    addFriend(friend.id);
   };
 
   const renderFriend = ({ item, index }: { item: Friend; index: number }) => (
@@ -119,6 +127,35 @@ const FriendsScreen: React.FC = () => {
           )}
         </View>
       </View>
+
+      {/* Suggested Friends */}
+      {suggestedUsers.length > 0 && !searchQuery && (
+        <View style={styles.suggestedSection}>
+          <Text style={styles.suggestedTitle}>Suggested Friends</Text>
+          <FlatList
+            horizontal
+            data={suggestedUsers}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.suggestedList}
+            renderItem={({ item }) => (
+              <View style={styles.suggestedCard}>
+                <Image source={{ uri: item.avatar }} style={styles.suggestedAvatar} />
+                <Text style={styles.suggestedName} numberOfLines={1}>{item.name.split(' ')[0]}</Text>
+                <Text style={styles.suggestedHandle} numberOfLines={1}>{item.handle}</Text>
+                <TouchableOpacity
+                  style={styles.addBtn}
+                  onPress={() => handleAddFriend(item)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="person-add-outline" size={14} color="#FFFFFF" />
+                  <Text style={styles.addBtnText}>Add</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+        </View>
+      )}
 
       {/* Friends List */}
       <FlatList
@@ -294,6 +331,64 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 60,
     gap: 8,
+  },
+  // Suggested Friends
+  suggestedSection: {
+    paddingBottom: 8,
+  },
+  suggestedTitle: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: 'rgba(255,255,255,0.45)',
+    paddingHorizontal: 20,
+    marginBottom: 10,
+    fontFamily: fonts.subheading,
+  },
+  suggestedList: {
+    paddingHorizontal: 20,
+    gap: 10,
+  },
+  suggestedCard: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+    width: 110,
+  },
+  suggestedAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginBottom: 6,
+  },
+  suggestedName: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#FFFFFF',
+    fontFamily: fonts.subheading,
+  },
+  suggestedHandle: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.4)',
+    marginBottom: 8,
+    fontFamily: fonts.body,
+  },
+  addBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: '#FF6B4A',
+  },
+  addBtnText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#FFFFFF',
+    fontFamily: fonts.bodyBold,
   },
   emptyTitle: {
     fontSize: 17,

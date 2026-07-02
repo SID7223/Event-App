@@ -77,7 +77,7 @@ const SettingsScreen: React.FC = () => {
         <MatteGlassCard style={styles.card} padding={0}>
           <TouchableOpacity
             style={[styles.row, styles.rowBorder]}
-            onPress={() => navigation.navigate('ProfileTab', { screen: 'EditProfile' })}
+            onPress={() => navigation.navigate('EditProfile')}
             activeOpacity={0.7}
           >
             <Text style={styles.rowLabel}>Edit Profile</Text>

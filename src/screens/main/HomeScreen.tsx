@@ -21,6 +21,16 @@ import GlassPill from '../../components/ui/GlassPill';
 import { BlurView } from 'expo-blur';
 import { useFilteredContent } from '../../hooks/useFilteredContent';
 import { fonts } from '../../theme/fonts';
+import {
+  getTimeOfDay,
+  GRADIENT_MAP,
+  getWeatherIconKey,
+  getWeatherIconKeyFromText,
+  fetchWeather,
+  isWeatherCacheValid,
+  TimeOfDay,
+} from '../../utils/weather';
+import { WEATHER_ICONS } from '../../assets/weatherIcons';
 
 const { width } = Dimensions.get('window');
 
@@ -73,13 +83,35 @@ interface HomeScreenProps {
 const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible = false }) => {
   const navigation = useNavigation<any>();
   const { location, preferences, friendsList, privateRSVPs, privacySettings } = useAuth();
-  const { activeVibe, setActiveVibe } = useApp();
+  const { activeVibe, setActiveVibe, setActiveTab, weather, setWeather } = useApp();
   
   const [showCityPicker, setShowCityPicker] = useState(false);
   const { events: filteredEventsList, userSelectedCity } = useFilteredContent();
   const [iconOpen, setIconOpen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chipScrollRef = useRef<ScrollView>(null);
+
+  // Time-of-day and weather
+  const timeOfDay: TimeOfDay = getTimeOfDay();
+  const gradientColors = GRADIENT_MAP[timeOfDay];
+  const weatherIconKey = weather
+    ? getWeatherIconKeyFromText(weather.condition, weather.isDay)
+    : getWeatherIconKey(800, timeOfDay !== 'night');
+  const weatherIconUri = WEATHER_ICONS[weatherIconKey];
+
+  // Fetch weather on mount and when city changes
+  useEffect(() => {
+    if (isWeatherCacheValid(weather) && weather?.city === userSelectedCity.toLowerCase()) {
+      return;
+    }
+    let cancelled = false;
+    fetchWeather(userSelectedCity).then((data) => {
+      if (!cancelled && data) {
+        setWeather(data);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [userSelectedCity]);
 
   // Sort vibes based on user preferences (preferred first)
   const sortedVibes: VibeCategory[] = useMemo(() => {
@@ -99,6 +131,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
       return filteredEventsList;
     }
     
+    // Special handling for "Friends" vibe — show events where friends are attending
+    if (activeVibe === 'friends') {
+      return filteredEventsList.filter(e => {
+        const attending = getAttendingFriends(e.id, friendsList, privateRSVPs, privacySettings.hideRSVPs);
+        return attending.length > 0;
+      });
+    }
+    
     const vibe = sortedVibes.find(v => v.id === activeVibe);
     if (!vibe) return filteredEventsList;
     
@@ -106,26 +146,29 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
       e.category.toLowerCase().includes(vibe.label.toLowerCase()) ||
       e.category.toLowerCase().includes(vibe.id.toLowerCase())
     );
-  }, [activeVibe, sortedVibes, filteredEventsList]);
+  }, [activeVibe, sortedVibes, filteredEventsList, friendsList, privateRSVPs, privacySettings.hideRSVPs]);
+
+  // Source list for sections — uses filteredEvents when a vibe filter is active
+  const sectionSource = (!activeVibe || activeVibe === 'all') ? filteredEventsList : filteredEvents;
 
   // Get popular events in neighborhood
   const popularInArea = useMemo(() => {
     const neighborhood = location?.neighborhood;
-    const matchingNeighborhood = filteredEventsList.filter(e => e.neighborhood === neighborhood);
-    const sourceList = matchingNeighborhood.length > 0 ? matchingNeighborhood : filteredEventsList;
+    const matchingNeighborhood = sectionSource.filter(e => e.neighborhood === neighborhood);
+    const sourceList = matchingNeighborhood.length > 0 ? matchingNeighborhood : sectionSource;
     return [...sourceList]
       .sort((a, b) => b.attendees - a.attendees)
       .slice(0, 5);
-  }, [filteredEventsList, location]);
+  }, [sectionSource, location]);
 
   // Get new & upcoming events (flexible date sorting)
   const upcomingEvents = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
-    return filteredEventsList
+    return sectionSource
       .filter(e => e.date >= today)
       .sort((a, b) => a.date.localeCompare(b.date))
       .slice(0, 6);
-  }, [filteredEventsList]);
+  }, [sectionSource]);
 
   // Sync icon state when sidebar closes externally
   useEffect(() => {
@@ -357,6 +400,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Dynamic Time-of-Day Gradient Background */}
+      <LinearGradient
+        colors={gradientColors as unknown as string[]}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 0.45 }}
+        style={styles.timeGradient}
+      />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -389,15 +440,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
           </TouchableOpacity>
         </View>
 
-        {/* Greeting */}
+        {/* Greeting with Weather Emoji */}
         <View style={styles.greetingContainer}>
-          <Text style={styles.greeting}>{getGreeting()},</Text>
+          <View style={styles.greetingRow}>
+            <Text style={styles.greeting}>{getGreeting()},</Text>
+            {weatherIconUri ? (
+              <Image source={{ uri: weatherIconUri }} style={styles.weatherIcon} />
+            ) : null}
+          </View>
           <Text style={styles.greetingSubtext}>{getGreetingSubtext()}</Text>
         </View>
 
         {/* Search Bar */}
         <TouchableOpacity
-          onPress={() => navigation.navigate('ExploreTab')}
+          onPress={() => setActiveTab('ExploreTab')}
           activeOpacity={0.85}
           style={styles.searchBarWrap}
         >
@@ -455,7 +511,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
               <Ionicons name="trending-up" size={18} color="#FF6B4A" />
               <Text style={styles.sectionTitle}>Popular in {userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}</Text>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('ExploreTab')}>
+            <TouchableOpacity onPress={() => setActiveTab('ExploreTab')}>
               <Text style={styles.seeAll}>See All</Text>
             </TouchableOpacity>
           </View>
@@ -481,7 +537,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
               <Ionicons name="calendar" size={18} color="#E43414" />
               <Text style={styles.sectionTitle}>New & Upcoming</Text>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('ExploreTab')}>
+            <TouchableOpacity onPress={() => setActiveTab('ExploreTab')}>
               <Text style={styles.seeAll}>See All</Text>
             </TouchableOpacity>
           </View>
@@ -506,6 +562,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0A0C12',
   },
+  timeGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 340,
+    zIndex: 0,
+  },
   scrollContent: {
     flexGrow: 1,
     paddingBottom: 100,
@@ -517,6 +581,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 8,
+    zIndex: 1,
   },
   locationContainer: {
     flexDirection: 'row',
@@ -544,12 +609,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 16,
+    zIndex: 1,
+  },
+  greetingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   greeting: {
     fontSize: 28,
     fontWeight: '500',
     color: '#FFFFFF',
     fontFamily: fonts.heading,
+  },
+  weatherIcon: {
+    width: 30,
+    height: 30,
+    marginLeft: 6,
   },
   greetingSubtext: {
     fontSize: 16,
@@ -560,6 +636,7 @@ const styles = StyleSheet.create({
   searchBarWrap: {
     marginHorizontal: 20,
     marginBottom: 20,
+    zIndex: 1,
   },
   searchBarBlur: {
     flexDirection: 'row',
@@ -681,6 +758,7 @@ const styles = StyleSheet.create({
   // Vibe Filters
   vibesSection: {
     marginBottom: 24,
+    zIndex: 1,
   },
   vibesContainer: {
     paddingHorizontal: 20,
@@ -920,7 +998,7 @@ const styles = StyleSheet.create({
   },
   dropdownTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 16,
     textAlign: 'center',
@@ -947,7 +1025,7 @@ const styles = StyleSheet.create({
   },
   cityOptionTextActive: {
     color: '#99E1D9',
-    fontWeight: '700',
+    fontWeight: '500',
     fontFamily: fonts.bodyBold,
   },
 });

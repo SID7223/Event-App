@@ -51,8 +51,8 @@ const ProfileScreen: React.FC = () => {
       'Contact Support',
       'Need help? Reach out to us.',
       [
-        { text: 'Email', onPress: () => Linking.openURL('mailto:support@zyntr.com') },
-        { text: 'Call', onPress: () => Linking.openURL('tel:+6281234567890') },
+        { text: 'Email', onPress: () => Linking.openURL('mailto:support@zyntr.com').catch(() => {}) },
+        { text: 'Call', onPress: () => Linking.openURL('tel:+6281234567890').catch(() => {}) },
         { text: 'Cancel', style: 'cancel' },
       ]
     );
