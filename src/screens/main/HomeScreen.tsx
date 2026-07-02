@@ -25,7 +25,6 @@ import {
   getTimeOfDay,
   GRADIENT_MAP,
   getWeatherIconKey,
-  getWeatherIconKeyFromText,
   fetchWeather,
   isWeatherCacheValid,
   TimeOfDay,
@@ -95,7 +94,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
   const timeOfDay: TimeOfDay = getTimeOfDay();
   const gradientColors = GRADIENT_MAP[timeOfDay];
   const weatherIconKey = weather
-    ? getWeatherIconKeyFromText(weather.condition, weather.isDay)
+    ? getWeatherIconKey(weather.conditionCode, weather.isDay)
     : getWeatherIconKey(800, timeOfDay !== 'night');
   const weatherIconSource = WEATHER_ICON_MAP[weatherIconKey];
 
