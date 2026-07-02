@@ -53,7 +53,7 @@ export const getWeatherIconKey = (conditionCode: number, isDay: boolean): string
   if (conditionCode >= 505 && conditionCode < 600) return 'heavy_rain';
   if (conditionCode >= 600 && conditionCode < 613) return 'heavy_snow';
   if (conditionCode >= 613 && conditionCode < 700) return 'flurries';
-  if (conditionCode >= 700 && conditionCode < 742) return 'windy';
+  if (conditionCode >= 700 && conditionCode < 741) return 'windy';
   if (conditionCode >= 741 && conditionCode < 800) return 'haze_fog_dust_smoke';
   if (conditionCode === 800) return isDay ? 'clear_day' : 'clear_night';
   if (conditionCode === 801) return isDay ? 'mostly_clear_day' : 'mostly_clear_night';
@@ -138,7 +138,13 @@ export const fetchWeather = async (city: string): Promise<WeatherData | null> =>
     }
 
     const data = await response.json();
-    const isDay = data.weather?.[0]?.icon?.endsWith('d') ?? true;
+    const iconSuffix = data.weather?.[0]?.icon ?? '';
+    let isDay = iconSuffix.endsWith('d');
+    // Override: API returns '50n' for haze/mist/fog even during daytime
+    if (data.weather?.[0]?.id >= 700 && data.weather?.[0]?.id < 800) {
+      const hour = new Date().getHours();
+      isDay = hour >= 6 && hour < 19;
+    }
     const result: WeatherData = {
       condition: data.weather?.[0]?.description ?? 'Clear',
       conditionCode: data.weather?.[0]?.id ?? 800,
