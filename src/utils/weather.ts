@@ -47,14 +47,31 @@ export const getWeatherEmoji = (conditionCode: number, isDay: boolean): string =
 };
 
 export const getWeatherIconKey = (conditionCode: number, isDay: boolean): string => {
+  // Thunderstorm group (2xx)
+  if (conditionCode >= 200 && conditionCode <= 202) return isDay ? 'isolated_scattered_thunderstorms_day' : 'isolated_scattered_thunderstorms_night';
+  if (conditionCode >= 210 && conditionCode <= 221) return 'strong_thunderstorms';
+  if (conditionCode >= 230 && conditionCode <= 232) return isDay ? 'isolated_scattered_thunderstorms_day' : 'isolated_scattered_thunderstorms_night';
   if (conditionCode >= 200 && conditionCode < 300) return 'thunderstorms';
+  // Drizzle group (3xx)
   if (conditionCode >= 300 && conditionCode < 400) return 'drizzle';
-  if (conditionCode >= 500 && conditionCode < 505) return 'showers_rain';
-  if (conditionCode >= 505 && conditionCode < 600) return 'heavy_rain';
-  if (conditionCode >= 600 && conditionCode < 613) return 'heavy_snow';
-  if (conditionCode >= 613 && conditionCode < 700) return 'flurries';
-  if (conditionCode >= 700 && conditionCode < 741) return 'windy';
-  if (conditionCode >= 741 && conditionCode < 800) return 'haze_fog_dust_smoke';
+  // Rain group (5xx) — 500=light rain, 501=moderate, 502+=heavy
+  if (conditionCode === 500) return 'scattered_showers_day';
+  if (conditionCode === 501) return 'showers_rain';
+  if (conditionCode >= 502 && conditionCode < 600) return 'heavy_rain';
+  // Snow group (6xx)
+  if (conditionCode >= 600 && conditionCode <= 613) return 'heavy_snow';
+  if (conditionCode >= 614 && conditionCode < 700) return 'flurries';
+  // Atmosphere group (7xx)
+  if (conditionCode === 701) return 'haze_fog_dust_smoke'; // mist
+  if (conditionCode === 711) return 'haze_fog_dust_smoke'; // smoke
+  if (conditionCode === 721) return 'haze_fog_dust_smoke'; // haze
+  if (conditionCode === 731 || conditionCode === 751 || conditionCode === 761) return 'haze_fog_dust_smoke'; // dust/sand
+  if (conditionCode === 741) return 'haze_fog_dust_smoke'; // fog
+  if (conditionCode === 762) return 'haze_fog_dust_smoke'; // volcanic ash
+  if (conditionCode === 771) return 'windy'; // squalls
+  if (conditionCode === 781) return 'tornado'; // tornado
+  if (conditionCode >= 700 && conditionCode < 800) return 'haze_fog_dust_smoke';
+  // Clear / Clouds group (8xx)
   if (conditionCode === 800) return isDay ? 'clear_day' : 'clear_night';
   if (conditionCode === 801) return isDay ? 'mostly_clear_day' : 'mostly_clear_night';
   if (conditionCode === 802) return isDay ? 'partly_cloudy_day' : 'partly_cloudy_night';
@@ -119,9 +136,26 @@ export const getWeatherIconKeyFromText = (condition: string, isDay: boolean): st
 
 export const fetchWeather = async (city: string): Promise<WeatherData | null> => {
   const coords = CITY_COORDS[city.toLowerCase()];
-  if (!coords) return null;
+  if (!coords) {
+    console.warn('[Weather] Unknown city:', city);
+    return null;
+  }
 
-  const apiKey = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
+  // Read API key — try process.env first (works in native & web Expo),
+  // then fall back to expo-constants extra config.
+  let apiKey: string | undefined = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
+  if (!apiKey) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const Constants = require('expo-constants').default;
+      apiKey = Constants.expoConfig?.extra?.weatherApiKey
+        ?? Constants.manifest?.extra?.weatherApiKey
+        ?? Constants.manifest2?.extra?.expoClient?.extra?.weatherApiKey;
+    } catch (_) {
+      // expo-constants not available, ignore
+    }
+  }
+
   if (!apiKey) {
     console.warn('[Weather] EXPO_PUBLIC_WEATHER_API_KEY not set in .env');
     return null;
@@ -129,31 +163,40 @@ export const fetchWeather = async (city: string): Promise<WeatherData | null> =>
 
   try {
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${coords.lat}&lon=${coords.lon}&units=metric&appid=${apiKey}`;
-    console.log('[Weather] Fetching:', url);
+    console.log('[Weather] Fetching for city:', city);
     const response = await fetch(url);
 
     if (!response.ok) {
-      console.warn('[Weather] API error:', response.status);
+      console.warn('[Weather] API error:', response.status, await response.text());
       return null;
     }
 
     const data = await response.json();
-    const iconSuffix = data.weather?.[0]?.icon ?? '';
+    const weatherInfo = data.weather?.[0];
+    const iconSuffix = weatherInfo?.icon ?? '';
     let isDay = iconSuffix.endsWith('d');
-    // Override: API returns '50n' for haze/mist/fog even during daytime
-    if (data.weather?.[0]?.id >= 700 && data.weather?.[0]?.id < 800) {
+
+    // Override: some atmosphere codes (7xx) use night icon even during the day
+    if (weatherInfo?.id >= 700 && weatherInfo?.id < 800) {
       const hour = new Date().getHours();
       isDay = hour >= 6 && hour < 19;
     }
+
     const result: WeatherData = {
-      condition: data.weather?.[0]?.description ?? 'Clear',
-      conditionCode: data.weather?.[0]?.id ?? 800,
+      condition: weatherInfo?.description ?? 'clear sky',
+      conditionCode: weatherInfo?.id ?? 800,
       tempC: Math.round(data.main?.temp ?? 25),
       isDay,
       fetchedAt: Date.now(),
       city: city.toLowerCase(),
     };
-    console.log('[Weather] Result:', result.condition, 'code=' + result.conditionCode, 'isDay=' + result.isDay);
+    console.log(
+      '[Weather] Result:',
+      result.condition,
+      'code=' + result.conditionCode,
+      'isDay=' + result.isDay,
+      'icon=' + getWeatherIconKey(result.conditionCode, result.isDay)
+    );
     return result;
   } catch (e) {
     console.warn('[Weather] Fetch failed:', e);

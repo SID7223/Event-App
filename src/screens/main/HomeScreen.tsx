@@ -105,8 +105,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
     console.log('[Home] timeOfDay:', timeOfDay);
   }, [weather, weatherIconKey]);
 
-  // Fetch weather on mount and when city changes
+  // Fetch weather on mount, when city changes, or when weather data is absent
   useEffect(() => {
+    // Skip fetch only if we have a valid, up-to-date cache for the current city
     if (isWeatherCacheValid(weather) && weather?.city === userSelectedCity.toLowerCase()) {
       return;
     }
@@ -117,7 +118,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenSidebar, sidebarVisible =
       }
     });
     return () => { cancelled = true; };
-  }, [userSelectedCity]);
+    // Include `weather` so a null-to-data transition (AsyncStorage rehydration)
+    // also triggers a fresh fetch when no valid cache exists.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userSelectedCity, weather === null]);
 
   // Sort vibes based on user preferences (preferred first)
   const sortedVibes: VibeCategory[] = useMemo(() => {
