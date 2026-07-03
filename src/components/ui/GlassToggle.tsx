@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { Pressable, Animated, View, StyleSheet, ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 
 interface GlassToggleProps {
   value: boolean;
@@ -26,34 +25,28 @@ const GlassToggle: React.FC<GlassToggleProps> = ({
 
   const thumbTranslateX = anim.interpolate({
     inputRange: [0, 1],
-    outputRange: [4, 32],
+    outputRange: [3, 27],
   });
 
   const thumbScale = anim.interpolate({
     inputRange: [0, 0.5, 1],
-    outputRange: [1, 0.9, 1],
+    outputRange: [1, 0.92, 1],
   });
 
   return (
     <Pressable onPress={() => onValueChange(!value)} style={[styles.container, style]}>
-      {/* Track background with glassmorphism */}
+      {/* Track */}
       <View style={styles.track}>
-        <LinearGradient
-          colors={
-            value
-              ? ['rgba(255,107,74,0.25)', 'rgba(255,107,74,0.12)']
-              : ['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.04)']
-          }
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.trackGradient}
-        />
-        {/* Glass highlight stripe */}
-        <LinearGradient
-          colors={['rgba(255,255,255,0.18)', 'rgba(255,255,255,0)']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.glassHighlight}
+        <Animated.View
+          style={[
+            styles.trackFill,
+            {
+              opacity: anim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 1],
+              }),
+            },
+          ]}
         />
       </View>
 
@@ -69,24 +62,19 @@ const GlassToggle: React.FC<GlassToggleProps> = ({
           },
         ]}
       >
-        <LinearGradient
-          colors={
-            value
-              ? ['#FF8A65', '#FF6B4A']
-              : ['rgba(255,255,255,0.7)', 'rgba(255,255,255,0.4)']
-          }
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.thumb}
+        <Animated.View
+          style={[
+            styles.thumb,
+            {
+              backgroundColor: anim.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['#E43414', '#0A0A0A'],
+              }),
+            },
+          ]}
         >
-          {/* Thumb glass highlight */}
-          <LinearGradient
-            colors={['rgba(255,255,255,0.5)', 'rgba(255,255,255,0)']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={styles.thumbHighlight}
-          />
-        </LinearGradient>
+          <View style={styles.thumbHighlight} />
+        </Animated.View>
       </Animated.View>
     </Pressable>
   );
@@ -94,48 +82,52 @@ const GlassToggle: React.FC<GlassToggleProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: 60,
-    height: 32,
+    width: 52,
+    height: 28,
     justifyContent: 'center',
   },
   track: {
-    width: 60,
-    height: 32,
-    borderRadius: 16,
-    overflow: 'hidden',
+    width: 52,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#1C1C1E',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.08)',
+    overflow: 'hidden',
   },
-  trackGradient: {
+  trackFill: {
     ...StyleSheet.absoluteFill,
-    borderRadius: 16,
-  },
-  glassHighlight: {
-    ...StyleSheet.absoluteFill,
-    borderRadius: 16,
+    borderRadius: 14,
+    backgroundColor: '#E43414',
   },
   thumbWrapper: {
     position: 'absolute',
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    elevation: 6,
-    shadowColor: '#FF6B4A',
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    elevation: 4,
+    shadowColor: '#E43414',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.4,
-    shadowRadius: 6,
+    shadowRadius: 4,
   },
   thumb: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    overflow: 'hidden',
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#E43414',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
+    borderColor: 'rgba(255,255,255,0.15)',
+    overflow: 'hidden',
   },
   thumbHighlight: {
-    ...StyleSheet.absoluteFill,
-    borderRadius: 12,
+    position: 'absolute',
+    top: 1,
+    left: 1,
+    right: 1,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
 });
 

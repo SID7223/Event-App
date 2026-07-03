@@ -17,17 +17,17 @@ const MatteGlassCard: React.FC<MatteGlassCardProps> = ({
   return (
     <View style={[styles.borderWrapper, style]}>
       <LinearGradient
-        colors={['rgba(255,255,255,0.10)', 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.02)']}
+        colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.04)', 'rgba(255,255,255,0.02)']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.borderGradient}
       >
         <BlurView intensity={50} tint="dark" style={styles.blurSurface}>
           <LinearGradient
-            colors={['rgba(255,122,0,0.05)', 'rgba(255,100,0,0.03)', 'rgba(20,18,16,0.5)']}
+            colors={['rgba(120,120,130,0.15)', 'rgba(80,80,90,0.08)', 'rgba(255,255,255,0.04)']}
             start={{ x: 0.5, y: 0 }}
             end={{ x: 0.5, y: 1 }}
-            style={styles.orangeGlow}
+            style={styles.cardGlow}
           />
           <View style={[styles.content, { padding }]}>
             {children}
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(20,18,16,0.6)',
     overflow: 'hidden',
   },
-  orangeGlow: {
+  cardGlow: {
     ...StyleSheet.absoluteFill,
     borderRadius: 19,
   },

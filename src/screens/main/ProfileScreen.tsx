@@ -10,6 +10,8 @@ import {
   Alert,
   Share,
   Linking,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,8 +25,11 @@ const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { user, location, settings, updateSettings, logout, followedVenues, followedOrganizers, friendsList } = useAuth();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [showQRModal, setShowQRModal] = useState(false);
 
   const followingCount = followedVenues.length + followedOrganizers.length;
+
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=evora://profile/${user?.firstName?.toLowerCase()}${user?.lastName?.toLowerCase()}`;
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -74,11 +79,18 @@ const ProfileScreen: React.FC = () => {
   };
 
   const handleQRCode = () => {
-    Alert.alert(
-      'My QR Code',
-      'Show this QR code to let friends add you instantly.',
-      [{ text: 'Got it' }]
-    );
+    setShowQRModal(true);
+  };
+
+  const handleDownloadQR = () => {
+    Alert.alert('Download', 'QR Code saved to your photos.');
+  };
+
+  const handleShareQR = () => {
+    Share.share({
+      message: `Add me on Evora! ${qrCodeUrl}`,
+      title: 'My QR Code',
+    });
   };
 
   const CustomSwitch = ({
