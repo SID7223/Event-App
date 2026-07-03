@@ -10,6 +10,7 @@ import {
   Alert,
   Image,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,6 +25,7 @@ const FriendsScreen: React.FC = () => {
   const { friendsList, removeFriend, addFriend } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const addScaleAnims = useRef<{ [key: string]: Animated.Value }>({}).current;
 
   React.useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -51,6 +53,31 @@ const FriendsScreen: React.FC = () => {
   }, [friends, searchQuery]);
 
   const onlineCount = friends.filter(f => f.isOnline).length;
+
+  const getAddScale = (id: string) => {
+    if (!addScaleAnims[id]) {
+      addScaleAnims[id] = new Animated.Value(1);
+    }
+    return addScaleAnims[id];
+  };
+
+  const handlePressIn = (id: string) => {
+    Animated.spring(getAddScale(id), {
+      toValue: 0.92,
+      speed: 50,
+      bounciness: 0,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = (id: string) => {
+    Animated.spring(getAddScale(id), {
+      toValue: 1,
+      speed: 20,
+      bounciness: 8,
+      useNativeDriver: true,
+    }).start();
+  };
 
   const handleRemoveFriend = (friend: Friend) => {
     Alert.alert(
@@ -109,7 +136,7 @@ const FriendsScreen: React.FC = () => {
         {/* Suggested Friends */}
         {suggestedUsers.length > 0 && !searchQuery && (
           <View style={styles.suggestedSection}>
-            <View style={styles.sectionLabel}>
+            <View style={[styles.sectionLabel, styles.suggestedHeader]}>
               <Ionicons name="person-add" size={16} color="#99E1D9" />
               <Text style={styles.sectionLabelText}>Suggested Friends</Text>
             </View>
@@ -120,14 +147,18 @@ const FriendsScreen: React.FC = () => {
                   <Image source={{ uri: item.avatar }} style={styles.suggestedAvatar} />
                   <Text style={styles.suggestedName} numberOfLines={1}>{item.name.split(' ')[0]}</Text>
                   <Text style={styles.suggestedHandle} numberOfLines={1}>{item.handle}</Text>
-                  <TouchableOpacity
-                    style={styles.addBtn}
-                    onPress={() => handleAddFriend(item)}
-                    activeOpacity={0.7}
-                  >
-                    <Ionicons name="person-add-outline" size={12} color="#FFFFFF" />
-                    <Text style={styles.addBtnText}>Add</Text>
-                  </TouchableOpacity>
+                  <Animated.View style={{ transform: [{ scale: getAddScale(item.id) }] }}>
+                    <TouchableOpacity
+                      style={styles.addBtn}
+                      onPress={() => handleAddFriend(item)}
+                      onPressIn={() => handlePressIn(item.id)}
+                      onPressOut={() => handlePressOut(item.id)}
+                      activeOpacity={1}
+                    >
+                      <Ionicons name="person-add-outline" size={12} color="#FFFFFF" />
+                      <Text style={styles.addBtnText}>Add</Text>
+                    </TouchableOpacity>
+                  </Animated.View>
                 </View>
               )}
               keyExtractor={(item) => item.id}
@@ -183,7 +214,7 @@ const FriendsScreen: React.FC = () => {
                     onPress={() => handleRemoveFriend(item)}
                     activeOpacity={0.7}
                   >
-                    <Text style={styles.removeBtnText}>Remove</Text>
+                    <Ionicons name="trash-outline" size={16} color="#EF4444" />
                   </TouchableOpacity>
                 </Animated.View>
               ))
@@ -220,7 +251,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingTop: 28,
+    paddingBottom: 20,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.06)',
   },
@@ -277,6 +309,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  suggestedHeader: {
     paddingHorizontal: 20,
     marginBottom: 10,
   },
@@ -326,7 +360,7 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 14,
     paddingVertical: 5,
-    borderRadius: 8,
+    borderRadius: 100,
     backgroundColor: '#FF6B4A',
   },
   addBtnText: {
@@ -355,13 +389,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,107,74,0.15)',
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 10,
+    borderRadius: 100,
   },
   countBadgeText: {
     fontSize: 12,
     fontWeight: '500',
     color: '#FF6B4A',
     fontFamily: fonts.bodyBold,
+    fontVariant: ['tabular-nums'],
   },
   onlineBadge: {
     flexDirection: 'row',
@@ -370,7 +405,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(34,197,94,0.12)',
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 10,
+    borderRadius: 100,
   },
   onlineDotSmall: {
     width: 6,
@@ -383,6 +418,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#22C55E',
     fontFamily: fonts.bodyBold,
+    fontVariant: ['tabular-nums'],
   },
   friendsList: {
     gap: 10,
@@ -449,18 +485,14 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   removeBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    width: 36,
+    height: 36,
     borderRadius: 10,
-    backgroundColor: 'rgba(239,68,68,0.12)',
+    backgroundColor: 'rgba(239,68,68,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(239,68,68,0.25)',
-  },
-  removeBtnText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#EF4444',
-    fontFamily: fonts.bodyBold,
+    borderColor: 'rgba(239,68,68,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   // Empty

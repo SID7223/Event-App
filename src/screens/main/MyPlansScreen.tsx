@@ -15,6 +15,7 @@ import { mockEvents } from '../../services/mockData';
 import { Event } from '../../types';
 import GlassPill from '../../components/ui/GlassPill';
 import { fonts } from '../../theme/fonts';
+import { spacing } from '../../theme/spacing';
 
 type TabType = 'upcoming' | 'saved' | 'past';
 
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 12,
+    paddingTop: 32,
     paddingBottom: 16,
   },
   headerTitle: {
@@ -297,7 +298,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
     padding: 4,
-    gap: 0,
+    gap: spacing.xs,
   },
 
   listContent: {

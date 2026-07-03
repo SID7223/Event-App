@@ -3,11 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  Dimensions,
   TouchableOpacity,
   ScrollView,
   StatusBar,
   Animated,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,8 +17,6 @@ import * as Haptics from 'expo-haptics';
 import { useAuth } from '../../store';
 import { UserLocation, User } from '../../types';
 import { fonts } from '../../theme/fonts';
-
-const { width } = Dimensions.get('window');
 
 interface VibeOption {
   id: string;
@@ -39,12 +37,14 @@ const VIBE_OPTIONS: VibeOption[] = [
 
 const MIN_SELECTIONS = 3;
 const COLS = 3;
-const ITEM_SIZE = (width - 48 - 24) / COLS;
 
 const VibeQuiz: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { setPreferences } = useAuth();
+
+  const { width } = useWindowDimensions();
+  const itemSize = (width - 48 - 24) / COLS;
 
   const user: User = route.params?.user;
   const location: UserLocation = route.params?.location;
@@ -171,12 +171,15 @@ const VibeQuiz: React.FC = () => {
                   key={vibe.id}
                   onPress={() => toggleItem(vibe.id)}
                   activeOpacity={0.8}
-                  style={styles.gridItem}
+                  style={[styles.gridItem, { width: itemSize }]}
                 >
                   <Animated.View
                     style={[
                       styles.circle,
                       {
+                        width: itemSize - 16,
+                        height: itemSize - 16,
+                        borderRadius: (itemSize - 16) / 2,
                         transform: [{ scale: itemAnims[index].scale }],
                       },
                     ]}
@@ -185,7 +188,10 @@ const VibeQuiz: React.FC = () => {
                     <Animated.View
                       style={[
                         styles.circleFill,
-                        { opacity: itemAnims[index].bgOpacity },
+                        {
+                          borderRadius: (itemSize - 16) / 2,
+                          opacity: itemAnims[index].bgOpacity,
+                        },
                       ]}
                     />
                     {/* Emoji */}
@@ -289,14 +295,10 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   gridItem: {
-    width: ITEM_SIZE,
     alignItems: 'center',
     marginBottom: 8,
   },
   circle: {
-    width: ITEM_SIZE - 16,
-    height: ITEM_SIZE - 16,
-    borderRadius: (ITEM_SIZE - 16) / 2,
     backgroundColor: 'rgba(255,255,255,0.08)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
@@ -308,7 +310,6 @@ const styles = StyleSheet.create({
   circleFill: {
     ...StyleSheet.absoluteFill,
     backgroundColor: '#E43414',
-    borderRadius: (ITEM_SIZE - 16) / 2,
   },
   emoji: {
     fontSize: 32,

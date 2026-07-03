@@ -27,7 +27,7 @@ const { width, height } = Dimensions.get('window');
 const HERO_H = 340;
 
 const getMonth = (dateStr: string) => {
-  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
   return months[new Date(dateStr).getMonth()];
 };
 
@@ -43,25 +43,25 @@ const formatTime = (time: string) => {
 
 const formatFullDate = (dateStr: string) => {
   const d = new Date(dateStr);
-  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 };
 
-interface EventDetailScreenProps {}
+interface EventDetailScreenProps { }
 
 const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { eventId } = route.params;
   const scrollY = useRef(new Animated.Value(0)).current;
-  
+
   const { savedEvents, toggleRSVP, friendsList, privateRSVPs, privacySettings } = useAuth();
   const isSaved = savedEvents.includes(eventId);
-  
+
   const events = useApp((state) => state.events);
   const event = events.find((e) => e.id === eventId) || events[0];
-  
+
   // Real social proof data from friends
   const attendingFriends = getAttendingFriends(event.id, friendsList, privateRSVPs, privacySettings.hideRSVPs);
   const friendsGoing = attendingFriends.length;
@@ -74,7 +74,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
 
   const imageTranslateY = scrollY.interpolate({
     inputRange: [-200, 0, 200],
-    outputRange: [-50, 0, 80],
+    outputRange: [60, 0, -40],
     extrapolate: 'clamp',
   });
 
@@ -86,13 +86,13 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
     try {
       const deepLink = `zyntr://event/${event.id}`;
       const webLink = `https://zyntr.app/event/${event.id}`;
-      
+
       const result = await Share.share({
         message: `Check out ${event.title} on Zyntr! ${webLink}`,
         url: webLink,
         title: event.title,
       });
-      
+
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
           // shared with activity type
@@ -120,7 +120,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
         event.venue,
         event.location,
         [
-          { text: 'Get Directions', onPress: () => Linking.openURL(`https://maps.google.com/?q=${encodeURIComponent(event.location)}`).catch(() => {}) },
+          { text: 'Get Directions', onPress: () => Linking.openURL(`https://maps.google.com/?q=${encodeURIComponent(event.location)}`).catch(() => { }) },
           { text: 'Close', style: 'cancel' },
         ]
       );
@@ -164,14 +164,14 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
           <TouchableOpacity style={styles.floatBtn} onPress={handleShare}>
             <Ionicons name="share-outline" size={22} color="#FFFFFF" />
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.floatBtn, isSaved && styles.floatBtnActive]} 
+          <TouchableOpacity
+            style={[styles.floatBtn, isSaved && styles.floatBtnActive]}
             onPress={handleRSVPToggle}
           >
-            <Ionicons 
-              name={isSaved ? "heart" : "heart-outline"} 
-              size={22} 
-              color={isSaved ? "#E43414" : "#FFFFFF"} 
+            <Ionicons
+              name={isSaved ? "heart" : "heart-outline"}
+              size={22}
+              color={isSaved ? "#E43414" : "#FFFFFF"}
             />
           </TouchableOpacity>
         </View>
@@ -204,8 +204,8 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
               <Text style={styles.quickInfoText}>{formatTime(event.time)}</Text>
             </View>
             <View style={styles.quickInfoDivider} />
-            <TouchableOpacity 
-              style={styles.quickInfoItem} 
+            <TouchableOpacity
+              style={styles.quickInfoItem}
               onPress={handleVenuePress}
               activeOpacity={0.7}
             >
@@ -213,7 +213,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
               <Text style={[styles.quickInfoText, styles.venueLink]} numberOfLines={1}>
                 {event.venue}
               </Text>
-              <Ionicons name="open-outline" size={12} color="rgba(255,107,74,0.7)" />
+              <Ionicons name="open-outline" size={12} color="rgba(255,107,74,0.7)" style={{ marginTop: 1 }} />
             </TouchableOpacity>
           </View>
 
@@ -280,9 +280,9 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
                   <Text style={styles.detailValue}>{formatFullDate(event.date)}</Text>
                 </View>
               </View>
-              
+
               <View style={styles.detailDivider} />
-              
+
               <View style={styles.detailRow}>
                 <View style={styles.detailIconContainer}>
                   <Ionicons name="time-outline" size={20} color="#FF6B4A" />
@@ -292,11 +292,11 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
                   <Text style={styles.detailValue}>{formatTime(event.time)}</Text>
                 </View>
               </View>
-              
+
               <View style={styles.detailDivider} />
-              
-              <TouchableOpacity 
-                style={styles.detailRow} 
+
+              <TouchableOpacity
+                style={styles.detailRow}
                 onPress={handleVenuePress}
                 activeOpacity={0.7}
               >
@@ -383,17 +383,17 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
             style={styles.rsvpBtn}
           >
             <View style={[styles.rsvpBtnInner, isSaved && styles.rsvpBtnSaved]}>
-              <Ionicons 
-                name={isSaved ? "heart" : "heart-outline"} 
-                size={20} 
-                color={isSaved ? "#E43414" : "#FFFFFF"} 
+              <Ionicons
+                name={isSaved ? "heart" : "heart-outline"}
+                size={20}
+                color={isSaved ? "#E43414" : "#FFFFFF"}
               />
               <Text style={[styles.rsvpBtnText, isSaved && styles.rsvpBtnTextSaved]}>
                 {isSaved ? "Saved" : "Save"}
               </Text>
             </View>
           </TouchableOpacity>
-          
+
           {/* Get Tickets / RSVP Main Button */}
           {event.bookingType === 'external_link' || event.bookingType === 'whatsapp' ? (
             <TouchableOpacity
@@ -401,21 +401,19 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
               onPress={handleBookingPress}
               style={styles.mainBtnContainer}
             >
-              <LinearGradient
-                colors={event.bookingType === 'whatsapp' ? ['#25D366', '#128C7E'] : ['#99E1D9', '#E43414']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.mainBtn}
-              >
-                <Ionicons 
-                  name={event.bookingType === 'whatsapp' ? "logo-whatsapp" : "globe-outline"} 
-                  size={22} 
-                  color="#FFFFFF" 
+              <View style={[
+                styles.mainBtn,
+                { backgroundColor: event.bookingType === 'whatsapp' ? '#128C7E' : '#E43414' }
+              ]}>
+                <Ionicons
+                  name={event.bookingType === 'whatsapp' ? "logo-whatsapp" : "globe-outline"}
+                  size={22}
+                  color="#FFFFFF"
                 />
-                <Text style={styles.mainBtnText}>
+                <Text style={styles.mainBtnText} numberOfLines={1} adjustsFontSizeToFit>
                   {getBookingButtonLabel(event)}
                 </Text>
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
           ) : isFreeEvent ? (
             <TouchableOpacity
@@ -429,10 +427,10 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
                 end={{ x: 1, y: 0 }}
                 style={styles.mainBtn}
               >
-                <Ionicons 
-                  name={isSaved ? "checkmark-circle" : "add-circle-outline"} 
-                  size={22} 
-                  color="#FFFFFF" 
+                <Ionicons
+                  name={isSaved ? "checkmark-circle" : "add-circle-outline"}
+                  size={22}
+                  color="#FFFFFF"
                 />
                 <Text style={styles.mainBtnText}>
                   {isSaved ? "I'm Going" : "RSVP / I'm Going"}
@@ -447,14 +445,14 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
             >
               <View style={styles.arrowBtnRow}>
                 <Text style={styles.arrowBtnText}>Get Tickets</Text>
-                <Ionicons name="arrow-forward" size={18} color="#E43414" />
+                <Ionicons name="arrow-forward" size={18} color="#E43414" style={{ marginTop: 2 }} />
               </View>
             </TouchableOpacity>
           )}
-          
+
           {/* Share Button */}
-          <TouchableOpacity 
-            style={styles.shareBtn} 
+          <TouchableOpacity
+            style={styles.shareBtn}
             onPress={handleShare}
             activeOpacity={0.8}
           >
@@ -770,7 +768,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingTop: 10,
+    paddingBottom: 6,
     backgroundColor: 'rgba(10,12,18,0.95)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.06)',
@@ -779,6 +778,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    paddingBottom: 4,
   },
   rsvpBtn: {
     // RSVP button container
@@ -816,7 +816,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 56,
     borderRadius: 28,
+    paddingHorizontal: 20,
     gap: 8,
+    overflow: 'hidden',
   },
   arrowBtnRow: {
     flexDirection: 'row',
@@ -834,12 +836,15 @@ const styles = StyleSheet.create({
     color: '#E43414',
     fontSize: 16,
     fontFamily: fonts.button,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   mainBtnText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '500',
     letterSpacing: 0.3,
+    flexShrink: 1,
   },
   shareBtn: {
     width: 56,

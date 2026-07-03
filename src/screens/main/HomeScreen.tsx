@@ -136,14 +136,12 @@ const HomeScreen: React.FC = () => {
   const featuredFlatListRef = useRef<FlatList<Event>>(null);
   const dotAnimations = useRef<Animated.Value[]>([]).current;
 
-  // Initialize dot animations
-  useEffect(() => {
-    featuredEvents.forEach((_, i) => {
-      if (!dotAnimations[i]) {
-        dotAnimations[i] = new Animated.Value(i === 0 ? 1 : 0);
-      }
-    });
-  }, [featuredEvents.length]);
+  // Initialize dot animations eagerly during render
+  featuredEvents.forEach((_, i) => {
+    if (!dotAnimations[i]) {
+      dotAnimations[i] = new Animated.Value(i === 0 ? 1 : 0);
+    }
+  });
 
   // Animate dots on index change
   useEffect(() => {
@@ -274,7 +272,8 @@ const HomeScreen: React.FC = () => {
     return (
       <View style={styles.featuredOuter}>
         {/* Top row: Featured badge + Weather pill */}
-        <View style={styles.featuredTopRow}>
+        <View style={styles.featuredTopRowWrap}>
+          <View style={styles.featuredTopRow}>
           <View style={styles.featuredBadgePill}>
             <Ionicons name="star" size={12} color="#FFFFFF" />
             <Text style={styles.featuredBadgePillText}>Featured Today</Text>
@@ -293,6 +292,7 @@ const HomeScreen: React.FC = () => {
             <Ionicons name="chevron-down" size={12} color="rgba(255,255,255,0.5)" />
           </TouchableOpacity>
         </View>
+        </View>
 
         {/* Swipable cards */}
         <FlatList
@@ -305,6 +305,13 @@ const HomeScreen: React.FC = () => {
           decelerationRate="fast"
           disableIntervalMomentum={true}
           contentContainerStyle={{ paddingHorizontal: 20, gap: 16 }}
+          onScroll={(e) => {
+            const index = Math.round(e.nativeEvent.contentOffset.x / (cardWidth + 16));
+            if (index !== featuredIndex && index >= 0 && index < featuredEvents.length) {
+              setFeaturedIndex(index);
+            }
+          }}
+          scrollEventThrottle={16}
           onMomentumScrollEnd={(e) => {
             const index = Math.round(e.nativeEvent.contentOffset.x / (cardWidth + 16));
             setFeaturedIndex(index);
@@ -482,7 +489,16 @@ const HomeScreen: React.FC = () => {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Dynamic Time-of-Day Gradient Background */}
       <LinearGradient
-        colors={gradientColors as unknown as string[]}
+        colors={
+          timeOfDay === 'noon'
+            ? ['#FF8F00', '#FFA000', '#FFB300', '#FFC107', '#FFD600', '#FFEA00', '#C2A300', '#664C00', '#0A0C12']
+            : (gradientColors as unknown as string[])
+        }
+        locations={
+          timeOfDay === 'noon'
+            ? [0, 0.11, 0.22, 0.33, 0.44, 0.55, 0.7, 0.85, 1.0]
+            : undefined
+        }
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 0.45 }}
         style={styles.timeGradient}
@@ -631,7 +647,7 @@ const HomeScreen: React.FC = () => {
             </View>
 
             {/* Popular in Neighborhood Section */}
-            <View style={styles.section}>
+            <View style={[styles.section, { marginBottom: 60 }]}>
               <View style={styles.sectionHeader}>
                 <View style={styles.sectionTitleRow}>
                   <Ionicons name="trending-up" size={18} color="#FF6B4A" />
@@ -696,7 +712,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 340,
-    zIndex: 0,
   },
   scrollContent: {
     flexGrow: 1,
@@ -733,7 +748,7 @@ const styles = StyleSheet.create({
   },
   searchBarWrap: {
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 32,
     zIndex: 1,
   },
   searchBarBlur: {
@@ -822,15 +837,17 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: 'rgba(255,255,255,0.3)',
   },
-  // Featured Banner Styles
+  // Featured Event Banner Styles
   featuredOuter: {
-    marginBottom: 24,
+    marginBottom: 32,
+  },
+  featuredTopRowWrap: {
+    paddingHorizontal: 20,
   },
   featuredTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginHorizontal: 20,
     marginBottom: 10,
   },
   featuredBadgePill: {
@@ -908,7 +925,7 @@ const styles = StyleSheet.create({
     left: 16,
     right: 16,
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     justifyContent: 'space-between',
   },
   featuredMeta: {
@@ -930,7 +947,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 12,
+    marginTop: 20,
     gap: 6,
   },
   dot: {
@@ -940,7 +957,8 @@ const styles = StyleSheet.create({
   },
   // Vibe Filters
   vibesSection: {
-    marginBottom: 24,
+    marginTop: 10,
+    marginBottom: 34,
     zIndex: 1,
   },
   vibesContainer: {

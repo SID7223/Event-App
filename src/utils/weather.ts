@@ -28,7 +28,7 @@ export const getTimeOfDay = (hour?: number): TimeOfDay => {
 
 export const GRADIENT_MAP: Record<TimeOfDay, readonly string[]> = {
   morning: ['#87CEEB', '#3A6073', '#0A0C12'],
-  noon:     ['#FFDF00', '#F0A500', '#0A0C12'],
+  noon:     ['#FF8F00', '#FFA000', '#FFB300', '#FFC107', '#FFD600', '#FFEA00'],
   sunset:   ['#FF7E5F', '#C0392B', '#0A0C12'],
   evening:  ['#2B5876', '#1A1A3E', '#0A0C12'],
   night:    ['#0D0D0D', '#050508', '#0A0C12'],
