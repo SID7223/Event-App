@@ -7,6 +7,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import HomeScreen from '../screens/main/HomeScreen';
 import ExploreScreen from '../screens/main/ExploreScreen';
+import FriendsScreen from '../screens/social/FriendsScreen';
 import MyPlansScreen from '../screens/main/MyPlansScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
 import NotificationsScreen from '../screens/main/NotificationsScreen';
@@ -17,11 +18,12 @@ import GlassNavbar from '../components/ui/GlassNavbar';
 import { useApp } from '../store';
 import { getTimeOfDay, GRADIENT_MAP } from '../utils/weather';
 
-type TabName = 'HomeTab' | 'ExploreTab' | 'PlansTab' | 'ProfileTab';
+type TabName = 'HomeTab' | 'ExploreTab' | 'FriendsTab' | 'PlansTab' | 'ProfileTab';
 
 const TABS = [
   { name: 'HomeTab' as const, icon: 'home' as const, iconOutline: 'home-outline' as const },
   { name: 'ExploreTab' as const, icon: 'compass' as const, iconOutline: 'compass-outline' as const },
+  { name: 'FriendsTab' as const, icon: 'people' as const, iconOutline: 'people-outline' as const },
   { name: 'PlansTab' as const, icon: 'calendar' as const, iconOutline: 'calendar-outline' as const },
   { name: 'ProfileTab' as const, icon: 'person' as const, iconOutline: 'person-outline' as const },
 ];
@@ -36,6 +38,8 @@ const MainNavigator: React.FC = () => {
         return <HomeScreen />;
       case 'ExploreTab':
         return <ExploreScreen />;
+      case 'FriendsTab':
+        return <FriendsScreen />;
       case 'PlansTab':
         return <MyPlansScreen />;
       case 'ProfileTab':

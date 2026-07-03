@@ -9,6 +9,7 @@ import {
   Animated,
   Alert,
   Image,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -70,29 +71,6 @@ const FriendsScreen: React.FC = () => {
     addFriend(friend.id);
   };
 
-  const renderFriend = ({ item, index }: { item: Friend; index: number }) => (
-    <Animated.View style={[styles.friendCard, { opacity: fadeAnim, transform: [{ translateY: fadeAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }]}>
-      <View style={styles.friendLeft}>
-        <View style={styles.avatarContainer}>
-          <Image source={{ uri: item.avatar }} style={styles.friendAvatar} />
-          {item.isOnline && <View style={styles.onlineDot} />}
-        </View>
-        <View style={styles.friendInfo}>
-          <Text style={styles.friendName}>{item.name}</Text>
-          <Text style={styles.friendHandle}>{item.handle}</Text>
-          <Text style={styles.mutualText}>{item.mutualFriends} mutual friends</Text>
-        </View>
-      </View>
-      <TouchableOpacity
-        style={styles.removeBtn}
-        onPress={() => handleRemoveFriend(item)}
-        activeOpacity={0.7}
-      >
-        <Text style={styles.removeBtnText}>Remove</Text>
-      </TouchableOpacity>
-    </Animated.View>
-  );
-
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
@@ -101,14 +79,13 @@ const FriendsScreen: React.FC = () => {
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>My Friends</Text>
-          <Text style={styles.headerSubtitle}>{friends.length} friends · {onlineCount} online</Text>
+          <Text style={styles.headerTitle}>Friends</Text>
         </View>
         <View style={styles.headerRight} />
       </View>
 
       {/* Search Bar */}
-      <View style={styles.searchContainer}>
+      <View style={styles.searchSection}>
         <View style={styles.searchBar}>
           <Ionicons name="search-outline" size={18} color="rgba(255,255,255,0.4)" />
           <TextInput
@@ -128,56 +105,102 @@ const FriendsScreen: React.FC = () => {
         </View>
       </View>
 
-      {/* Suggested Friends */}
-      {suggestedUsers.length > 0 && !searchQuery && (
-        <View style={styles.suggestedSection}>
-          <Text style={styles.suggestedTitle}>Suggested Friends</Text>
-          <FlatList
-            horizontal
-            data={suggestedUsers}
-            keyExtractor={(item) => item.id}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.suggestedList}
-            renderItem={({ item }) => (
-              <View style={styles.suggestedCard}>
-                <Image source={{ uri: item.avatar }} style={styles.suggestedAvatar} />
-                <Text style={styles.suggestedName} numberOfLines={1}>{item.name.split(' ')[0]}</Text>
-                <Text style={styles.suggestedHandle} numberOfLines={1}>{item.handle}</Text>
-                <TouchableOpacity
-                  style={styles.addBtn}
-                  onPress={() => handleAddFriend(item)}
-                  activeOpacity={0.7}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {/* Suggested Friends */}
+        {suggestedUsers.length > 0 && !searchQuery && (
+          <View style={styles.suggestedSection}>
+            <View style={styles.sectionLabel}>
+              <Ionicons name="person-add" size={16} color="#99E1D9" />
+              <Text style={styles.sectionLabelText}>Suggested Friends</Text>
+            </View>
+            <FlatList
+              data={suggestedUsers}
+              renderItem={({ item }) => (
+                <View style={styles.suggestedCard}>
+                  <Image source={{ uri: item.avatar }} style={styles.suggestedAvatar} />
+                  <Text style={styles.suggestedName} numberOfLines={1}>{item.name.split(' ')[0]}</Text>
+                  <Text style={styles.suggestedHandle} numberOfLines={1}>{item.handle}</Text>
+                  <TouchableOpacity
+                    style={styles.addBtn}
+                    onPress={() => handleAddFriend(item)}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name="person-add-outline" size={12} color="#FFFFFF" />
+                    <Text style={styles.addBtnText}>Add</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+              keyExtractor={(item) => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.suggestedCardsRow}
+            />
+          </View>
+        )}
+
+        {/* My Friends */}
+        <View style={styles.friendsSection}>
+          <View style={styles.friendsSectionHeader}>
+            <View style={styles.sectionLabel}>
+              <Ionicons name="people" size={16} color="#FF6B4A" />
+              <Text style={styles.sectionLabelText}>My Friends</Text>
+            </View>
+            <View style={styles.countsRow}>
+              <View style={styles.countBadge}>
+                <Text style={styles.countBadgeText}>{friends.length}</Text>
+              </View>
+              <View style={styles.onlineBadge}>
+                <View style={styles.onlineDotSmall} />
+                <Text style={styles.onlineBadgeText}>{onlineCount} online</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.friendsList}>
+            {filteredFriends.length > 0 ? (
+              filteredFriends.map((item, index) => (
+                <Animated.View
+                  key={item.id}
+                  style={[
+                    styles.friendCard,
+                    { opacity: fadeAnim, transform: [{ translateY: fadeAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] },
+                    index < filteredFriends.length - 1 && styles.friendCardSpacing,
+                  ]}
                 >
-                  <Ionicons name="person-add-outline" size={14} color="#FFFFFF" />
-                  <Text style={styles.addBtnText}>Add</Text>
-                </TouchableOpacity>
+                  <View style={styles.friendLeft}>
+                    <View style={styles.avatarContainer}>
+                      <Image source={{ uri: item.avatar }} style={styles.friendAvatar} />
+                      {item.isOnline && <View style={styles.onlineDot} />}
+                    </View>
+                    <View style={styles.friendInfo}>
+                      <Text style={styles.friendName}>{item.name}</Text>
+                      <Text style={styles.friendHandle}>{item.handle}</Text>
+                      <Text style={styles.mutualText}>{item.mutualFriends} mutual friends</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.removeBtn}
+                    onPress={() => handleRemoveFriend(item)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.removeBtnText}>Remove</Text>
+                  </TouchableOpacity>
+                </Animated.View>
+              ))
+            ) : (
+              <View style={styles.emptyState}>
+                <Ionicons name="people-outline" size={48} color="rgba(255,255,255,0.12)" />
+                <Text style={styles.emptyTitle}>
+                  {searchQuery ? 'No friends found' : 'No friends yet'}
+                </Text>
+                <Text style={styles.emptySub}>
+                  {searchQuery ? 'Try a different search term' : 'Add friends to see their activity'}
+                </Text>
               </View>
             )}
-          />
-        </View>
-      )}
-
-      {/* Friends List */}
-      <FlatList
-        data={filteredFriends}
-        keyExtractor={(item) => item.id}
-        renderItem={renderFriend}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        style={{ flex: 1 }}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons name="people-outline" size={48} color="rgba(255,255,255,0.12)" />
-            <Text style={styles.emptyTitle}>
-              {searchQuery ? 'No friends found' : 'No friends yet'}
-            </Text>
-            <Text style={styles.emptySub}>
-              {searchQuery ? 'Try a different search term' : 'Add friends to see their activity'}
-            </Text>
           </View>
-        }
-      />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -187,6 +210,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0A0C12',
   },
+  scrollContent: {
+    paddingBottom: 100,
+  },
+
+  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -213,17 +241,12 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: fonts.heading,
   },
-  headerSubtitle: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.45)',
-    marginTop: 2,
-    fontFamily: fonts.body,
-  },
   headerRight: {
     width: 40,
   },
+
   // Search
-  searchContainer: {
+  searchSection: {
     paddingHorizontal: 20,
     paddingVertical: 12,
   },
@@ -245,15 +268,125 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     fontFamily: fonts.body,
   },
-  // List
-  listContent: {
+
+  // Suggested Friends
+  suggestedSection: {
+    marginBottom: 16,
+  },
+  sectionLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    marginBottom: 10,
   },
-  separator: {
-    height: 10,
+  sectionLabelText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'rgba(255,255,255,0.7)',
+    fontFamily: fonts.subheading,
   },
-  // Friend Card
+  suggestedCardsRow: {
+    paddingHorizontal: 20,
+    gap: 10,
+  },
+  suggestedCard: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+    width: 100,
+  },
+  suggestedAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    marginBottom: 6,
+  },
+  suggestedName: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#FFFFFF',
+    fontFamily: fonts.subheading,
+    marginBottom: 2,
+  },
+  suggestedHandle: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.4)',
+    marginBottom: 8,
+    fontFamily: fonts.body,
+  },
+  addBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: 8,
+    backgroundColor: '#FF6B4A',
+  },
+  addBtnText: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#FFFFFF',
+    fontFamily: fonts.bodyBold,
+  },
+
+  // My Friends
+  friendsSection: {
+    paddingHorizontal: 20,
+  },
+  friendsSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  countsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  countBadge: {
+    backgroundColor: 'rgba(255,107,74,0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  countBadgeText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#FF6B4A',
+    fontFamily: fonts.bodyBold,
+  },
+  onlineBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(34,197,94,0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  onlineDotSmall: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#22C55E',
+  },
+  onlineBadgeText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#22C55E',
+    fontFamily: fonts.bodyBold,
+  },
+  friendsList: {
+    gap: 10,
+  },
   friendCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -263,6 +396,9 @@ const styles = StyleSheet.create({
     padding: 14,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.10)',
+  },
+  friendCardSpacing: {
+    marginBottom: 0,
   },
   friendLeft: {
     flexDirection: 'row',
@@ -326,69 +462,12 @@ const styles = StyleSheet.create({
     color: '#EF4444',
     fontFamily: fonts.bodyBold,
   },
+
   // Empty
   emptyState: {
     alignItems: 'center',
     paddingTop: 60,
     gap: 8,
-  },
-  // Suggested Friends
-  suggestedSection: {
-    paddingBottom: 8,
-  },
-  suggestedTitle: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.45)',
-    paddingHorizontal: 20,
-    marginBottom: 10,
-    fontFamily: fonts.subheading,
-  },
-  suggestedList: {
-    paddingHorizontal: 20,
-    gap: 10,
-  },
-  suggestedCard: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: 14,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
-    width: 110,
-  },
-  suggestedAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    marginBottom: 6,
-  },
-  suggestedName: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#FFFFFF',
-    fontFamily: fonts.subheading,
-  },
-  suggestedHandle: {
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.4)',
-    marginBottom: 8,
-    fontFamily: fonts.body,
-  },
-  addBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: '#FF6B4A',
-  },
-  addBtnText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#FFFFFF',
-    fontFamily: fonts.bodyBold,
   },
   emptyTitle: {
     fontSize: 17,

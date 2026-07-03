@@ -52,12 +52,14 @@ const LocationStep: React.FC = () => {
   
   const fadeIn = useRef(new Animated.Value(0)).current;
   const checkmarkScale = useRef(new Animated.Value(0)).current;
-  const ringScale = useRef(new Animated.Value(0)).current;
-  const ringOpacity = useRef(new Animated.Value(0)).current;
+  const checkmarkRotate = useRef(new Animated.Value(0)).current;
   const bgGreen = useRef(new Animated.Value(0)).current;
-  const dottedRotation = useRef(new Animated.Value(0)).current;
-  const dotAnims = useRef(
-    Array.from({ length: 8 }, () => ({
+  const ripple1 = useRef(new Animated.Value(0)).current;
+  const ripple2 = useRef(new Animated.Value(0)).current;
+  const ripple3 = useRef(new Animated.Value(0)).current;
+  const glowPulse = useRef(new Animated.Value(0)).current;
+  const particleAnims = useRef(
+    Array.from({ length: 12 }, () => ({
       x: new Animated.Value(0),
       y: new Animated.Value(0),
       opacity: new Animated.Value(0),
@@ -80,79 +82,134 @@ const LocationStep: React.FC = () => {
   }, [selectedLocation]);
 
   const runConfirmAnimation = () => {
-    // Phase 1: Dots appear on circle boundary and orbit (0-1s)
-    const phase1 = dotAnims.map((dot) => {
-      dot.opacity.setValue(0);
-      dot.scale.setValue(0);
-      return Animated.parallel([
-        Animated.timing(dot.opacity, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.spring(dot.scale, {
-          toValue: 1,
-          tension: 80,
-          friction: 8,
-          useNativeDriver: true,
-        }),
-      ]);
+    // Reset values
+    checkmarkScale.setValue(0);
+    checkmarkRotate.setValue(0);
+    bgGreen.setValue(0);
+    ripple1.setValue(0);
+    ripple2.setValue(0);
+    ripple3.setValue(0);
+    glowPulse.setValue(0);
+    particleAnims.forEach(p => {
+      p.opacity.setValue(0);
+      p.scale.setValue(0);
+      p.x.setValue(0);
+      p.y.setValue(0);
     });
 
-    // Orbit rotation (counter-clockwise, 1 second)
-    const orbitAnim = Animated.loop(
-      Animated.timing(dottedRotation, {
-        toValue: -1,
-        duration: 800,
-        useNativeDriver: true,
-      })
+    // Phase 1: Ripple rings expand outward (0-600ms)
+    const ripples = [ripple1, ripple2, ripple3].map((ripple, i) =>
+      Animated.sequence([
+        Animated.delay(i * 150),
+        Animated.parallel([
+          Animated.timing(ripple, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+        ]),
+      ])
     );
 
-    // Phase 2: Dots fade out + green bg fills + tick pops (after 1s)
-    const phase2 = Animated.parallel([
-      // Dots fade out
-      ...dotAnims.map((dot) =>
-        Animated.timing(dot.opacity, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        })
-      ),
-      // Green background fill
+    // Phase 2: Center fills green with glow pulse
+    const centerFill = Animated.parallel([
       Animated.timing(bgGreen, {
         toValue: 1,
-        duration: 300,
+        duration: 400,
         useNativeDriver: true,
       }),
-      // Ring appears
-      Animated.spring(ringScale, {
-        toValue: 1,
-        tension: 60,
-        friction: 8,
-        useNativeDriver: true,
-      }),
-      Animated.timing(ringOpacity, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      // Checkmark pops in
+      // Glow pulse animation
       Animated.sequence([
-        Animated.delay(120),
-        Animated.spring(checkmarkScale, {
+        Animated.timing(glowPulse, {
           toValue: 1,
-          tension: 100,
-          friction: 6,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(glowPulse, {
+          toValue: 0.6,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(glowPulse, {
+          toValue: 0.8,
+          duration: 200,
           useNativeDriver: true,
         }),
       ]),
     ]);
 
-    // Run: orbit for 1s, then phase2
-    Animated.sequence([
-      Animated.parallel([Animated.parallel(phase1), orbitAnim]),
-      Animated.delay(800),
-      phase2,
+    // Phase 3: Particle burst
+    const particles = particleAnims.map((particle, i) => {
+      const angle = (2 * Math.PI / particleAnims.length) * i;
+      const distance = 70 + Math.random() * 30;
+      return Animated.sequence([
+        Animated.delay(200),
+        Animated.parallel([
+          Animated.timing(particle.x, {
+            toValue: Math.cos(angle) * distance,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(particle.y, {
+            toValue: Math.sin(angle) * distance,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.sequence([
+            Animated.timing(particle.opacity, {
+              toValue: 1,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+            Animated.delay(300),
+            Animated.timing(particle.opacity, {
+              toValue: 0,
+              duration: 200,
+              useNativeDriver: true,
+            }),
+          ]),
+          Animated.sequence([
+            Animated.spring(particle.scale, {
+              toValue: 1,
+              tension: 100,
+              friction: 6,
+              useNativeDriver: true,
+            }),
+            Animated.timing(particle.scale, {
+              toValue: 0,
+              duration: 200,
+              useNativeDriver: true,
+            }),
+          ]),
+        ]),
+      ]);
+    });
+
+    // Phase 4: Checkmark pops in with rotation
+    const checkmark = Animated.sequence([
+      Animated.delay(400),
+      Animated.parallel([
+        Animated.spring(checkmarkScale, {
+          toValue: 1,
+          tension: 120,
+          friction: 8,
+          useNativeDriver: true,
+        }),
+        Animated.spring(checkmarkRotate, {
+          toValue: 1,
+          tension: 80,
+          friction: 10,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]);
+
+    // Run all phases
+    Animated.parallel([
+      Animated.parallel(ripples),
+      centerFill,
+      Animated.parallel(particles),
+      checkmark,
     ]).start();
   };
 
@@ -268,65 +325,81 @@ const LocationStep: React.FC = () => {
         </View>
 
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scrollContent, selectedLocation && styles.scrollContentCentered]}
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
-          <Animated.View style={[styles.header, { opacity: fadeIn }]}>
-            <Text style={styles.title}>Where are you?</Text>
+          <Animated.View style={[styles.header, selectedLocation && styles.headerCentered, { opacity: fadeIn }]}>
+            <Text style={styles.title} numberOfLines={1} adjustsFontSizeToFit={true}>
+              {selectedLocation ? `${selectedLocation.city} is buzzing` : 'Where are you?'}
+            </Text>
             <Text style={styles.subtitle}>
-              We'll show you events near you
+              {selectedLocation ? 'What are you into?' : "We'll show you events near you"}
             </Text>
           </Animated.View>
 
           {/* Location Icon */}
-          <View style={styles.iconContainer}>
-            {/* Animated dots — orbit wrapper */}
-            {selectedLocation && (
+          <View style={[styles.iconContainer, selectedLocation && styles.iconContainerCentered]}>
+            {/* Ripple rings */}
+            {selectedLocation && [ripple1, ripple2, ripple3].map((ripple, i) => (
               <Animated.View
+                key={`ripple-${i}`}
                 style={[
-                  styles.orbitWrapper,
+                  styles.rippleRing,
                   {
+                    opacity: ripple.interpolate({
+                      inputRange: [0, 0.3, 1],
+                      outputRange: [0, 0.5, 0],
+                    }),
                     transform: [{
-                      rotate: dottedRotation.interpolate({
+                      scale: ripple.interpolate({
                         inputRange: [0, 1],
-                        outputRange: ['0deg', '-360deg'],
+                        outputRange: [0.5, 2.5],
                       }),
                     }],
                   },
                 ]}
-              >
-                {dotAnims.map((dot, i) => {
-                  const angle = (2 * Math.PI / dotAnims.length) * i;
-                  const radius = 50;
-                  return (
-                    <Animated.View
-                      key={i}
-                      style={[
-                        styles.floatingDot,
-                        {
-                          opacity: dot.opacity,
-                          transform: [
-                            { translateX: Math.cos(angle) * radius },
-                            { translateY: Math.sin(angle) * radius },
-                            { scale: dot.scale },
-                          ],
-                        },
-                      ]}
-                    />
-                  );
-                })}
-              </Animated.View>
-            )}
+              />
+            ))}
 
-            {/* Green ring — appears after spin */}
+            {/* Particle burst */}
+            {selectedLocation && particleAnims.map((particle, i) => {
+              const colors = ['#2ED573', '#FFD700', '#FF6B4A', '#99E1D9', '#FFFFFF'];
+              return (
+                <Animated.View
+                  key={`particle-${i}`}
+                  style={[
+                    styles.particle,
+                    {
+                      backgroundColor: colors[i % colors.length],
+                      opacity: particle.opacity,
+                      transform: [
+                        { translateX: particle.x },
+                        { translateY: particle.y },
+                        { scale: particle.scale },
+                      ],
+                    },
+                  ]}
+                />
+              );
+            })}
+
+            {/* Glow effect */}
             {selectedLocation && (
               <Animated.View
                 style={[
-                  styles.greenRing,
+                  styles.glowEffect,
                   {
-                    opacity: ringOpacity,
-                    transform: [{ scale: ringScale }],
+                    opacity: glowPulse.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 0.4],
+                    }),
+                    transform: [{
+                      scale: glowPulse.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.8, 1.3],
+                      }),
+                    }],
                   },
                 ]}
               />
@@ -341,11 +414,25 @@ const LocationStep: React.FC = () => {
                     inputRange: [0, 1],
                     outputRange: ['rgba(255,255,255,0.06)', '#2ED573'],
                   }),
+                  shadowColor: selectedLocation ? '#2ED573' : 'transparent',
+                  shadowOffset: { width: 0, height: 0 },
+                  shadowOpacity: selectedLocation ? 0.5 : 0,
+                  shadowRadius: selectedLocation ? 20 : 0,
                 },
               ]}
             >
               {selectedLocation ? (
-                <Animated.View style={{ transform: [{ scale: checkmarkScale }] }}>
+                <Animated.View style={{
+                  transform: [
+                    { scale: checkmarkScale },
+                    {
+                      rotate: checkmarkRotate.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ['-90deg', '0deg'],
+                      }),
+                    },
+                  ],
+                }}>
                   <Ionicons name="checkmark" size={48} color="#FFFFFF" />
                 </Animated.View>
               ) : (
@@ -387,6 +474,9 @@ const LocationStep: React.FC = () => {
                     setSelectedLocation(null);
                     setManualInput('');
                     checkmarkScale.setValue(0);
+                    checkmarkRotate.setValue(0);
+                    bgGreen.setValue(0);
+                    glowPulse.setValue(0);
                   }}
                   style={styles.changeBtn}
                 >
@@ -397,59 +487,57 @@ const LocationStep: React.FC = () => {
           )}
 
           {/* Divider */}
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
-          </View>
+          {!selectedLocation && (
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
+            </View>
+          )}
 
           {/* Manual Input */}
-          <View style={styles.manualSection}>
-            <View style={styles.inputWrapper}>
-              <Ionicons name="search-outline" size={18} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Search city or neighborhood..."
-                placeholderTextColor="rgba(255,255,255,0.35)"
-                value={manualInput}
-                onChangeText={(text) => {
-                  setManualInput(text);
-                  setIsManualMode(true);
-                  if (selectedLocation) {
-                    setSelectedLocation(null);
-                    checkmarkScale.setValue(0);
-                  }
-                }}
-                autoCapitalize="words"
-              />
-              {manualInput.length > 0 && (
-                <TouchableOpacity onPress={() => {
-                  setManualInput('');
-                  setSuggestions([]);
-                  setSelectedLocation(null);
-                  checkmarkScale.setValue(0);
-                }} style={styles.clearBtn}>
-                  <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.4)" />
-                </TouchableOpacity>
+          {!selectedLocation && (
+            <View style={styles.manualSection}>
+              <View style={styles.inputWrapper}>
+                <Ionicons name="search-outline" size={18} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Search city or neighborhood..."
+                  placeholderTextColor="rgba(255,255,255,0.35)"
+                  value={manualInput}
+                  onChangeText={(text) => {
+                    setManualInput(text);
+                    setIsManualMode(true);
+                  }}
+                  autoCapitalize="words"
+                />
+                {manualInput.length > 0 && (
+                  <TouchableOpacity onPress={() => {
+                    setManualInput('');
+                    setSuggestions([]);
+                  }} style={styles.clearBtn}>
+                    <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.4)" />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* Suggestions */}
+              {suggestions.length > 0 && (
+                <View style={styles.suggestionsContainer}>
+                  <FlatList
+                    data={suggestions}
+                    renderItem={renderSuggestion}
+                    keyExtractor={(item) => item.id}
+                    scrollEnabled={false}
+                    style={styles.suggestionsList}
+                  />
+                </View>
               )}
             </View>
-
-            {/* Suggestions */}
-            {suggestions.length > 0 && (
-              <View style={styles.suggestionsContainer}>
-                <FlatList
-                  data={suggestions}
-                  renderItem={renderSuggestion}
-                  keyExtractor={(item) => item.id}
-                  scrollEnabled={false}
-                  style={styles.suggestionsList}
-                />
-              </View>
-            )}
-          </View>
+          )}
 
           {/* Error Message */}
-          {error ? (
+          {error && !selectedLocation ? (
             <View style={styles.errorContainer}>
               <Ionicons name="alert-circle" size={18} color="#E43414" />
               <Text style={styles.errorText}>{error}</Text>
@@ -457,27 +545,28 @@ const LocationStep: React.FC = () => {
           ) : null}
 
           {/* Skip for Now */}
-          <TouchableOpacity
-            style={styles.skipBtn}
-            onPress={() => {
-              // Use default location
-              const defaultLocation: UserLocation = {
-                city: 'Lahore',
-                neighborhood: 'Gulberg',
-                latitude: 31.5204,
-                longitude: 74.3587,
-                country: 'Pakistan',
-                fullAddress: 'Gulberg, Lahore, Pakistan',
-              };
-              setLocation(defaultLocation);
-              navigation.navigate('VibeQuiz', {
-                user,
-                location: defaultLocation,
-              });
-            }}
-          >
-            <Text style={styles.skipBtnText}>Skip for now</Text>
-          </TouchableOpacity>
+          {!selectedLocation && (
+            <TouchableOpacity
+              style={styles.skipBtn}
+              onPress={() => {
+                const defaultLocation: UserLocation = {
+                  city: 'Lahore',
+                  neighborhood: 'Gulberg',
+                  latitude: 31.5204,
+                  longitude: 74.3587,
+                  country: 'Pakistan',
+                  fullAddress: 'Gulberg, Lahore, Pakistan',
+                };
+                setLocation(defaultLocation);
+                navigation.navigate('VibeQuiz', {
+                  user,
+                  location: defaultLocation,
+                });
+              }}
+            >
+              <Text style={styles.skipBtnText}>Skip for now</Text>
+            </TouchableOpacity>
+          )}
         </ScrollView>
 
         {/* Continue Button */}
@@ -535,9 +624,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 120,
   },
+  scrollContentCentered: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 0,
+  },
   header: {
     marginTop: 32,
     marginBottom: 32,
+    alignItems: 'center',
+  },
+  headerCentered: {
+    marginTop: 0,
+    marginBottom: 32,
+    alignItems: 'center',
   },
   title: {
     fontSize: 32,
@@ -547,8 +648,8 @@ const styles = StyleSheet.create({
     fontFamily: fonts.heading,
   },
   subtitle: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.45)',
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.65)',
     fontFamily: fonts.body,
   },
   iconContainer: {
@@ -556,30 +657,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center',
     marginBottom: 20,
-    width: 120,
-    height: 120,
+    width: 160,
+    height: 160,
   },
-  orbitWrapper: {
-    position: 'absolute',
-    width: 120,
-    height: 120,
-    alignItems: 'center',
-    justifyContent: 'center',
+  iconContainerCentered: {
+    marginBottom: 40,
+    width: 160,
+    height: 160,
   },
-  floatingDot: {
-    position: 'absolute',
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#2ED573',
-  },
-  greenRing: {
+  rippleRing: {
     position: 'absolute',
     width: 120,
     height: 120,
     borderRadius: 60,
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: '#2ED573',
+  },
+  particle: {
+    position: 'absolute',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  glowEffect: {
+    position: 'absolute',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: '#2ED573',
   },
   iconBackground: {
     width: 100,
@@ -611,6 +716,7 @@ const styles = StyleSheet.create({
   },
   selectedContainer: {
     marginBottom: 24,
+    alignItems: 'center',
   },
   selectedCard: {
     flexDirection: 'row',

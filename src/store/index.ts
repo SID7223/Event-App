@@ -67,7 +67,7 @@ interface AuthState {
 }
 
 interface AppState {
-  activeTab: 'HomeTab' | 'ExploreTab' | 'PlansTab' | 'ProfileTab';
+  activeTab: 'HomeTab' | 'ExploreTab' | 'FriendsTab' | 'PlansTab' | 'ProfileTab';
   activeVibe: string | null;
   searchQuery: string;
   isSearching: boolean;
