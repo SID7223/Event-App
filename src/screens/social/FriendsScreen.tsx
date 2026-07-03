@@ -11,6 +11,8 @@ import {
   Image,
   ScrollView,
   Platform,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,6 +26,8 @@ const FriendsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { friendsList, removeFriend, addFriend } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
+  const [deleteModal, setDeleteModal] = useState<Friend | null>(null);
+  const deleteAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const addScaleAnims = useRef<{ [key: string]: Animated.Value }>({}).current;
 
@@ -34,6 +38,17 @@ const FriendsScreen: React.FC = () => {
       useNativeDriver: true,
     }).start();
   }, []);
+
+  React.useEffect(() => {
+    if (deleteModal) {
+      deleteAnim.setValue(0);
+      Animated.timing(deleteAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [deleteModal]);
 
   const friends = useMemo(() => {
     return mockFriends.filter(f => friendsList.includes(f.id));
@@ -80,18 +95,14 @@ const FriendsScreen: React.FC = () => {
   };
 
   const handleRemoveFriend = (friend: Friend) => {
-    Alert.alert(
-      'Remove Friend',
-      `Remove ${friend.name} from your friends?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: () => removeFriend(friend.id),
-        },
-      ]
-    );
+    setDeleteModal(friend);
+  };
+
+  const confirmRemoveFriend = () => {
+    if (deleteModal) {
+      removeFriend(deleteModal.id);
+      setDeleteModal(null);
+    }
   };
 
   const handleAddFriend = (friend: Friend) => {
@@ -149,8 +160,7 @@ const FriendsScreen: React.FC = () => {
                       onPressOut={() => handlePressOut(item.id)}
                       activeOpacity={1}
                     >
-                      <Ionicons name="person-add-outline" size={12} color="#FFFFFF" />
-                      <Text style={styles.addBtnText}>Add</Text>
+                      <Ionicons name="add" size={16} color="#FFFFFF" />
                     </TouchableOpacity>
                   </Animated.View>
                 </View>
@@ -170,14 +180,9 @@ const FriendsScreen: React.FC = () => {
               <Ionicons name="people" size={16} color="#FF6B4A" />
               <Text style={styles.sectionLabelText}>My Friends</Text>
             </View>
-            <View style={styles.countsRow}>
-              <View style={styles.countBadge}>
-                <Text style={styles.countBadgeText}>{friends.length}</Text>
-              </View>
-              <View style={styles.onlineBadge}>
-                <View style={styles.onlineDotSmall} />
-                <Text style={styles.onlineBadgeText}>{onlineCount} online</Text>
-              </View>
+            <View style={styles.onlineBadge}>
+              <View style={styles.onlineDotSmall} />
+              <Text style={styles.onlineBadgeText}>{onlineCount}</Text>
             </View>
           </View>
 
@@ -226,6 +231,29 @@ const FriendsScreen: React.FC = () => {
           </View>
         </View>
       </ScrollView>
+
+      {/* Delete Friend Modal */}
+      <Modal visible={deleteModal !== null} transparent animationType="none" onRequestClose={() => setDeleteModal(null)}>
+        <Pressable style={styles.deleteOverlay} onPress={() => setDeleteModal(null)}>
+          <Animated.View style={[styles.deletePopup, { opacity: deleteAnim, transform: [{ scale: deleteAnim.interpolate({ inputRange: [0, 1], outputRange: [0.95, 1] }) }] }]}>
+            <View style={styles.deleteIconContainer}>
+              <Ionicons name="person-remove" size={28} color="#EF4444" />
+            </View>
+            <Text style={styles.deleteTitle}>Remove Friend</Text>
+            <Text style={styles.deleteMessage}>
+              Remove <Text style={styles.deleteName}>{deleteModal?.name}</Text> from your friends?
+            </Text>
+            <View style={styles.deleteActions}>
+              <TouchableOpacity style={styles.deleteCancelBtn} onPress={() => setDeleteModal(null)} activeOpacity={0.7}>
+                <Text style={styles.deleteCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.deleteConfirmBtn} onPress={confirmRemoveFriend} activeOpacity={0.7}>
+                <Text style={styles.deleteConfirmText}>Remove</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -242,7 +270,7 @@ const styles = StyleSheet.create({
   // Header
   header: {
     paddingHorizontal: 20,
-    paddingTop: 32,
+    paddingTop: 40,
     paddingBottom: 16,
   },
   headerTitle: {
@@ -279,6 +307,7 @@ const styles = StyleSheet.create({
   // Suggested Friends
   suggestedSection: {
     marginBottom: 16,
+    paddingLeft: 24,
   },
   sectionLabel: {
     flexDirection: 'row',
@@ -286,7 +315,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   suggestedHeader: {
-    paddingHorizontal: 20,
     marginBottom: 10,
   },
   sectionLabelText: {
@@ -296,7 +324,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.subheading,
   },
   suggestedCardsRow: {
-    paddingHorizontal: 20,
+    paddingRight: 20,
     gap: 10,
   },
   suggestedCard: {
@@ -330,48 +358,29 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   addBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 14,
-    paddingVertical: 5,
-    borderRadius: 100,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: '#FF6B4A',
-  },
-  addBtnText: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: '#FFFFFF',
-    fontFamily: fonts.bodyBold,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   // My Friends
   friendsSection: {
-    paddingHorizontal: 20,
+    marginHorizontal: 20,
+    marginTop: 8,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+    padding: 16,
   },
   friendsSectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  countsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  countBadge: {
-    backgroundColor: 'rgba(255,107,74,0.15)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 100,
-  },
-  countBadgeText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#FF6B4A',
-    fontFamily: fonts.bodyBold,
-    fontVariant: ['tabular-nums'],
+    marginBottom: 14,
   },
   onlineBadge: {
     flexDirection: 'row',
@@ -468,6 +477,88 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(239,68,68,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+
+  // Delete Modal
+  deleteOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deletePopup: {
+    width: '80%',
+    backgroundColor: '#1A1D24',
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  deleteIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(239,68,68,0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  deleteTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    fontFamily: fonts.heading,
+    marginBottom: 8,
+  },
+  deleteMessage: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.5)',
+    fontFamily: fonts.body,
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  deleteName: {
+    color: '#FF6B4A',
+    fontFamily: fonts.bodyBold,
+  },
+  deleteActions: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  deleteCancelBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deleteCancelText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: 'rgba(255,255,255,0.7)',
+    fontFamily: fonts.bodyBold,
+  },
+  deleteConfirmBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: 'rgba(239,68,68,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(239,68,68,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deleteConfirmText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#EF4444',
+    fontFamily: fonts.bodyBold,
   },
 
   // Empty

@@ -148,18 +148,18 @@ const ProfileScreen: React.FC = () => {
         {/* Stats Card */}
         <View style={[styles.statsCard, user?.plan === 'premium' && styles.statsCardPremium]}>
           <View style={styles.statsTop}>
-            <View style={styles.statsUserInfo}>
-              <View style={styles.statsAvatar}>
-                <Ionicons name="person" size={14} color="rgba(255,255,255,0.5)" />
-              </View>
-              <View>
+            <View style={styles.statsRow}>
+              <View style={styles.statsUserInfo}>
+                <TouchableOpacity style={styles.statsAvatar} onPress={handleQRCode} activeOpacity={0.7}>
+                  <Image source={{ uri: qrCodeUrl }} style={styles.statsQrThumb} />
+                </TouchableOpacity>
                 <Text style={styles.statsUserName}>{user?.firstName} {user?.lastName}</Text>
-                <Text style={styles.statsUserHandle}>@{user?.firstName?.toLowerCase()}{user?.lastName?.toLowerCase()}.events</Text>
               </View>
+              <TouchableOpacity style={[styles.planTag, styles.planTagPremium]} onPress={handlePlanPress} activeOpacity={0.7}>
+                <Text style={[styles.planTagText, styles.planTagTextPremium]}>Premium</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity style={[styles.planTag, styles.planTagPremium]} onPress={handlePlanPress} activeOpacity={0.7}>
-              <Text style={[styles.planTagText, styles.planTagTextPremium]}>Premium</Text>
-            </TouchableOpacity>
+            <Text style={styles.statsUserHandle}>@{user?.firstName?.toLowerCase()}{user?.lastName?.toLowerCase()}.events</Text>
           </View>
 
           <View style={styles.statsDivider} />
@@ -180,10 +180,6 @@ const ProfileScreen: React.FC = () => {
               <Text style={styles.statLabel}>Followers</Text>
             </View>
           </View>
-
-          <TouchableOpacity style={styles.qrButtonCard} onPress={handleQRCode} activeOpacity={0.7}>
-            <Image source={{ uri: qrCodeUrl }} style={styles.qrThumb} />
-          </TouchableOpacity>
         </View>
 
         {/* Edit Profile Button */}
@@ -474,36 +470,42 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,215,0,0.04)',
   },
   statsTop: {
+    marginBottom: 14,
+    alignSelf: 'stretch',
+  },
+  statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 14,
   },
   statsUserInfo: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 10,
+    flex: 1,
   },
   statsAvatar: {
     width: 28,
     height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 2,
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  statsQrThumb: {
+    width: '100%',
+    height: '100%',
   },
   statsUserName: {
-    fontSize: 16,
+    fontSize: 28,
     fontWeight: '500',
     color: '#FFFFFF',
     fontFamily: fonts.bodyBold,
+    lineHeight: 28,
   },
   statsUserHandle: {
-    fontSize: 12,
+    fontSize: 13,
     color: 'rgba(255,255,255,0.35)',
     fontFamily: fonts.body,
-    marginTop: 1,
+    marginTop: -10,
   },
   planTag: {
     paddingHorizontal: 12,
@@ -554,20 +556,6 @@ const styles = StyleSheet.create({
     width: 1,
     height: 30,
     backgroundColor: 'rgba(255,255,255,0.08)',
-  },
-  qrButtonCard: {
-    alignSelf: 'center',
-    padding: 4,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255,107,74,0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,107,74,0.2)',
-    overflow: 'hidden',
-  },
-  qrThumb: {
-    width: 48,
-    height: 48,
-    borderRadius: 6,
   },
   // Menu Card
   menuCard: {
