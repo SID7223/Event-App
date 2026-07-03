@@ -260,11 +260,8 @@ const LocationStep: React.FC = () => {
         {/* Progress Indicator */}
         <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
-            <LinearGradient
-              colors={['#FF6B4A', '#E43414']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={[styles.progressFill, { width: '50%' }]}
+            <View
+              style={[styles.progressFill, { width: '50%', backgroundColor: '#FF6B4A' }]}
             />
           </View>
           <Text style={styles.progressText}>Step 1 of 2</Text>

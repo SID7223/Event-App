@@ -447,7 +447,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
             >
               <View style={styles.arrowBtnRow}>
                 <Text style={styles.arrowBtnText}>Get Tickets</Text>
-                <Ionicons name="arrow-forward" size={18} color="#FFF44F" />
+                <Ionicons name="arrow-forward" size={18} color="#E43414" />
               </View>
             </TouchableOpacity>
           )}
@@ -824,14 +824,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 56,
     borderRadius: 12,
-    backgroundColor: 'rgba(255,244,79,0.1)',
+    backgroundColor: 'rgba(228,52,20,0.1)',
     borderWidth: 1.5,
-    borderColor: '#FFF44F',
+    borderColor: '#E43414',
     paddingHorizontal: 20,
     gap: 8,
   },
   arrowBtnText: {
-    color: '#FFF44F',
+    color: '#E43414',
     fontSize: 16,
     fontFamily: fonts.button,
   },

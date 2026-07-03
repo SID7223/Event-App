@@ -1,5 +1,5 @@
 import React from 'react';
-import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import SplashScreen from '../screens/auth/SplashScreen';
 import AuthScreen from '../screens/auth/AuthScreen';
 import SignupScreen from '../screens/auth/SignupScreen';
@@ -13,7 +13,7 @@ export type AuthStackParamList = {
   Signup: undefined;
   LocationStep: { user: any };
   VibeQuiz: { user: any; location: any };
-  OnboardingLoading: undefined;
+  OnboardingLoading: { user: any; location: any; preferences: string[] };
 };
 
 const Stack = createStackNavigator<AuthStackParamList>();
@@ -23,7 +23,14 @@ const AuthNavigator: React.FC = () => {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        cardStyleInterpolator: CardStyleInterpolators.forFadeFromBottomAndroid,
+        cardStyle: { backgroundColor: '#0A0C12' },
+        cardStyleInterpolator: () => ({
+          cardStyle: { opacity: 1 },
+        }),
+        transitionSpec: {
+          open: { animation: 'timing', config: { duration: 0 } },
+          close: { animation: 'timing', config: { duration: 0 } },
+        },
       }}
     >
       <Stack.Screen name="Splash" component={SplashScreen} />

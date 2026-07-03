@@ -44,14 +44,21 @@ const AppNavigator: React.FC = () => {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        animation: 'slide_from_right',
+        animation: 'fade',
+        contentStyle: { backgroundColor: '#0A0C12' },
       }}
     >
       {!isLoggedIn || !onboardingComplete ? (
-        <Stack.Screen name="Auth" component={AuthNavigator} />
+        <Stack.Screen
+          name="Auth"
+          component={AuthNavigator}
+        />
       ) : (
         <>
-          <Stack.Screen name="Main" component={MainNavigator} />
+          <Stack.Screen
+            name="Main"
+            component={MainNavigator}
+          />
           <Stack.Screen
             name="EventDetail"
             component={EventDetailScreen}

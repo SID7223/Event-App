@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
   retroSubmitOuter: {
     height: 52,
     borderWidth: 1.5,
-    borderColor: '#FFF44F',
+    borderColor: '#E43414',
     borderRadius: 8,
     padding: 2,
     marginTop: 8,
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#FFF44F',
+    backgroundColor: '#E43414',
     borderRadius: 6,
   },
   retroSubmitText: {

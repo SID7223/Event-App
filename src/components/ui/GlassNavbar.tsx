@@ -7,6 +7,7 @@ import {
   Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -75,10 +76,7 @@ const GlassNavbar: React.FC<GlassNavbarProps> = ({ tabs, activeIndex, onTabPress
               >
                 {isActive && (
                   <View style={styles.activeGlow}>
-                    <LinearGradient
-                      colors={['rgba(228, 51, 20, 1)', 'rgba(228, 52, 20, 0)']}
-                      style={styles.glowGradient}
-                    />
+                    <BlurView intensity={40} tint="dark" style={styles.frostyBlur} />
                   </View>
                 )}
                 {tab.name === 'ProfileTab' ? (
@@ -146,14 +144,18 @@ const styles = StyleSheet.create({
   },
   activeGlow: {
     position: 'absolute',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 52,
+    height: 36,
+    borderRadius: 18,
     overflow: 'hidden',
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
   },
-  glowGradient: {
+  frostyBlur: {
     width: '100%',
     height: '100%',
+    borderRadius: 18,
   },
   activeIndicator: {
     position: 'absolute',

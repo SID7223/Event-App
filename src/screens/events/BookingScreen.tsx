@@ -441,7 +441,7 @@ const BookingScreen: React.FC = () => {
         style={styles.backToHomeButton}
         onPress={() => navigation.navigate('Main')}
       >
-        <Ionicons name="arrow-forward" size={18} color="#FFF44F" />
+        <Ionicons name="arrow-forward" size={18} color="#E43414" />
       </TouchableOpacity>
     </ScrollView>
   );

@@ -24,38 +24,40 @@ interface VibeOption {
   id: string;
   label: string;
   icon: string;
-  color: string;
 }
 
 const VIBE_OPTIONS: VibeOption[] = [
-  { id: 'creative', label: 'Creative', icon: '🎨', color: '#A855F7' },
-  { id: 'professional', label: 'Professional', icon: '💼', color: '#3B82F6' },
-  { id: 'watch_parties', label: 'Watch Parties', icon: '🍿', color: '#F97316' },
-  { id: 'live_shows', label: 'Live Shows', icon: '🎤', color: '#E43414' },
-  { id: 'foodie', label: 'Foodie', icon: '🍲', color: '#22C55E' },
-  { id: 'music', label: 'Music', icon: '🎸', color: '#FF6B4A' },
-  { id: 'sports', label: 'Sports', icon: '🏃', color: '#EAB308' },
-  { id: 'theater', label: 'Theater & Arts', icon: '🎭', color: '#EC4899' },
+  { id: 'creative', label: 'Creative', icon: '🎨' },
+  { id: 'professional', label: 'Professional', icon: '💼' },
+  { id: 'watch_parties', label: 'Watch Parties', icon: '🍿' },
+  { id: 'live_shows', label: 'Live Shows', icon: '🎤' },
+  { id: 'foodie', label: 'Foodie', icon: '🍲' },
+  { id: 'music', label: 'Music', icon: '🎸' },
+  { id: 'sports', label: 'Sports', icon: '🏃' },
+  { id: 'theater', label: 'Theater & Arts', icon: '🎭' },
 ];
 
 const MIN_SELECTIONS = 3;
+const COLS = 3;
+const ITEM_SIZE = (width - 48 - 24) / COLS;
 
 const VibeQuiz: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const { setPreferences, completeOnboarding } = useAuth();
-  
+  const { setPreferences } = useAuth();
+
   const user: User = route.params?.user;
   const location: UserLocation = route.params?.location;
-  
+
   const [selected, setSelected] = useState<string[]>([]);
-  const [chipAnimations] = useState(
+  const [itemAnims] = useState(
     VIBE_OPTIONS.map(() => ({
       scale: new Animated.Value(1),
-      checkmark: new Animated.Value(0),
+      bgOpacity: new Animated.Value(0),
+      checkScale: new Animated.Value(0),
     }))
   );
-  
+
   const fadeIn = useRef(new Animated.Value(0)).current;
   const headerSlide = useRef(new Animated.Value(20)).current;
 
@@ -74,57 +76,60 @@ const VibeQuiz: React.FC = () => {
     ]).start();
   }, []);
 
-  const toggleChip = (chipId: string) => {
-    const index = VIBE_OPTIONS.findIndex(v => v.id === chipId);
-    
-    // Haptic feedback
+  const toggleItem = (itemId: string) => {
+    const index = VIBE_OPTIONS.findIndex(v => v.id === itemId);
+
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    
+
     setSelected((prev) => {
-      const isSelected = prev.includes(chipId);
+      const isSelected = prev.includes(itemId);
       const newSelection = isSelected
-        ? prev.filter((id) => id !== chipId)
-        : [...prev, chipId];
-      
-      // Animate chip
+        ? prev.filter((id) => id !== itemId)
+        : [...prev, itemId];
+
+      // Scale bounce
       Animated.sequence([
-        Animated.timing(chipAnimations[index].scale, {
+        Animated.timing(itemAnims[index].scale, {
           toValue: 0.9,
-          duration: 100,
+          duration: 80,
           useNativeDriver: true,
         }),
-        Animated.spring(chipAnimations[index].scale, {
+        Animated.spring(itemAnims[index].scale, {
           toValue: 1,
-          tension: 65,
-          friction: 11,
+          tension: 80,
+          friction: 6,
           useNativeDriver: true,
         }),
       ]).start();
-      
-      // Animate checkmark
-      Animated.timing(chipAnimations[index].checkmark, {
+
+      // Background fill
+      Animated.timing(itemAnims[index].bgOpacity, {
         toValue: isSelected ? 0 : 1,
         duration: 200,
         useNativeDriver: true,
       }).start();
-      
+
+      // Checkmark
+      Animated.spring(itemAnims[index].checkScale, {
+        toValue: isSelected ? 0 : 1,
+        tension: 80,
+        friction: 6,
+        useNativeDriver: true,
+      }).start();
+
       return newSelection;
     });
   };
 
   const handleContinue = () => {
     if (selected.length >= MIN_SELECTIONS) {
-      // Haptic feedback for success
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      
       setPreferences(selected);
-      completeOnboarding({
+      navigation.navigate('OnboardingLoading', {
         user,
         location,
         preferences: selected,
       });
-      
-      navigation.navigate('OnboardingLoading');
     }
   };
 
@@ -134,46 +139,76 @@ const VibeQuiz: React.FC = () => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0A0C12" />
       <SafeAreaView style={styles.safeArea}>
-        {/* Progress Indicator */}
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <LinearGradient
-              colors={['#FF6B4A', '#E43414']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={[styles.progressFill, { width: '100%' }]}
-            />
-          </View>
-          <Text style={styles.progressText}>Step 2 of 2</Text>
+        {/* Header */}
+        <View style={styles.topBar}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
         </View>
 
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
+          {/* Title */}
           <Animated.View
             style={[
               styles.header,
-              {
-                opacity: fadeIn,
-                transform: [{ translateY: headerSlide }],
-              },
+              { opacity: fadeIn, transform: [{ translateY: headerSlide }] },
             ]}
           >
-            <Text style={styles.title}>What's your vibe?</Text>
-            <Text style={styles.subtitle}>
-              Pick at least {MIN_SELECTIONS} to personalize your feed
-            </Text>
+            <Text style={styles.titleRegular}>Choose 3 or more</Text>
+            <Text style={styles.titleBold}>interests</Text>
           </Animated.View>
 
-          {/* Selection Counter */}
-          <View style={styles.counterContainer}>
+          {/* Grid */}
+          <View style={styles.grid}>
+            {VIBE_OPTIONS.map((vibe, index) => {
+              const isSelected = selected.includes(vibe.id);
+
+              return (
+                <TouchableOpacity
+                  key={vibe.id}
+                  onPress={() => toggleItem(vibe.id)}
+                  activeOpacity={0.8}
+                  style={styles.gridItem}
+                >
+                  <Animated.View
+                    style={[
+                      styles.circle,
+                      {
+                        transform: [{ scale: itemAnims[index].scale }],
+                      },
+                    ]}
+                  >
+                    {/* Green background fill */}
+                    <Animated.View
+                      style={[
+                        styles.circleFill,
+                        { opacity: itemAnims[index].bgOpacity },
+                      ]}
+                    />
+                    {/* Emoji */}
+                    <Text style={styles.emoji}>{vibe.icon}</Text>
+                  </Animated.View>
+                  <Text
+                    style={[
+                      styles.itemLabel,
+                      isSelected && styles.itemLabelActive,
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {vibe.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* Counter */}
+          <View style={styles.counterRow}>
             <Text style={styles.counterText}>
-              <Text style={[styles.counterNumber, canContinue && styles.counterNumberActive]}>
-                {selected.length}
-              </Text>
-              {' '}of {VIBE_OPTIONS.length} selected
+              {selected.length} of {VIBE_OPTIONS.length} selected
             </Text>
             {selected.length > 0 && selected.length < MIN_SELECTIONS && (
               <Text style={styles.counterHint}>
@@ -181,79 +216,9 @@ const VibeQuiz: React.FC = () => {
               </Text>
             )}
           </View>
-
-          {/* Chip Grid */}
-          <View style={styles.chipGrid}>
-            {VIBE_OPTIONS.map((vibe, index) => {
-              const isSelected = selected.includes(vibe.id);
-              
-              return (
-                <TouchableOpacity
-                  key={vibe.id}
-                  onPress={() => toggleChip(vibe.id)}
-                  activeOpacity={0.8}
-                >
-                  <Animated.View
-                    style={[
-                      styles.chip,
-                      {
-                        transform: [{ scale: chipAnimations[index].scale }],
-                      },
-                      isSelected && styles.chipSelected,
-                      isSelected && { borderColor: vibe.color },
-                    ]}
-                  >
-                    {isSelected && (
-                      <Animated.View
-                        style={[
-                          styles.chipBackground,
-                          {
-                            opacity: chipAnimations[index].checkmark,
-                            backgroundColor: vibe.color,
-                          },
-                        ]}
-                      />
-                    )}
-                    <View style={styles.chipContent}>
-                      <Text style={styles.chipIcon}>{vibe.icon}</Text>
-                      <Text
-                        style={[
-                          styles.chipLabel,
-                          isSelected && styles.chipLabelSelected,
-                        ]}
-                      >
-                        {vibe.label}
-                      </Text>
-                    </View>
-                    {isSelected && (
-                      <Animated.View
-                        style={[
-                          styles.checkmark,
-                          {
-                            transform: [
-                              {
-                                scale: chipAnimations[index].checkmark,
-                              },
-                            ],
-                          },
-                        ]}
-                      >
-                        <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-                      </Animated.View>
-                    )}
-                  </Animated.View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          {/* Tips */}
-          <View style={styles.tipsContainer}>
-            <Ionicons name="information-circle-outline" size={18} color="rgba(255,255,255,0.4)" />
-            <Text style={styles.tipsText}>
-              You can always change these later in Settings
-            </Text>
-          </View>
+          <Text style={styles.hintText}>
+            (You can change interests in profile section also.)
+          </Text>
         </ScrollView>
 
         {/* Continue Button */}
@@ -263,15 +228,12 @@ const VibeQuiz: React.FC = () => {
             disabled={!canContinue}
             activeOpacity={0.88}
           >
-            <LinearGradient
-              colors={canContinue ? ['#FF6B4A', '#E43414'] : ['#333', '#333']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={[styles.continueBtn, !canContinue && styles.continueBtnDisabled]}
-            >
-              <Text style={styles.continueBtnText}>Find My Events</Text>
-              <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
-            </LinearGradient>
+            <View style={[styles.continueBtn, !canContinue && styles.continueBtnDisabled]}>
+              <Text style={styles.continueBtnText}>Continue</Text>
+              <View style={styles.continueArrow}>
+                <Ionicons name="arrow-forward" size={16} color="#1A1A1A" />
+              </View>
+            </View>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -287,24 +249,16 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  progressContainer: {
-    paddingHorizontal: 24,
-    paddingTop: 12,
+  topBar: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 4,
   },
-  progressBar: {
-    height: 4,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 2,
-  },
-  progressText: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.4)',
-    marginTop: 8,
+  backBtn: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   scrollContent: {
     flexGrow: 1,
@@ -312,108 +266,86 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   header: {
-    marginTop: 32,
-    marginBottom: 24,
+    marginTop: 16,
+    marginBottom: 32,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: '500',
+  titleRegular: {
+    fontSize: 28,
+    fontWeight: '400',
     color: '#FFFFFF',
-    marginBottom: 8,
     fontFamily: fonts.heading,
+    letterSpacing: -0.3,
   },
-  subtitle: {
-    fontSize: 16,
+  titleBold: {
+    fontSize: 30,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    fontFamily: fonts.heading,
+    letterSpacing: -0.3,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  gridItem: {
+    width: ITEM_SIZE,
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  circle: {
+    width: ITEM_SIZE - 16,
+    height: ITEM_SIZE - 16,
+    borderRadius: (ITEM_SIZE - 16) / 2,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+    overflow: 'hidden',
+  },
+  circleFill: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: '#E43414',
+    borderRadius: (ITEM_SIZE - 16) / 2,
+  },
+  emoji: {
+    fontSize: 32,
+    zIndex: 1,
+  },
+  itemLabel: {
+    fontSize: 13,
+    fontWeight: '500',
     color: 'rgba(255,255,255,0.5)',
+    textAlign: 'center',
     fontFamily: fonts.body,
   },
-  counterContainer: {
+  itemLabelActive: {
+    color: '#FFFFFF',
+  },
+  counterRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    marginTop: 24,
   },
   counterText: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.5)',
-  },
-  counterNumber: {
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.5)',
-  },
-  counterNumberActive: {
-    color: '#FF6B4A',
+    color: 'rgba(255,255,255,0.4)',
+    fontFamily: fonts.body,
   },
   counterHint: {
     fontSize: 13,
     color: '#FF6B4A',
     fontWeight: '500',
+    fontFamily: fonts.body,
   },
-  chipGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  chip: {
-    width: (width - 60) / 2,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.08)',
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-    overflow: 'hidden',
-  },
-  chipSelected: {
-    borderColor: '#FF6B4A',
-  },
-  chipBackground: {
-    ...StyleSheet.absoluteFill,
-    borderRadius: 14,
-  },
-  chipContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  chipIcon: {
-    fontSize: 28,
-    marginRight: 10,
-  },
-  chipLabel: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.8)',
-    fontFamily: fonts.bodyBold,
-  },
-  chipLabelSelected: {
-    color: '#FFFFFF',
-  },
-  checkmark: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 2,
-  },
-  tipsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 32,
-    padding: 14,
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderRadius: 12,
-    gap: 10,
-  },
-  tipsText: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.4)',
-    flex: 1,
+  hintText: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.3)',
+    marginTop: 8,
+    fontFamily: fonts.body,
   },
   bottomContainer: {
     position: 'absolute',
@@ -430,19 +362,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: 56,
-    borderRadius: 18,
+    borderRadius: 28,
+    backgroundColor: '#E43414',
     gap: 8,
   },
   continueBtnDisabled: {
-    opacity: 0.5,
+    opacity: 0.3,
   },
   continueBtnText: {
     fontSize: 17,
     fontWeight: '500',
     color: '#FFFFFF',
-    fontFamily: fonts.bodyBold,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
+    fontFamily: fonts.heading,
+  },
+  continueArrow: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

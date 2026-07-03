@@ -80,6 +80,7 @@ const HomeScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<TextInput>(null);
   const chipScrollRef = useRef<ScrollView>(null);
+  const pillPositions = useRef<Record<string, number>>({});
 
   // Dynamic greeting based on time, day, and user name
   const [dynamicGreeting, setDynamicGreeting] = useState(() =>
@@ -219,8 +220,12 @@ const HomeScreen: React.FC = () => {
   const handleVibePress = (vibeId: string) => {
     const newVibe = activeVibe === vibeId ? 'all' : vibeId;
     setActiveVibe(newVibe);
-    // Scroll chips to start when changing
-    chipScrollRef.current?.scrollTo({ x: 0, animated: true });
+    const x = pillPositions.current[newVibe] ?? 0;
+    chipScrollRef.current?.scrollTo({ x: Math.max(0, x - 20), animated: true });
+  };
+
+  const handlePillLayout = (vibeId: string, x: number) => {
+    pillPositions.current[vibeId] = x;
   };
 
   const handleSelectCity = (city: string) => {
@@ -268,30 +273,47 @@ const HomeScreen: React.FC = () => {
     const cardWidth = screenWidth - 40;
 
     return (
-      <View style={styles.featuredOuter}>
-        {/* Badge — outside card, top-left */}
-        <View style={styles.featuredBadgePill}>
-          <Ionicons name="star" size={12} color="#FFD700" />
-          <Text style={styles.featuredBadgePillText}>Featured Today</Text>
-        </View>
+        <View style={styles.featuredOuter}>
+          {/* Top row: Featured badge + Weather pill */}
+          <View style={styles.featuredTopRow}>
+            <View style={styles.featuredBadgePill}>
+              <Ionicons name="star" size={12} color="#FFFFFF" />
+              <Text style={styles.featuredBadgePillText}>Featured Today</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.weatherPill}
+              onPress={() => setShowCityPicker(true)}
+              activeOpacity={0.7}
+            >
+              {weatherIconSource ? (
+                <Image source={weatherIconSource} style={styles.weatherPillIcon} />
+              ) : null}
+              <Text style={styles.weatherPillText}>
+                {userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}
+              </Text>
+              <Ionicons name="chevron-down" size={12} color="rgba(255,255,255,0.5)" />
+            </TouchableOpacity>
+          </View>
 
         {/* Swipable cards */}
         <FlatList
           ref={featuredFlatListRef}
           data={featuredEvents}
           horizontal
-          pagingEnabled
           showsHorizontalScrollIndicator={false}
-          snapToAlignment="center"
+          snapToInterval={cardWidth + 16}
+          snapToAlignment="start"
           decelerationRate="fast"
+          disableIntervalMomentum={false}
+          contentContainerStyle={{ paddingHorizontal: 20, gap: 16 }}
           onMomentumScrollEnd={(e) => {
-            const index = Math.round(e.nativeEvent.contentOffset.x / cardWidth);
+            const index = Math.round(e.nativeEvent.contentOffset.x / (cardWidth + 16));
             setFeaturedIndex(index);
           }}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={[styles.featuredBanner, { width: cardWidth, marginHorizontal: 20 }]}
+              style={[styles.featuredBanner, { width: cardWidth }]}
               onPress={() => navigation.navigate('EventDetail', { eventId: item.id })}
               activeOpacity={0.9}
             >
@@ -326,7 +348,7 @@ const HomeScreen: React.FC = () => {
                   </View>
                 </View>
 
-                <Ionicons name="arrow-forward" size={20} color="#FFF44F" />
+                <Ionicons name="arrow-forward" size={20} color="#E43414" />
               </View>
             </TouchableOpacity>
           )}
@@ -478,21 +500,7 @@ const HomeScreen: React.FC = () => {
             onPress={() => navigation.navigate('HostEvent')}
             activeOpacity={0.7}
           >
-            <Ionicons name="add" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.locationContainer}
-            onPress={() => setShowCityPicker(true)}
-            activeOpacity={0.7}
-          >
-            {weatherIconSource ? (
-              <Image source={weatherIconSource} style={styles.locationWeatherIcon} />
-            ) : null}
-            <Text style={styles.locationText}>
-              {userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}
-            </Text>
-            <Ionicons name="chevron-down" size={14} color="rgba(255,255,255,0.5)" />
+            <Ionicons name="add" size={28} color="#FFFFFF" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -500,7 +508,7 @@ const HomeScreen: React.FC = () => {
             onPress={() => navigation.navigate('Notifications')}
             activeOpacity={0.8}
           >
-            <Ionicons name="notifications-outline" size={20} color="#FFFFFF" />
+            <Ionicons name="notifications-outline" size={24} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
 
@@ -591,29 +599,34 @@ const HomeScreen: React.FC = () => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.vibesContainer}
               >
-                <GlassPill
-                  label="All"
-                  icon="flash"
-                  active={!activeVibe || activeVibe === 'all'}
-                  onPress={() => handleVibePress('all')}
-                  activeTextColor="#FF6B4A"
-                />
-                <GlassPill
-                  label="Friends"
-                  icon="people"
-                  active={activeVibe === 'friends'}
-                  onPress={() => handleVibePress('friends')}
-                  activeTextColor="#FF6B4A"
-                />
-                {sortedVibes.map((vibe) => (
+                <View onLayout={(e) => handlePillLayout('all', e.nativeEvent.layout.x)}>
                   <GlassPill
-                    key={vibe.id}
-                    label={vibe.label}
-                    icon={vibe.icon as any}
-                    active={activeVibe === vibe.id}
-                    onPress={() => handleVibePress(vibe.id)}
+                    label="All"
+                    icon="flash"
+                    active={!activeVibe || activeVibe === 'all'}
+                    onPress={() => handleVibePress('all')}
                     activeTextColor="#FF6B4A"
                   />
+                </View>
+                <View onLayout={(e) => handlePillLayout('friends', e.nativeEvent.layout.x)}>
+                  <GlassPill
+                    label="Friends"
+                    icon="people"
+                    active={activeVibe === 'friends'}
+                    onPress={() => handleVibePress('friends')}
+                    activeTextColor="#FF6B4A"
+                  />
+                </View>
+                {sortedVibes.map((vibe) => (
+                  <View key={vibe.id} onLayout={(e) => handlePillLayout(vibe.id, e.nativeEvent.layout.x)}>
+                    <GlassPill
+                      label={vibe.label}
+                      icon={vibe.icon as any}
+                      active={activeVibe === vibe.id}
+                      onPress={() => handleVibePress(vibe.id)}
+                      activeTextColor="#FF6B4A"
+                    />
+                  </View>
                 ))}
               </ScrollView>
             </View>
@@ -700,38 +713,12 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   addEventBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.08)',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  locationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  locationText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#FFFFFF',
-  },
-  locationWeatherIcon: {
-    width: 16,
-    height: 16,
   },
   notifBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.05)',
   },
   greetingContainer: {
     paddingHorizontal: 20,
@@ -840,24 +827,48 @@ const styles = StyleSheet.create({
   featuredOuter: {
     marginBottom: 24,
   },
+  featuredTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginHorizontal: 20,
+    marginBottom: 10,
+  },
   featuredBadgePill: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#E43414',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  featuredBadgePillText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    fontFamily: fonts.bodyBold,
+    letterSpacing: 0.3,
+  },
+  weatherPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 5,
-    marginHorizontal: 20,
-    marginBottom: 10,
-    backgroundColor: 'rgba(255,244,79,0.15)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255,244,79,0.3)',
-    alignSelf: 'flex-start',
+    borderColor: 'rgba(255,255,255,0.1)',
   },
-  featuredBadgePillText: {
+  weatherPillIcon: {
+    width: 14,
+    height: 14,
+  },
+  weatherPillText: {
     fontSize: 10,
     fontWeight: '500',
-    color: '#FFF44F',
+    color: '#FFFFFF',
     fontFamily: fonts.body,
   },
   featuredBanner: {
@@ -926,7 +937,7 @@ const styles = StyleSheet.create({
   dot: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#FFF44F',
+    backgroundColor: '#E43414',
   },
   // Vibe Filters
   vibesSection: {

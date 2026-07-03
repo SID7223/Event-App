@@ -29,7 +29,7 @@ const sizes = {
   lg: { height: 52, fontSize: 13, paddingH: 22 },
 };
 
-const LEMON = '#FFF44F';
+const LEMON = '#E43414';
 const DARK = '#0A0C12';
 
 const GradientButton: React.FC<GradientButtonProps> = ({

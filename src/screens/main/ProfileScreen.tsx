@@ -106,7 +106,7 @@ const ProfileScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={styles.qrButton} onPress={handleQRCode} activeOpacity={0.7}>
-            <Ionicons name="arrow-forward" size={18} color="#FFF44F" />
+            <Ionicons name="arrow-forward" size={18} color="#E43414" />
             <Text style={styles.qrButtonText}>My QR Code</Text>
           </TouchableOpacity>
           <Text style={styles.name}>{user?.firstName} {user?.lastName}</Text>
@@ -130,7 +130,7 @@ const ProfileScreen: React.FC = () => {
                 </Text>
               </View>
             </View>
-            <Ionicons name="arrow-forward" size={18} color="#FFF44F" />
+            <Ionicons name="arrow-forward" size={18} color="#E43414" />
           </TouchableOpacity>
         </MatteGlassCard>
 
