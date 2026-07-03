@@ -45,7 +45,7 @@ const AppNavigator: React.FC = () => {
       screenOptions={{
         headerShown: false,
         animation: 'fade',
-        contentStyle: { backgroundColor: '#0A0C12' },
+        contentStyle: { backgroundColor: '#000000' },
       }}
     >
       {!isLoggedIn || !onboardingComplete ? (

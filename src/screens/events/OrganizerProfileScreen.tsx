@@ -329,7 +329,7 @@ const OrganizerProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
   scrollContent: {
     flexGrow: 1,
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     borderWidth: 4,
-    borderColor: '#0A0C12',
+    borderColor: '#000000',
   },
   avatarBadge: {
     position: 'absolute',
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
     borderWidth: 2,
     borderColor: '#FFD700',
     justifyContent: 'center',
@@ -653,7 +653,7 @@ const styles = StyleSheet.create({
   eventPrice: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#0A0C12',
+    color: '#000000',
     fontFamily: fonts.bodyBold,
   },
   emptyState: {

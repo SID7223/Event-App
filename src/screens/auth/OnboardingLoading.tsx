@@ -44,7 +44,7 @@ const OnboardingLoading: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0A0C12" />
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>
           <Text style={styles.text}>We're setting up your account</Text>
@@ -60,7 +60,7 @@ const OnboardingLoading: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
   safeArea: {
     flex: 1,

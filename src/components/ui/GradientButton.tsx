@@ -30,7 +30,7 @@ const sizes = {
 };
 
 const LEMON = '#E43414';
-const DARK = '#0A0C12';
+const DARK = '#000000';
 
 const GradientButton: React.FC<GradientButtonProps> = ({
   title,

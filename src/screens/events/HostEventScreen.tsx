@@ -487,14 +487,14 @@ const HostEventScreen: React.FC = () => {
               <View style={styles.retroSubmitInner}>
                 {isSubmitting ? (
                   <>
-                    <Ionicons name="hourglass-outline" size={18} color="#0A0C12" />
+                    <Ionicons name="hourglass-outline" size={18} color="#000000" />
                     <Text style={styles.retroSubmitText}>Submitting...</Text>
                   </>
                 ) : (
                   <>
                     <Text style={styles.retroSubmitText}>Submit for Review</Text>
                     <View style={styles.retroSubmitArrow}>
-                      <Ionicons name="arrow-forward" size={12} color="#0A0C12" />
+                      <Ionicons name="arrow-forward" size={12} color="#000000" />
                     </View>
                   </>
                 )}
@@ -520,7 +520,7 @@ const HostEventScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
@@ -664,7 +664,7 @@ const styles = StyleSheet.create({
   submitBtnText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#0A0C12',
+    color: '#000000',
   },
   retroSubmitOuter: {
     marginHorizontal: 20,
@@ -688,7 +688,7 @@ const styles = StyleSheet.create({
   retroSubmitText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#0A0C12',
+    color: '#000000',
     letterSpacing: 1.2,
     textTransform: 'uppercase',
     fontFamily: fonts.bodyBold,

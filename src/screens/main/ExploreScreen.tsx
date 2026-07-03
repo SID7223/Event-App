@@ -240,32 +240,32 @@ const ExploreScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
 
   /* ── Header ── */
   header: {
     paddingHorizontal: 20,
     paddingTop: 32,
-    paddingBottom: 12,
+    paddingBottom: 16,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '500',
     color: '#FFFFFF',
-    marginBottom: 2,
     fontFamily: fonts.heading,
   },
   headerSubtitle: {
     fontSize: 13,
     color: 'rgba(255,255,255,0.45)',
     fontFamily: fonts.body,
+    marginTop: 4,
   },
 
   /* ── Hub Grid ── */
   hubSection: {
     paddingHorizontal: 20,
-    marginBottom: 12,
+    marginBottom: 20,
   },
   hubSectionTitle: {
     fontSize: 16,
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     gap: 10,
-    marginBottom: 8,
+    marginBottom: 16,
   },
 
 

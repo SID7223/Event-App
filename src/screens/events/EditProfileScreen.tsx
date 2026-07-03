@@ -214,7 +214,7 @@ const EditProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#0A0C12',
+    borderColor: '#000000',
   },
   nameRow: {
     flexDirection: 'row',
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   interestTextActive: {
-    color: '#0A0C12',
+    color: '#000000',
     fontWeight: '500',
   },
   saveBtn: {

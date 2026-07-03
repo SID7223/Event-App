@@ -271,7 +271,7 @@ const CinemaScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
   flatList: {
     flex: 1,
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
   // Modal Styles
   modalContainer: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
   modalSafeArea: {
     flex: 1,
@@ -591,7 +591,7 @@ const styles = StyleSheet.create({
   showtimeTime: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#0A0C12',
+    color: '#000000',
     marginBottom: 4,
     fontFamily: fonts.bodyBold,
   },
@@ -607,7 +607,7 @@ const styles = StyleSheet.create({
   showtimeFormat: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#0A0C12',
+    color: '#000000',
     opacity: 0.7,
   },
   showtimeFormatInactive: {
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
   showtimePrice: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#0A0C12',
+    color: '#000000',
     opacity: 0.7,
   },
   showtimePriceInactive: {
@@ -626,7 +626,7 @@ const styles = StyleSheet.create({
   },
   showtimeSeats: {
     fontSize: 10,
-    color: '#0A0C12',
+    color: '#000000',
     opacity: 0.6,
   },
   showtimeSeatsInactive: {

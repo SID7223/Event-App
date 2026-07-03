@@ -1,6 +1,6 @@
 export const colors = {
   background: {
-    primary: '#0A0C12',
+    primary: '#000000',
     secondary: '#12161D',
     card: '#161B24',
     elevated: '#1C2130',
@@ -9,7 +9,7 @@ export const colors = {
     primary: ['#FF6B4A', '#E43414'] as const,
     cyan: ['#FF6B4A', '#E43414'] as const,
     orange: ['#E43414', '#E43414'] as const,
-    dark: ['#12161D', '#0A0C12'] as const,
+    dark: ['#12161D', '#000000'] as const,
     card: ['rgba(22,27,36,0.95)', 'rgba(22,27,36,0.7)'] as const,
   },
   accent: {
@@ -27,7 +27,7 @@ export const colors = {
     primary: '#FFFFFF',
     secondary: 'rgba(255,255,255,0.65)',
     muted: 'rgba(255,255,255,0.45)',
-    inverse: '#0A0C12',
+    inverse: '#000000',
   },
   border: {
     light: 'rgba(255,255,255,0.07)',

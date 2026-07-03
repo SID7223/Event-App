@@ -164,7 +164,7 @@ const OnboardingScreen: React.FC = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
   card: {
     flex: 1,

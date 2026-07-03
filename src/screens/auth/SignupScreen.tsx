@@ -50,7 +50,7 @@ const SignupScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0A0C12" />
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -165,7 +165,7 @@ const SignupScreen: React.FC = () => {
             >
               <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
                 {agreedToTerms && (
-                  <Ionicons name="checkmark" size={14} color="#0A0C12" />
+                  <Ionicons name="checkmark" size={14} color="#000000" />
                 )}
               </View>
               <Text style={styles.termsText}>
@@ -203,7 +203,7 @@ const SignupScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
   scrollContent: {
     flexGrow: 1,

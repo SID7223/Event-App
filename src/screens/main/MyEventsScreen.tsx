@@ -17,13 +17,13 @@ import { mockEvents, mockTickets } from '../../services/mockData';
 const TABS = ['Upcoming', 'Past', 'Saved'];
 
 const getMonth = (dateStr: string) => {
-  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
   return months[new Date(dateStr).getMonth()];
 };
 const getDay = (dateStr: string) => new Date(dateStr).getDate();
 const formatDateRange = (dateStr: string) => {
   const d = new Date(dateStr);
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const next = new Date(d); next.setDate(next.getDate() + 1);
   return `${months[d.getMonth()]} ${d.getDate()} - ${months[next.getMonth()]} ${next.getDate()}, ${d.getFullYear()}`;
 };
@@ -92,12 +92,12 @@ const MyEventsScreen: React.FC = () => {
               style={[
                 styles.statusBadge,
                 status === 'confirmed' ? styles.statusConfirmed :
-                status === 'interested' ? styles.statusInterested :
-                styles.statusPast,
+                  status === 'interested' ? styles.statusInterested :
+                    styles.statusPast,
               ]}
             >
               {status === 'confirmed' ? 'Ticket Confirmed' :
-               status === 'interested' ? 'Interested' : 'Past'}
+                status === 'interested' ? 'Interested' : 'Past'}
             </Text>
           </View>
         </View>
@@ -112,24 +112,6 @@ const MyEventsScreen: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>My Events</Text>
-        <TouchableOpacity style={styles.calendarBtn}>
-          <Ionicons name="calendar-outline" size={22} color="#FFFFFF" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Tabs */}
-      <View style={styles.tabsContainer}>
-        {TABS.map((tab, index) => (
-          <TouchableOpacity
-            key={tab}
-            style={[styles.tab, activeTab === index && styles.tabActive]}
-            onPress={() => setActiveTab(index)}
-          >
-            <Text style={[styles.tabText, activeTab === index && styles.tabTextActive]}>
-              {tab}
-            </Text>
-          </TouchableOpacity>
-        ))}
       </View>
 
       {/* Events List */}
@@ -149,55 +131,18 @@ const MyEventsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 20,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
   title: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: '500',
     color: '#FFFFFF',
-  },
-  calendarBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-  },
-  tabsContainer: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
-    marginBottom: 4,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 14,
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  tabActive: {
-    borderBottomColor: '#FFFFFF',
-  },
-  tabText: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.45)',
-  },
-  tabTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '500',
+    fontFamily: 'Poppins_500Medium',
   },
   listContent: {
     paddingHorizontal: 20,

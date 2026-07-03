@@ -91,7 +91,7 @@ const FollowingScreen: React.FC = () => {
         You aren't following any local spots yet.{'\n'}Explore your city to find creators and venues!
       </Text>
       <TouchableOpacity style={styles.exploreBtn} onPress={handleGoToExplore} activeOpacity={0.85}>
-        <Ionicons name="compass-outline" size={18} color="#0A0C12" />
+        <Ionicons name="compass-outline" size={18} color="#000000" />
         <Text style={styles.exploreBtnText}>Explore</Text>
       </TouchableOpacity>
     </View>
@@ -151,7 +151,7 @@ const FollowingScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
   // Header
   header: {
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   exploreBtnText: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#0A0C12',
+    color: '#000000',
     fontFamily: fonts.bodyBold,
   },
 });

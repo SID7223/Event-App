@@ -134,25 +134,34 @@ const HomeScreen: React.FC = () => {
 
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const featuredFlatListRef = useRef<FlatList<Event>>(null);
-  const dotAnimations = useRef<Animated.Value[]>([]).current;
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const screenWidth = Dimensions.get('window').width;
+  const cardWidth = screenWidth - 40;
 
-  // Initialize dot animations eagerly during render
-  featuredEvents.forEach((_, i) => {
-    if (!dotAnimations[i]) {
-      dotAnimations[i] = new Animated.Value(i === 0 ? 1 : 0);
-    }
-  });
-
-  // Animate dots on index change
-  useEffect(() => {
-    featuredEvents.forEach((_, i) => {
-      Animated.timing(dotAnimations[i], {
-        toValue: i === featuredIndex ? 1 : 0,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
+  // Derive dot animations from scrollX with Bezier-like easing
+  const dotAnimations = featuredEvents.map((_, i) => {
+    const cardStep = cardWidth + 16;
+    const center = i * cardStep;
+    // 5-point interpolation for smooth ease-in-out curve
+    const inputRange = [
+      center - cardStep,
+      center - cardStep * 0.4,
+      center,
+      center + cardStep * 0.4,
+      center + cardStep,
+    ];
+    const width = scrollX.interpolate({
+      inputRange,
+      outputRange: [6, 10, 20, 10, 6],
+      extrapolate: 'clamp',
     });
-  }, [featuredIndex, featuredEvents.length]);
+    const opacity = scrollX.interpolate({
+      inputRange,
+      outputRange: [0.4, 0.65, 1, 0.65, 0.4],
+      extrapolate: 'clamp',
+    });
+    return { width, opacity };
+  });
 
   // Filter events based on active vibe
   const filteredEvents = useMemo(() => {
@@ -266,9 +275,6 @@ const HomeScreen: React.FC = () => {
   const renderFeaturedBanner = () => {
     if (featuredEvents.length === 0) return null;
 
-    const screenWidth = Dimensions.get('window').width;
-    const cardWidth = screenWidth - 40;
-
     return (
       <View style={styles.featuredOuter}>
         {/* Top row: Featured badge + Weather pill */}
@@ -305,14 +311,20 @@ const HomeScreen: React.FC = () => {
           decelerationRate="fast"
           disableIntervalMomentum={true}
           contentContainerStyle={{ paddingHorizontal: 20, gap: 16 }}
-          onScroll={(e) => {
-            const index = Math.round(e.nativeEvent.contentOffset.x / (cardWidth + 16));
-            if (index !== featuredIndex && index >= 0 && index < featuredEvents.length) {
-              setFeaturedIndex(index);
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+            {
+              useNativeDriver: false,
+              listener: (e) => {
+                const index = Math.round(e.nativeEvent.contentOffset.x / (cardWidth + 16));
+                if (index !== featuredIndex && index >= 0 && index < featuredEvents.length) {
+                  setFeaturedIndex(index);
+                }
+              },
             }
-          }}
+          )}
           scrollEventThrottle={16}
-          onMomentumScrollEnd={(e) => {
+          onMomentumScrollEnd={(e: any) => {
             const index = Math.round(e.nativeEvent.contentOffset.x / (cardWidth + 16));
             setFeaturedIndex(index);
           }}
@@ -364,14 +376,7 @@ const HomeScreen: React.FC = () => {
         {featuredEvents.length > 1 && (
           <View style={styles.paginationDots}>
             {featuredEvents.map((_, i) => {
-              const width = dotAnimations[i]?.interpolate({
-                inputRange: [0, 1],
-                outputRange: [6, 20],
-              }) || 6;
-              const opacity = dotAnimations[i]?.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0.4, 1],
-              }) || 0.4;
+              const { width, opacity } = dotAnimations[i];
               return (
                 <Animated.View
                   key={i}

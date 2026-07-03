@@ -309,7 +309,7 @@ const VenueProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
   scrollContent: {
     flexGrow: 1,
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 20,
     borderWidth: 3,
-    borderColor: '#0A0C12',
+    borderColor: '#000000',
     marginBottom: 12,
   },
   nameSection: {
@@ -616,7 +616,7 @@ const styles = StyleSheet.create({
   eventPrice: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#0A0C12',
+    color: '#000000',
     fontFamily: fonts.bodyBold,
   },
   emptyState: {

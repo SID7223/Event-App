@@ -19,7 +19,7 @@ const DarkTheme = {
   colors: {
     ...DefaultTheme.colors,
     primary: '#99E1D9',
-    background: '#0A0C12',
+    background: '#000000',
     card: '#161B24',
     text: '#FFFFFF',
     border: 'rgba(255,255,255,0.07)',
@@ -61,7 +61,7 @@ export default function App() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#0A0C12' }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#000000' }}>
       <SafeAreaProvider>
         <NavigationContainer theme={DarkTheme}>
           <AppNavigator />
@@ -75,7 +75,7 @@ export default function App() {
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
     justifyContent: 'center',
     alignItems: 'center',
   },

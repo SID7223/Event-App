@@ -467,7 +467,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
   heroContainer: {
     position: 'absolute',
@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
     height: HERO_H - 40,
   },
   contentSection: {
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingTop: 24,
@@ -587,7 +587,7 @@ const styles = StyleSheet.create({
   priceText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#0A0C12',
+    color: '#000000',
   },
   freePill: {
     backgroundColor: '#2ED573',

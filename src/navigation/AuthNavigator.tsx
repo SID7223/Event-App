@@ -23,7 +23,7 @@ const AuthNavigator: React.FC = () => {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        cardStyle: { backgroundColor: '#0A0C12' },
+        cardStyle: { backgroundColor: '#000000' },
         cardStyleInterpolator: () => ({
           cardStyle: { opacity: 1 },
         }),

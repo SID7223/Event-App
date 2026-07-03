@@ -250,7 +250,6 @@ const MyPlansScreen: React.FC = () => {
             active={activeTab === tab.key}
             onPress={() => setActiveTab(tab.key)}
             badge={tab.count > 0 ? tab.count : undefined}
-
           />
         ))}
       </View>
@@ -273,7 +272,7 @@ const MyPlansScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
@@ -291,13 +290,8 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: 'row',
-    marginHorizontal: 20,
+    paddingHorizontal: 20,
     marginBottom: 16,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: 40,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    padding: 4,
     gap: spacing.xs,
   },
 

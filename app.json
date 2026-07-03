@@ -9,7 +9,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "cover",
-      "backgroundColor": "#0A0C12"
+      "backgroundColor": "#000000"
     },
     "ios": {
       "supportsTablet": true
@@ -33,7 +33,7 @@
         {
           "image": "./assets/splash-icon.png",
           "resizeMode": "cover",
-          "backgroundColor": "#0A0C12"
+          "backgroundColor": "#000000"
         }
       ],
       "expo-status-bar",

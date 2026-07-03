@@ -51,8 +51,8 @@ const ProfileScreen: React.FC = () => {
       'Contact Support',
       'Need help? Reach out to us.',
       [
-        { text: 'Email', onPress: () => Linking.openURL('mailto:support@zyntr.com').catch(() => {}) },
-        { text: 'Call', onPress: () => Linking.openURL('tel:+6281234567890').catch(() => {}) },
+        { text: 'Email', onPress: () => Linking.openURL('mailto:support@zyntr.com').catch(() => { }) },
+        { text: 'Call', onPress: () => Linking.openURL('tel:+6281234567890').catch(() => { }) },
         { text: 'Cancel', style: 'cancel' },
       ]
     );
@@ -118,6 +118,7 @@ const ProfileScreen: React.FC = () => {
           <TouchableOpacity
             onPress={handleEditLocation}
             activeOpacity={0.85}
+            style={styles.locationRow}
           >
             <View style={styles.locationLeft}>
               <View style={styles.locationIconContainer}>
@@ -148,9 +149,9 @@ const ProfileScreen: React.FC = () => {
                 onValueChange={(v) => updateSettings('pushNotifications', v)}
               />
             </View>
-            
+
             <View style={styles.settingDivider} />
-            
+
             <View style={styles.settingRow}>
               <View style={styles.settingLeft}>
                 <Ionicons name="alarm-outline" size={20} color="rgba(255,255,255,0.6)" />
@@ -161,9 +162,9 @@ const ProfileScreen: React.FC = () => {
                 onValueChange={(v) => updateSettings('smartReminders', v)}
               />
             </View>
-            
+
             <View style={styles.settingDivider} />
-            
+
             <View style={styles.settingRow}>
               <View style={styles.settingLeft}>
                 <Ionicons name="moon-outline" size={20} color="rgba(255,255,255,0.6)" />
@@ -204,6 +205,7 @@ const ProfileScreen: React.FC = () => {
             <TouchableOpacity
               onPress={handleFriendsPress}
               activeOpacity={0.7}
+              style={styles.friendsRow}
             >
               <View style={styles.friendsEntryLeft}>
                 <View style={styles.friendsEntryIcon}>
@@ -234,9 +236,9 @@ const ProfileScreen: React.FC = () => {
               </View>
               <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
             </TouchableOpacity>
-            
+
             <View style={styles.linkDivider} />
-            
+
             <TouchableOpacity
               style={styles.linkRow}
               onPress={handleContactSupport}
@@ -248,9 +250,9 @@ const ProfileScreen: React.FC = () => {
               </View>
               <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
             </TouchableOpacity>
-            
+
             <View style={styles.linkDivider} />
-            
+
             <TouchableOpacity
               style={styles.linkRow}
               onPress={handleShare}
@@ -280,7 +282,7 @@ const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0C12',
+    backgroundColor: '#000000',
   },
   scrollContent: {
     flexGrow: 1,
@@ -289,7 +291,7 @@ const styles = StyleSheet.create({
   // Profile Header
   profileSection: {
     alignItems: 'center',
-    paddingTop: 16,
+    paddingTop: 76,
     paddingBottom: 24,
     paddingHorizontal: 24,
   },
@@ -352,6 +354,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginBottom: 24,
     borderRadius: 16,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   locationLeft: {
     flexDirection: 'row',
@@ -480,6 +487,11 @@ const styles = StyleSheet.create({
   },
   friendsEntryRow: {
     borderRadius: 16,
+  },
+  friendsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   friendsEntryLeft: {
     flexDirection: 'row',
