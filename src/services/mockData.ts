@@ -326,6 +326,7 @@ export const mockUser: User = {
   avatar: 'https://picsum.photos/seed/avatar/200/200',
   interests: ['Music', 'Art', 'Technology', 'Festival'],
   notifications: true,
+  plan: 'basic',
 };
 
 export const mockTickets: Ticket[] = [

@@ -62,6 +62,7 @@ export interface User {
   notifications: boolean;
   location?: UserLocation;
   preferences?: string[];
+  plan?: 'basic' | 'premium';
 }
 
 export interface Ticket {
