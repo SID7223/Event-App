@@ -84,7 +84,7 @@ const MyEventsScreen: React.FC = () => {
           <Text style={styles.eventDate}>{formatDateRange(item.event.date)}</Text>
           <Text style={styles.eventLocation} numberOfLines={1}>{item.event.location}</Text>
           <Text style={styles.eventPrice}>
-            {item.event.price === 0 ? 'Free' : `$${item.event.price}`}
+            {item.event.price === 0 ? 'Free' : `Rs. ${item.event.price.toLocaleString('en-PK')}`}
           </Text>
           {/* Status badge */}
           <View style={styles.statusRow}>

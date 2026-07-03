@@ -222,7 +222,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
             <Text style={styles.eventTitle}>{event.title}</Text>
             {!isFreeEvent && (
               <View style={styles.pricePill}>
-                <Text style={styles.priceText}>${event.price}</Text>
+                <Text style={styles.priceText}>Rs. {event.price.toLocaleString('en-PK')}</Text>
               </View>
             )}
             {isFreeEvent && (

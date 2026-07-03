@@ -16,14 +16,18 @@ export const formatTime = (timeString: string): string => {
   return `${displayHour}:${minutes} ${ampm}`;
 };
 
+export const CURRENCY_SYMBOL = 'Rs.';
+
 export const formatPrice = (price: number): string => {
-  return `$${price}`;
+  return `${CURRENCY_SYMBOL} ${price.toLocaleString('en-PK')}`;
 };
 
 export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-PK', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'PKR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(amount);
 };
 

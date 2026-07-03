@@ -86,7 +86,7 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket, onPress, style }) => {
               </View>
               <View style={styles.ticketInfo}>
                 <Text style={styles.ticketLabel}>Price</Text>
-                <Text style={styles.ticketValue}>${ticket.price.toFixed(2)}</Text>
+                <Text style={styles.ticketValue}>Rs. {ticket.price.toLocaleString('en-PK')}</Text>
               </View>
               <View style={styles.ticketInfo}>
                 <Text style={styles.ticketLabel}>Seat</Text>

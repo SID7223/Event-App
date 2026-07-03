@@ -105,7 +105,7 @@ const ExploreScreen: React.FC = () => {
         {/* Count + Price */}
         <View style={styles.priceCol}>
           <Text style={styles.count}>({count})</Text>
-          <Text style={styles.price}>${item.price}</Text>
+          <Text style={styles.price}>Rs. {item.price.toLocaleString('en-PK')}</Text>
         </View>
       </TouchableOpacity>
     );

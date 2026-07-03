@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { formatPrice } from '../../utils/helpers';
 
 interface PriceBadgeProps {
   price: number;
@@ -9,10 +10,6 @@ interface PriceBadgeProps {
 
 const PriceBadge: React.FC<PriceBadgeProps> = ({ price, style }) => {
   const isFree = price === 0;
-
-  const formatPrice = (value: number) => {
-    return `$${value.toFixed(2)}`;
-  };
 
   if (isFree) {
     return (

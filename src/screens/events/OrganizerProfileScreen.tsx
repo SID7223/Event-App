@@ -118,7 +118,7 @@ const OrganizerProfileScreen: React.FC = () => {
         </View>
       </View>
       <View style={styles.eventPriceTag}>
-        <Text style={styles.eventPrice}>{event.price === 0 ? 'Free' : `$${event.price}`}</Text>
+        <Text style={styles.eventPrice}>{event.price === 0 ? 'Free' : `Rs. ${event.price.toLocaleString('en-PK')}`}</Text>
       </View>
     </TouchableOpacity>
   );

@@ -170,7 +170,7 @@ const BookingScreen: React.FC = () => {
           <GlassCard style={styles.ticketCardContent}>
             <View style={styles.ticketHeader}>
               <Text style={styles.ticketName}>{ticket.name}</Text>
-              <Text style={styles.ticketPrice}>${ticket.price}</Text>
+              <Text style={styles.ticketPrice}>Rs. {ticket.price.toLocaleString('en-PK')}</Text>
             </View>
             <View style={styles.perksList}>
               {ticket.perks.map((perk, index) => (
@@ -347,15 +347,15 @@ const BookingScreen: React.FC = () => {
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Subtotal</Text>
-            <Text style={styles.summaryValue}>${getSubtotal()}</Text>
+            <Text style={styles.summaryValue}>Rs. {getSubtotal().toLocaleString('en-PK')}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Service Fee</Text>
-            <Text style={styles.summaryValue}>${getFees()}</Text>
+            <Text style={styles.summaryValue}>Rs. {getFees().toLocaleString('en-PK')}</Text>
           </View>
           <View style={[styles.summaryRow, styles.summaryTotal]}>
             <Text style={styles.summaryTotalLabel}>Total</Text>
-            <Text style={styles.summaryTotalValue}>${getTotal()}</Text>
+            <Text style={styles.summaryTotalValue}>Rs. {getTotal().toLocaleString('en-PK')}</Text>
           </View>
         </GlassCard>
       </View>
@@ -472,7 +472,7 @@ const BookingScreen: React.FC = () => {
       {currentStep < 4 && (
         <SafeAreaView style={styles.bottomBar} edges={['bottom']}>
           <GradientButton
-            title={currentStep === 3 ? `Pay $${getTotal()}` : 'Continue'}
+            title={currentStep === 3 ? `Pay Rs. ${getTotal().toLocaleString('en-PK')}` : 'Continue'}
             onPress={handleNext}
             disabled={currentStep === 1 && !selectedTicket}
           />

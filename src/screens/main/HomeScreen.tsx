@@ -148,11 +148,10 @@ const HomeScreen: React.FC = () => {
   // Animate dots on index change
   useEffect(() => {
     featuredEvents.forEach((_, i) => {
-      Animated.spring(dotAnimations[i], {
+      Animated.timing(dotAnimations[i], {
         toValue: i === featuredIndex ? 1 : 0,
+        duration: 200,
         useNativeDriver: false,
-        tension: 50,
-        friction: 7,
       }).start();
     });
   }, [featuredIndex, featuredEvents.length]);
@@ -273,27 +272,27 @@ const HomeScreen: React.FC = () => {
     const cardWidth = screenWidth - 40;
 
     return (
-        <View style={styles.featuredOuter}>
-          {/* Top row: Featured badge + Weather pill */}
-          <View style={styles.featuredTopRow}>
-            <View style={styles.featuredBadgePill}>
-              <Ionicons name="star" size={12} color="#FFFFFF" />
-              <Text style={styles.featuredBadgePillText}>Featured Today</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.weatherPill}
-              onPress={() => setShowCityPicker(true)}
-              activeOpacity={0.7}
-            >
-              {weatherIconSource ? (
-                <Image source={weatherIconSource} style={styles.weatherPillIcon} />
-              ) : null}
-              <Text style={styles.weatherPillText}>
-                {userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}
-              </Text>
-              <Ionicons name="chevron-down" size={12} color="rgba(255,255,255,0.5)" />
-            </TouchableOpacity>
+      <View style={styles.featuredOuter}>
+        {/* Top row: Featured badge + Weather pill */}
+        <View style={styles.featuredTopRow}>
+          <View style={styles.featuredBadgePill}>
+            <Ionicons name="star" size={12} color="#FFFFFF" />
+            <Text style={styles.featuredBadgePillText}>Featured Today</Text>
           </View>
+          <TouchableOpacity
+            style={styles.weatherPill}
+            onPress={() => setShowCityPicker(true)}
+            activeOpacity={0.7}
+          >
+            {weatherIconSource ? (
+              <Image source={weatherIconSource} style={styles.weatherPillIcon} />
+            ) : null}
+            <Text style={styles.weatherPillText}>
+              {userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}
+            </Text>
+            <Ionicons name="chevron-down" size={12} color="rgba(255,255,255,0.5)" />
+          </TouchableOpacity>
+        </View>
 
         {/* Swipable cards */}
         <FlatList
@@ -304,7 +303,7 @@ const HomeScreen: React.FC = () => {
           snapToInterval={cardWidth + 16}
           snapToAlignment="start"
           decelerationRate="fast"
-          disableIntervalMomentum={false}
+          disableIntervalMomentum={true}
           contentContainerStyle={{ paddingHorizontal: 20, gap: 16 }}
           onMomentumScrollEnd={(e) => {
             const index = Math.round(e.nativeEvent.contentOffset.x / (cardWidth + 16));
@@ -424,7 +423,7 @@ const HomeScreen: React.FC = () => {
             </View>
           )}
           <View style={styles.popularPriceTag}>
-            <Text style={styles.popularPrice}>${event.price}</Text>
+            <Text style={styles.popularPrice}>Rs. {event.price.toLocaleString('en-PK')}</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -473,7 +472,7 @@ const HomeScreen: React.FC = () => {
           )}
         </View>
         <View style={styles.upcomingPriceTag}>
-          <Text style={styles.upcomingPrice}>${event.price}</Text>
+          <Text style={styles.upcomingPrice}>Rs. {event.price.toLocaleString('en-PK')}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -574,7 +573,7 @@ const HomeScreen: React.FC = () => {
                     </View>
                   </View>
                   <View style={styles.searchResultPriceBadge}>
-                    <Text style={styles.searchResultPrice}>{event.price === 0 ? 'Free' : `$${event.price}`}</Text>
+                    <Text style={styles.searchResultPrice}>{event.price === 0 ? 'Free' : `Rs. ${event.price.toLocaleString('en-PK')}`}</Text>
                   </View>
                 </TouchableOpacity>
               ))

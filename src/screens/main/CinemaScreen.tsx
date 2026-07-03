@@ -112,7 +112,7 @@ const CinemaScreen: React.FC = () => {
             {showtime.format}
           </Text>
           <Text style={[styles.showtimePrice, !isSelected && styles.showtimePriceInactive]}>
-            Rp {showtime.price}k
+            Rs. {showtime.price.toLocaleString('en-PK')}
           </Text>
         </View>
         <Text style={[styles.showtimeSeats, !isSelected && styles.showtimeSeatsInactive]}>
