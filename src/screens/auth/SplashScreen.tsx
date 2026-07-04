@@ -70,9 +70,9 @@ const SplashScreen: React.FC = () => {
             ]}
           >
             <View style={styles.zLogoContainer}>
-              <Text style={styles.zLogo}>Z</Text>
+              <Text style={styles.zLogo}>C</Text>
             </View>
-            <Text style={styles.appName}>Zyntr</Text>
+            <Text style={styles.appName}>Corlify</Text>
           </Animated.View>
 
           {/* Tagline */}

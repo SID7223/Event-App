@@ -523,6 +523,8 @@ const HomeScreen: React.FC = () => {
             <Ionicons name="add" size={28} color="#FFFFFF" />
           </TouchableOpacity>
 
+          <Text style={styles.appName}>Corlify</Text>
+
           <TouchableOpacity
             style={styles.notifBtn}
             onPress={() => navigation.navigate('Notifications')}
@@ -730,6 +732,13 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 8,
     zIndex: 1,
+  },
+  appName: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    fontFamily: fonts.heading,
+    letterSpacing: 0.5,
   },
   addEventBtn: {
     justifyContent: 'center',
