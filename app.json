@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "EventApp",
-    "slug": "EventApp",
+    "slug": "chris",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,8 +15,9 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.corlify.eventapp",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#000000",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -38,6 +39,12 @@
       ],
       "expo-status-bar",
       "expo-image"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "29a62ed3-f963-4d3b-90a1-8f2dc5bd6a47"
+      }
+    },
+    "owner": "christhomsons-team"
   }
 }
