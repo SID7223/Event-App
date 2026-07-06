@@ -40,6 +40,7 @@ export interface VibeCategory {
   id: string;
   label: string;
   icon: string;
+  categories: string[];
 }
 
 export interface UserLocation {

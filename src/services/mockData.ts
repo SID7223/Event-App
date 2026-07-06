@@ -1,17 +1,19 @@
 import { Event, User, Ticket, Booking, Notification, VibeCategory, Movie, Cinema, MovieShowtime, MovieWithShowtimes, Restaurant, Venue, Organizer, Friend, PakistanCity } from '../types';
 
-// Unified vibe categories (no mode split)
+// Unified vibe categories (Event/Social Vibes)
 export const allVibes: VibeCategory[] = [
-  { id: 'live_music', label: 'Live Music', icon: 'musical-notes' },
-  { id: 'cinema', label: 'Cinema', icon: 'film' },
-  { id: 'workshops', label: 'Workshops', icon: 'color-palette' },
-  { id: 'business', label: 'Business', icon: 'briefcase' },
-  { id: 'foodie', label: 'Food', icon: 'restaurant' },
-  { id: 'sports', label: 'Sports', icon: 'football' },
-  { id: 'comedy', label: 'Comedy', icon: 'happy' },
-  { id: 'art', label: 'Art', icon: 'brush' },
-  { id: 'tech', label: 'Tech', icon: 'laptop' },
-  { id: 'festivals', label: 'Festivals', icon: 'sparkles' },
+  { id: 'live_music', label: 'Live Music', icon: 'musical-notes', categories: ['Music', 'Concerts', 'Qawwali'] },
+  { id: 'nightlife', label: 'Nightlife & DJs', icon: 'headphones', categories: ['Nightlife', 'DJ', 'Parties', 'Electronic'] },
+  { id: 'comedy', label: 'Comedy & Mic', icon: 'happy', categories: ['Comedy', 'Standup', 'Open Mic'] },
+  { id: 'tech', label: 'Tech & Startups', icon: 'briefcase', categories: ['Tech', 'Startups', 'Networking', 'Pitch Nights'] },
+  { id: 'wellness', label: 'Wellness', icon: 'leaf', categories: ['Wellness', 'Yoga', 'Marathons', 'Retreats'] },
+  { id: 'arts_culture', label: 'Arts & Culture', icon: 'color-palette', categories: ['Art', 'Theater', 'Heritage', 'Exhibitions'] },
+  { id: 'popups_festivals', label: 'Pop-ups & Fest', icon: 'sparkles', categories: ['Festivals', 'Food Festivals', 'Flea Markets', 'Pop-ups'] },
+  { id: 'workshops', label: 'Workshops', icon: 'book', categories: ['Workshops', 'Masterclasses', 'Skill Learning'] },
+  { id: 'poetry', label: 'Poetry & Literary', icon: 'pen', categories: ['Poetry', 'Mushaira', 'Baithak', 'Storytelling'] },
+  { id: 'fashion', label: 'Fashion & Lifestyle', icon: 'shirt', categories: ['Fashion', 'Thrift', 'Brand Exhibits', 'Lifestyle'] },
+  { id: 'screenings', label: 'Match Screenings', icon: 'football', categories: ['Screenings', 'PSL', 'World Cup', 'Watch Parties'] },
+  { id: 'gaming', label: 'Gaming & E-Sports', icon: 'game-controller', categories: ['Gaming', 'E-Sports', 'Tournaments', 'Board Games'] },
 ];
 
 // Helper to sort vibes based on user preferences

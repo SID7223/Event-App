@@ -188,7 +188,7 @@ const SignupScreen: React.FC = () => {
             {/* Login link */}
             <View style={styles.loginRow}>
               <Text style={styles.loginText}>Already have an account? </Text>
-              <TouchableOpacity onPress={() => navigation.goBack()}>
+              <TouchableOpacity onPress={() => navigation.navigate('Auth')}>
                 <Text style={styles.loginLink}>Login</Text>
               </TouchableOpacity>
             </View>

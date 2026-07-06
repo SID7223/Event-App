@@ -8,6 +8,7 @@ import {
   StatusBar,
   Animated,
   useWindowDimensions,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -21,18 +22,24 @@ import { fonts } from '../../theme/fonts';
 interface VibeOption {
   id: string;
   label: string;
-  icon: string;
+  icon?: string;
+  image?: any;
+  categories: string[];
 }
 
 const VIBE_OPTIONS: VibeOption[] = [
-  { id: 'creative', label: 'Creative', icon: '🎨' },
-  { id: 'professional', label: 'Professional', icon: '💼' },
-  { id: 'watch_parties', label: 'Watch Parties', icon: '🍿' },
-  { id: 'live_shows', label: 'Live Shows', icon: '🎤' },
-  { id: 'foodie', label: 'Foodie', icon: '🍲' },
-  { id: 'music', label: 'Music', icon: '🎸' },
-  { id: 'sports', label: 'Sports', icon: '🏃' },
-  { id: 'theater', label: 'Theater & Arts', icon: '🎭' },
+  { id: 'live_music', label: 'Live Music', icon: 'musical-notes', categories: ['Music', 'Concerts', 'Qawwali'] },
+  { id: 'nightlife', label: 'Nightlife & DJs', icon: 'color-wand', categories: ['Nightlife', 'DJ', 'Parties', 'Electronic'] },
+  { id: 'comedy', label: 'Comedy & Mic', image: require('../../../assets/comedy-mic.png.jpg'), categories: ['Comedy', 'Standup', 'Open Mic'] },
+  { id: 'tech', label: 'Tech & Startups', icon: 'briefcase', categories: ['Tech', 'Startups', 'Networking', 'Pitch Nights'] },
+  { id: 'wellness', label: 'Wellness', icon: 'leaf', categories: ['Wellness', 'Yoga', 'Marathons', 'Retreats'] },
+  { id: 'arts_culture', label: 'Arts & Culture', icon: 'color-palette', categories: ['Art', 'Theater', 'Heritage', 'Exhibitions'] },
+  { id: 'popups_festivals', label: 'Pop-ups & Fest', image: require('../../../assets/popups_fest.png'), categories: ['Festivals', 'Food Festivals', 'Flea Markets', 'Pop-ups'] },
+  { id: 'workshops', label: 'Workshops', icon: 'book', categories: ['Workshops', 'Masterclasses', 'Skill Learning'] },
+  { id: 'poetry', label: 'Poetry & Literary', icon: 'document-text', categories: ['Poetry', 'Mushaira', 'Baithak', 'Storytelling'] },
+  { id: 'fashion', label: 'Fashion & Lifestyle', icon: 'shirt', categories: ['Fashion', 'Thrift', 'Brand Exhibits', 'Lifestyle'] },
+  { id: 'screenings', label: 'Match Screenings', icon: 'football', categories: ['Screenings', 'PSL', 'World Cup', 'Watch Parties'] },
+  { id: 'gaming', label: 'Gaming & E-Sports', icon: 'game-controller', categories: ['Gaming', 'E-Sports', 'Tournaments', 'Board Games'] },
 ];
 
 const MIN_SELECTIONS = 3;
@@ -44,7 +51,7 @@ const VibeQuiz: React.FC = () => {
   const { setPreferences } = useAuth();
 
   const { width } = useWindowDimensions();
-  const itemSize = (width - 48 - 24) / COLS;
+  const itemSize = (width - 40 - 16) / COLS;
 
   const user: User = route.params?.user;
   const location: UserLocation = route.params?.location;
@@ -157,9 +164,13 @@ const VibeQuiz: React.FC = () => {
               { opacity: fadeIn, transform: [{ translateY: headerSlide }] },
             ]}
           >
-            <Text style={styles.titleRegular}>Choose 3 or more</Text>
-            <Text style={styles.titleBold}>interests</Text>
+            <Text style={styles.titleRegular}>What kind of events are</Text>
+            <Text style={styles.titleBold}>you looking for?</Text>
           </Animated.View>
+
+          <Text style={styles.subtitle}>
+            Select at least 3 vibes to personalize your event feed.
+          </Text>
 
           {/* Grid */}
           <View style={styles.grid}>
@@ -177,9 +188,9 @@ const VibeQuiz: React.FC = () => {
                     style={[
                       styles.circle,
                       {
-                        width: itemSize - 16,
-                        height: itemSize - 16,
-                        borderRadius: (itemSize - 16) / 2,
+                        width: itemSize - 30,
+                        height: itemSize - 30,
+                        borderRadius: (itemSize - 30) / 2,
                         transform: [{ scale: itemAnims[index].scale }],
                       },
                     ]}
@@ -189,13 +200,17 @@ const VibeQuiz: React.FC = () => {
                       style={[
                         styles.circleFill,
                         {
-                          borderRadius: (itemSize - 16) / 2,
+                          borderRadius: (itemSize - 8) / 2,
                           opacity: itemAnims[index].bgOpacity,
                         },
                       ]}
                     />
-                    {/* Emoji */}
-                    <Text style={styles.emoji}>{vibe.icon}</Text>
+                    {/* Icon */}
+                    {vibe.image ? (
+                      <Image source={vibe.image} style={{ width: 24, height: 24, zIndex: 1 }} resizeMode="contain" />
+                    ) : (
+                      <Ionicons name={vibe.icon as any} size={24} color="#FFFFFF" style={{ zIndex: 1 }} />
+                    )}
                   </Animated.View>
                   <Text
                     style={[
@@ -268,35 +283,42 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingBottom: 120,
+    paddingHorizontal: 20,
+    paddingBottom: 100,
   },
   header: {
     marginTop: 16,
-    marginBottom: 32,
+    marginBottom: 16,
   },
   titleRegular: {
-    fontSize: 28,
-    fontWeight: '400',
+    fontSize: 24,
+    fontWeight: '500',
     color: '#FFFFFF',
     fontFamily: fonts.heading,
     letterSpacing: -0.3,
   },
   titleBold: {
-    fontSize: 30,
-    fontWeight: '700',
+    fontSize: 26,
+    fontWeight: '500',
     color: '#FFFFFF',
     fontFamily: fonts.heading,
     letterSpacing: -0.3,
   },
+  subtitle: {
+    fontSize: 13,
+    color: '#FFFFFF',
+    fontFamily: fonts.body,
+    marginTop: 8,
+    marginBottom: 16,
+  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: 8,
   },
   gridItem: {
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   circle: {
     backgroundColor: 'rgba(255,255,255,0.08)',
@@ -304,48 +326,45 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.12)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
     overflow: 'hidden',
   },
   circleFill: {
     ...StyleSheet.absoluteFill,
     backgroundColor: '#E43414',
   },
-  emoji: {
-    fontSize: 32,
-    zIndex: 1,
-  },
   itemLabel: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '500',
-    color: 'rgba(255,255,255,0.5)',
+    color: '#FFFFFF',
     textAlign: 'center',
     fontFamily: fonts.body,
   },
   itemLabelActive: {
     color: '#FFFFFF',
+    fontWeight: '600',
   },
   counterRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 24,
+    marginTop: 16,
   },
   counterText: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.4)',
+    fontSize: 13,
+    color: '#FFFFFF',
     fontFamily: fonts.body,
   },
   counterHint: {
-    fontSize: 13,
-    color: '#FF6B4A',
+    fontSize: 12,
+    color: '#FFFFFF',
     fontWeight: '500',
     fontFamily: fonts.body,
   },
   hintText: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.3)',
-    marginTop: 8,
+    fontSize: 11,
+    color: '#FFFFFF',
+    marginTop: 6,
     fontFamily: fonts.body,
   },
   bottomContainer: {
@@ -354,8 +373,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 24,
-    paddingBottom: 32,
-    paddingTop: 16,
+    paddingBottom: 24,
+    paddingTop: 12,
     backgroundColor: 'rgba(10,12,18,0.95)',
   },
   continueBtn: {

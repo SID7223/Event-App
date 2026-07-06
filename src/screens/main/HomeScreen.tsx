@@ -156,10 +156,10 @@ const HomeScreen: React.FC = () => {
     const vibe = sortedVibes.find(v => v.id === activeVibe);
     if (!vibe) return filteredEventsList;
 
-    return filteredEventsList.filter(e =>
-      e.category.toLowerCase().includes(vibe.label.toLowerCase()) ||
-      e.category.toLowerCase().includes(vibe.id.toLowerCase())
-    );
+    return filteredEventsList.filter(e => {
+      const catLower = e.category.toLowerCase();
+      return vibe.categories.some(c => catLower.includes(c.toLowerCase()));
+    });
   }, [activeVibe, sortedVibes, filteredEventsList, friendsList, privateRSVPs, privacySettings.hideRSVPs]);
 
   // Source list for sections — uses filteredEvents when a vibe filter is active

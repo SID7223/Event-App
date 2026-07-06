@@ -141,11 +141,8 @@ const SplashScreen: React.FC = () => {
           />
         </Animated.View>
 
-        <Animated.Text style={[styles.sloganLine1, { opacity: taglineOpacity }]}>
-          Where Moments Begin
-        </Animated.Text>
-        <Animated.Text style={[styles.sloganLine2, { opacity: taglineOpacity }]}>
-          Let It Happen
+        <Animated.Text style={[styles.brandName, { opacity: taglineOpacity }]}>
+          Corlify
         </Animated.Text>
       </View>
 
@@ -220,21 +217,13 @@ const styles = StyleSheet.create({
     marginLeft: -2,
     marginTop: 8,
   },
-  sloganLine1: {
-    fontSize: 28,
-    color: 'rgba(255,255,255,0.5)',
+  brandName: {
+    fontSize: 32,
+    color: '#FFFFFF',
+    fontFamily: fonts.heading,
+    fontWeight: '500',
     letterSpacing: 1,
-    fontFamily: fonts.splashSlogan,
-    marginTop: 8,
-    fontStyle: 'italic',
-  },
-  sloganLine2: {
-    fontSize: 20,
-    color: 'rgba(255,255,255,0.35)',
-    letterSpacing: 0.5,
-    fontFamily: fonts.splashSlogan,
-    marginTop: 6,
-    fontStyle: 'italic',
+    marginTop: -35,
   },
   buttonSection: {
     width: '100%',
@@ -265,8 +254,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#888888',
   },
   loginText: {
     color: '#000000',

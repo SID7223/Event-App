@@ -11,6 +11,8 @@ import {
   Animated,
   ActivityIndicator,
   FlatList,
+  Keyboard,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -39,9 +41,9 @@ const LocationStep: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { setLocation } = useAuth();
-  
+
   const user = route.params?.user;
-  
+
   const [manualInput, setManualInput] = useState('');
   const [suggestions, setSuggestions] = useState<typeof LOCATION_SUGGESTIONS>([]);
   const [selectedLocation, setSelectedLocation] = useState<UserLocation | null>(null);
@@ -49,7 +51,9 @@ const LocationStep: React.FC = () => {
   const [isManualMode, setIsManualMode] = useState(false);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [error, setError] = useState('');
-  
+  const scrollViewRef = useRef<ScrollView>(null);
+  const searchInputRef = useRef<TextInput>(null);
+
   const fadeIn = useRef(new Animated.Value(0)).current;
   const checkmarkScale = useRef(new Animated.Value(0)).current;
   const checkmarkRotate = useRef(new Animated.Value(0)).current;
@@ -66,6 +70,18 @@ const LocationStep: React.FC = () => {
       scale: new Animated.Value(0),
     }))
   ).current;
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => {
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 100);
+      }
+    );
+    return () => showSub.remove();
+  }, []);
 
   useEffect(() => {
     Animated.timing(fadeIn, {
@@ -230,10 +246,10 @@ const LocationStep: React.FC = () => {
   const detectLocation = async () => {
     setIsDetecting(true);
     setError('');
-    
+
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      
+
       if (status !== 'granted') {
         setPermissionDenied(true);
         setIsDetecting(false);
@@ -260,7 +276,7 @@ const LocationStep: React.FC = () => {
           country: address.country || '',
           fullAddress: `${address.subregion || address.district || ''}, ${address.city || ''}, ${address.country || ''}`.replace(/^,\s*/, ''),
         };
-        
+
         setSelectedLocation(detectedLocation);
         setIsDetecting(false);
       }
@@ -279,7 +295,7 @@ const LocationStep: React.FC = () => {
       country: 'Pakistan',
       fullAddress: suggestion.full,
     };
-    
+
     setSelectedLocation(location);
     setManualInput(suggestion.full);
     setSuggestions([]);
@@ -325,8 +341,10 @@ const LocationStep: React.FC = () => {
         </View>
 
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={[styles.scrollContent, selectedLocation && styles.scrollContentCentered]}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           {/* Header */}
           <Animated.View style={[styles.header, selectedLocation && styles.headerCentered, { opacity: fadeIn }]}>
@@ -334,7 +352,7 @@ const LocationStep: React.FC = () => {
               {selectedLocation ? `${selectedLocation.city} is buzzing` : 'Where are you?'}
             </Text>
             <Text style={styles.subtitle}>
-              {selectedLocation ? 'What are you into?' : "We'll show you events near you"}
+              {selectedLocation ? '' : "We'll show you events near you"}
             </Text>
           </Animated.View>
 
@@ -501,6 +519,7 @@ const LocationStep: React.FC = () => {
               <View style={styles.inputWrapper}>
                 <Ionicons name="search-outline" size={18} color="rgba(255,255,255,0.4)" style={styles.inputIcon} />
                 <TextInput
+                  ref={searchInputRef}
                   style={styles.input}
                   placeholder="Search city or neighborhood..."
                   placeholderTextColor="rgba(255,255,255,0.35)"
@@ -636,7 +655,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerCentered: {
-    marginTop: 0,
+    marginTop: -2,
     marginBottom: 32,
     alignItems: 'center',
   },
@@ -661,7 +680,7 @@ const styles = StyleSheet.create({
     height: 160,
   },
   iconContainerCentered: {
-    marginBottom: 40,
+    marginBottom: 74,
     width: 160,
     height: 160,
   },
@@ -715,7 +734,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   selectedContainer: {
-    marginBottom: 24,
+    marginBottom: 22,
     alignItems: 'center',
   },
   selectedCard: {
@@ -859,7 +878,7 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 3,
     left: 0,
     right: 0,
     paddingHorizontal: 24,
