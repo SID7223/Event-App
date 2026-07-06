@@ -27,7 +27,7 @@ const AuthNavigator: React.FC = () => {
       screenOptions={{
         headerShown: false,
         cardStyle: { backgroundColor: '#000000' },
-        animationEnabled: false,
+        animation: 'none',
       }}
     >
       <Stack.Screen name="BrandSplash" component={BrandSplashScreen} />

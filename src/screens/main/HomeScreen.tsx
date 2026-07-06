@@ -137,31 +137,7 @@ const HomeScreen: React.FC = () => {
   const scrollX = useRef(new Animated.Value(0)).current;
   const screenWidth = Dimensions.get('window').width;
   const cardWidth = screenWidth - 40;
-
-  // Derive dot animations from scrollX with Bezier-like easing
-  const dotAnimations = featuredEvents.map((_, i) => {
-    const cardStep = cardWidth + 16;
-    const center = i * cardStep;
-    // 5-point interpolation for smooth ease-in-out curve
-    const inputRange = [
-      center - cardStep,
-      center - cardStep * 0.4,
-      center,
-      center + cardStep * 0.4,
-      center + cardStep,
-    ];
-    const width = scrollX.interpolate({
-      inputRange,
-      outputRange: [6, 10, 20, 10, 6],
-      extrapolate: 'clamp',
-    });
-    const opacity = scrollX.interpolate({
-      inputRange,
-      outputRange: [0.4, 0.65, 1, 0.65, 0.4],
-      extrapolate: 'clamp',
-    });
-    return { width, opacity };
-  });
+  const cardStep = cardWidth + 16;
 
   // Filter events based on active vibe
   const filteredEvents = useMemo(() => {
@@ -280,24 +256,24 @@ const HomeScreen: React.FC = () => {
         {/* Top row: Featured badge + Weather pill */}
         <View style={styles.featuredTopRowWrap}>
           <View style={styles.featuredTopRow}>
-          <View style={styles.featuredBadgePill}>
-            <Ionicons name="star" size={12} color="#FFFFFF" />
-            <Text style={styles.featuredBadgePillText}>Featured Today</Text>
+            <View style={styles.featuredBadgePill}>
+              <Ionicons name="star" size={12} color="#FFFFFF" />
+              <Text style={styles.featuredBadgePillText}>Featured Today</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.weatherPill}
+              onPress={() => setShowCityPicker(true)}
+              activeOpacity={0.7}
+            >
+              {weatherIconSource ? (
+                <Image source={weatherIconSource} style={styles.weatherPillIcon} />
+              ) : null}
+              <Text style={styles.weatherPillText}>
+                {userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}
+              </Text>
+              <Ionicons name="chevron-down" size={12} color="rgba(255,255,255,0.5)" />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={styles.weatherPill}
-            onPress={() => setShowCityPicker(true)}
-            activeOpacity={0.7}
-          >
-            {weatherIconSource ? (
-              <Image source={weatherIconSource} style={styles.weatherPillIcon} />
-            ) : null}
-            <Text style={styles.weatherPillText}>
-              {userSelectedCity.charAt(0).toUpperCase() + userSelectedCity.slice(1)}
-            </Text>
-            <Ionicons name="chevron-down" size={12} color="rgba(255,255,255,0.5)" />
-          </TouchableOpacity>
-        </View>
         </View>
 
         {/* Swipable cards */}
@@ -313,15 +289,7 @@ const HomeScreen: React.FC = () => {
           contentContainerStyle={{ paddingHorizontal: 20, gap: 16 }}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-            {
-              useNativeDriver: false,
-              listener: (e) => {
-                const index = Math.round(e.nativeEvent.contentOffset.x / (cardWidth + 16));
-                if (index !== featuredIndex && index >= 0 && index < featuredEvents.length) {
-                  setFeaturedIndex(index);
-                }
-              },
-            }
+            { useNativeDriver: false }
           )}
           scrollEventThrottle={16}
           onMomentumScrollEnd={(e: any) => {
@@ -375,14 +343,34 @@ const HomeScreen: React.FC = () => {
         {/* Pagination dots */}
         {featuredEvents.length > 1 && (
           <View style={styles.paginationDots}>
-            {featuredEvents.map((_, i) => {
-              const { width, opacity } = dotAnimations[i];
+            {featuredEvents.map((_, index) => {
+              const inputRange = [
+                (index - 1) * cardStep,
+                index * cardStep,
+                (index + 1) * cardStep,
+              ];
+
+              const dotScale = scrollX.interpolate({
+                inputRange,
+                outputRange: [0.36, 1, 0.36],
+                extrapolate: 'clamp',
+              });
+
+              const dotOpacity = scrollX.interpolate({
+                inputRange,
+                outputRange: [0.4, 1, 0.4],
+                extrapolate: 'clamp',
+              });
+
               return (
                 <Animated.View
-                  key={i}
+                  key={index}
                   style={[
                     styles.dot,
-                    { width, opacity },
+                    {
+                      opacity: dotOpacity,
+                      transform: [{ scaleX: dotScale }],
+                    },
                   ]}
                 />
               );
@@ -509,31 +497,28 @@ const HomeScreen: React.FC = () => {
         style={styles.timeGradient}
       />
 
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          style={styles.addEventBtn}
+          onPress={() => navigation.navigate('HostEvent')}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="add" size={28} color="#FFFFFF" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.notifBtn}
+          onPress={() => navigation.navigate('Notifications')}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="notifications-outline" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.addEventBtn}
-            onPress={() => navigation.navigate('HostEvent')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="add" size={28} color="#FFFFFF" />
-          </TouchableOpacity>
-
-          <Text style={styles.appName}>Corlify</Text>
-
-          <TouchableOpacity
-            style={styles.notifBtn}
-            onPress={() => navigation.navigate('Notifications')}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="notifications-outline" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
-
         {/* Greeting */}
         <View style={styles.greetingContainer}>
           <Text
@@ -724,21 +709,23 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingBottom: 100,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 8,
-    zIndex: 1,
-  },
   appName: {
     fontSize: 22,
     fontWeight: '700',
     color: '#FFFFFF',
     fontFamily: fonts.heading,
     letterSpacing: 0.5,
+  },
+  topBar: {
+    position: 'absolute',
+    top: 18,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    zIndex: 10,
   },
   addEventBtn: {
     justifyContent: 'center',
@@ -750,7 +737,7 @@ const styles = StyleSheet.create({
   },
   greetingContainer: {
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 110,
     paddingBottom: 16,
     zIndex: 1,
   },
@@ -965,9 +952,11 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   dot: {
-    height: 6,
-    borderRadius: 3,
+    width: 22,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: '#E43414',
+    marginHorizontal: 4,
   },
   // Vibe Filters
   vibesSection: {

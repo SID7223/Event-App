@@ -67,24 +67,21 @@ const AuthScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#000000" />
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <BackButton style={styles.backBtn} onPress={() => navigation.navigate('Splash')} />
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-          <SafeAreaView style={styles.safeArea}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
             {/* Header */}
             <View style={styles.header}>
-              <Text style={styles.title}>
-                Log <Text style={styles.titleTight}>in</Text> to{' '}
-                <Text style={styles.titleTight}>your account</Text>
-              </Text>
+              <Text style={styles.title}>Login</Text>
             </View>
 
             {/* Email Input */}
@@ -151,7 +148,7 @@ const AuthScreen: React.FC = () => {
                 <Text style={styles.googleGText}>G</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
-                <Text style={styles.xIcon}>𝕏</Text>
+                <Text style={styles.xIcon}>X</Text>
               </TouchableOpacity>
             </View>
 
@@ -162,9 +159,9 @@ const AuthScreen: React.FC = () => {
                 <Text style={styles.signupLink}>Sign up</Text>
               </TouchableOpacity>
             </View>
-          </SafeAreaView>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </View>
   );
 };
@@ -176,7 +173,7 @@ const styles = StyleSheet.create({
   },
   backBtn: {
     position: 'absolute',
-    top: 14,
+    top: 35,
     left: 20,
     zIndex: 10,
     width: 36,
@@ -194,18 +191,13 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 40,
-    alignItems: 'center',
   },
   title: {
-    fontSize: 22,
-    fontWeight: '400',
+    fontSize: 30,
+    fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 6,
     fontFamily: fonts.heading,
-    letterSpacing: 0.5,
-  },
-  titleTight: {
-    letterSpacing: 0,
   },
   subtitle: {
     fontSize: 15,

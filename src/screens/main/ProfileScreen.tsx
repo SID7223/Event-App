@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../store';
 import GlassToggle from '../../components/ui/GlassToggle';
 import { fonts } from '../../theme/fonts';
@@ -26,6 +27,7 @@ const ProfileScreen: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [showQRModal, setShowQRModal] = useState(false);
   const [showPlanModal, setShowPlanModal] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const followingCount = followedVenues.length + followedOrganizers.length;
 
@@ -84,8 +86,43 @@ const ProfileScreen: React.FC = () => {
 
   const handleCameraPress = () => {
     Alert.alert('Change Photo', 'Choose an option', [
-      { text: 'Gallery', onPress: () => {} },
-      { text: 'Camera', onPress: () => {} },
+      {
+        text: 'Gallery',
+        onPress: async () => {
+          const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('Permission Required', 'Please allow access to your photos in Settings.');
+            return;
+          }
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+          });
+          if (!result.canceled && result.assets[0]) {
+            setProfileImage(result.assets[0].uri);
+          }
+        },
+      },
+      {
+        text: 'Camera',
+        onPress: async () => {
+          const { status } = await ImagePicker.requestCameraPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('Permission Required', 'Please allow camera access in Settings.');
+            return;
+          }
+          const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+          });
+          if (!result.canceled && result.assets[0]) {
+            setProfileImage(result.assets[0].uri);
+          }
+        },
+      },
       { text: 'Cancel', style: 'cancel' },
     ]);
   };
@@ -135,7 +172,7 @@ const ProfileScreen: React.FC = () => {
           <View style={[styles.avatarRing, user?.plan === 'premium' && styles.avatarRingPremium]}>
             <View style={styles.avatarInner}>
               <Image
-                source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }}
+                source={{ uri: profileImage || 'https://randomuser.me/api/portraits/men/32.jpg' }}
                 style={styles.avatar}
               />
             </View>
@@ -164,7 +201,7 @@ const ProfileScreen: React.FC = () => {
 
           <View style={styles.statsDivider} />
 
-          <View style={styles.statsRow}>
+          <View style={styles.statsNumbersRow}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{followingCount}</Text>
               <Text style={styles.statLabel}>Following</Text>
@@ -361,7 +398,7 @@ const ProfileScreen: React.FC = () => {
                 <Text style={styles.planFeatureText}>Golden profile badge</Text>
               </View>
 
-              <TouchableOpacity style={styles.pricingTag} activeOpacity={0.7} onPress={() => {}}>
+              <TouchableOpacity style={styles.pricingTag} activeOpacity={0.7} onPress={() => { }}>
                 <Text style={styles.pricingCurrency}>$</Text>
                 <Text style={styles.pricingAmount}>9.99</Text>
                 <Text style={styles.pricingPeriod}>/month</Text>
@@ -505,7 +542,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: 'rgba(255,255,255,0.35)',
     fontFamily: fonts.body,
-    marginTop: -10,
+    marginTop: 5
   },
   planTag: {
     paddingHorizontal: 12,
@@ -530,7 +567,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.06)',
     marginBottom: 14,
   },
-  statsRow: {
+  statsNumbersRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

@@ -59,21 +59,20 @@ const SignupScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#000000" />
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-          <SafeAreaView style={styles.safeArea}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
             {/* Header */}
             <View style={styles.header}>
               <Text style={styles.title}>Create Account</Text>
-              <Text style={styles.subtitle}>Let's get you started</Text>
             </View>
 
             {/* Name row */}
@@ -193,9 +192,9 @@ const SignupScreen: React.FC = () => {
                 <Text style={styles.loginLink}>Login</Text>
               </TouchableOpacity>
             </View>
-          </SafeAreaView>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
       <BackButton style={styles.backBtn} onPress={() => navigation.navigate('Splash')} />
     </View>
   );
@@ -208,7 +207,7 @@ const styles = StyleSheet.create({
   },
   backBtn: {
     position: 'absolute',
-    top: 14,
+    top: 35,
     left: 20,
     zIndex: 10,
     width: 36,
@@ -221,10 +220,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
     paddingBottom: 32,
-    paddingTop: 60,
   },
   header: {
-    marginTop: 24,
+    marginTop: 90,
     marginBottom: 32,
   },
   title: {
@@ -232,10 +230,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#FFFFFF',
     marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: '#FFFFFF',
   },
   nameRow: {
     flexDirection: 'row',

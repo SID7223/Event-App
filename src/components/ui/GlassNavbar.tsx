@@ -6,8 +6,6 @@ import {
   StyleSheet,
   Animated,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -38,29 +36,12 @@ const GlassNavbar: React.FC<GlassNavbarProps> = ({ tabs, activeIndex, onTabPress
 
   return (
     <Animated.View style={[styles.floatingPanel, { transform: [{ scale: panelScale }] }]}>
-      <LinearGradient
-        colors={gradientColors?.slice(0, 2) as [string, string] ?? ['rgba(20,18,16,0.6)', 'rgba(20,18,16,0.6)']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.blurContainer}
-      >
-        <LinearGradient
-          colors={['rgba(0,0,0,0.15)', 'rgba(0,0,0,0)']}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          style={styles.gradientOverlay}
-        />
-        <LinearGradient
-          colors={['rgba(255,255,255,0.15)', 'rgba(255,255,255,0)']}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-          style={styles.topEdgeHighlight}
-        />
+      <View style={styles.blurContainer}>
         <View style={styles.tabRow}>
           {tabs.map((tab, index) => {
             const isActive = activeIndex === index;
             const iconName = isActive ? tab.icon : tab.iconOutline;
-            const color = '#FFFFFF';
+            const color = isActive ? '#E43414' : '#666666';
 
             const handlePress = () => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => { });
@@ -75,9 +56,7 @@ const GlassNavbar: React.FC<GlassNavbarProps> = ({ tabs, activeIndex, onTabPress
                 activeOpacity={0.6}
               >
                 {isActive && (
-                  <View style={styles.activeGlow}>
-                    <BlurView intensity={40} tint="dark" style={styles.frostyBlur} />
-                  </View>
+                  <View style={styles.activeGlow} />
                 )}
                 {tab.name === 'ProfileTab' ? (
                   <View style={[styles.avatarRing, isActive && styles.avatarRingActive]}>
@@ -93,7 +72,7 @@ const GlassNavbar: React.FC<GlassNavbarProps> = ({ tabs, activeIndex, onTabPress
             );
           })}
         </View>
-      </LinearGradient>
+      </View>
     </Animated.View>
   );
 };
@@ -116,23 +95,15 @@ const styles = StyleSheet.create({
   blurContainer: {
     borderRadius: 24,
     overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  gradientOverlay: {
-    ...StyleSheet.absoluteFill,
-    borderRadius: 24,
-  },
-  topEdgeHighlight: {
-    ...StyleSheet.absoluteFill,
-    borderRadius: 24,
-    opacity: 0.5,
+    borderColor: 'rgba(0,0,0,0.08)',
   },
   tabRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingVertical: 16,
+    paddingVertical: 14,
     paddingHorizontal: 10,
   },
   tabItem: {
@@ -144,18 +115,10 @@ const styles = StyleSheet.create({
   },
   activeGlow: {
     position: 'absolute',
-    width: 52,
-    height: 36,
-    borderRadius: 18,
-    overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-  },
-  frostyBlur: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 18,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(228,52,20,0.1)',
   },
   activeIndicator: {
     position: 'absolute',
@@ -170,17 +133,12 @@ const styles = StyleSheet.create({
     height: 26,
     borderRadius: 13,
     borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.5)',
+    borderColor: 'rgba(0,0,0,0.15)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarRingActive: {
-    borderColor: '#FFFFFF',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 4,
+    borderColor: '#E43414',
   },
   tabAvatar: {
     width: 20,
