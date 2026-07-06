@@ -13,12 +13,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../../store';
-import { mockUser } from '../../services/mockData';
+import BackButton from '../../components/BackButton';
 
 const SignupScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { login } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -44,7 +42,18 @@ const SignupScreen: React.FC = () => {
 
   const handleSignup = () => {
     if (validate()) {
-      login(mockUser);
+      navigation.navigate('LocationStep', {
+        user: {
+          id: Date.now().toString(),
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          avatar: '',
+          interests: [],
+          notifications: true,
+        },
+      });
     }
   };
 
@@ -61,14 +70,6 @@ const SignupScreen: React.FC = () => {
           showsVerticalScrollIndicator={false}
         >
           <SafeAreaView style={styles.safeArea}>
-            {/* Back button */}
-            <TouchableOpacity
-              style={styles.backBtn}
-              onPress={() => navigation.goBack()}
-            >
-              <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
-
             {/* Header */}
             <View style={styles.header}>
               <Text style={styles.title}>Create Account</Text>
@@ -158,21 +159,20 @@ const SignupScreen: React.FC = () => {
             {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
             {/* Terms */}
-            <TouchableOpacity
-              style={styles.termsRow}
-              onPress={() => setAgreedToTerms(!agreedToTerms)}
-              activeOpacity={0.8}
-            >
-              <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
-                {agreedToTerms && (
-                  <Ionicons name="checkmark" size={14} color="#000000" />
-                )}
-              </View>
-              <Text style={styles.termsText}>
-                I agree to the{' '}
-                <Text style={styles.termsLink}>Terms & Conditions</Text>
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.termsRow}>
+              <TouchableOpacity
+                style={styles.termsCheckArea}
+                onPress={() => setAgreedToTerms(!agreedToTerms)}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
+                  {agreedToTerms && (
+                    <Ionicons name="checkmark" size={14} color="#000000" />
+                  )}
+                </View>
+                <Text style={styles.termsText}>I agree to the Terms & Conditions</Text>
+              </TouchableOpacity>
+            </View>
             {errors.terms && <Text style={styles.errorText}>{errors.terms}</Text>}
 
             {/* Sign Up Button */}
@@ -189,13 +189,14 @@ const SignupScreen: React.FC = () => {
             {/* Login link */}
             <View style={styles.loginRow}>
               <Text style={styles.loginText}>Already have an account? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Auth')}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
                 <Text style={styles.loginLink}>Login</Text>
               </TouchableOpacity>
             </View>
           </SafeAreaView>
         </ScrollView>
       </KeyboardAvoidingView>
+      <BackButton style={styles.backBtn} onPress={() => navigation.navigate('Splash')} />
     </View>
   );
 };
@@ -205,6 +206,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
   },
+  backBtn: {
+    position: 'absolute',
+    top: 14,
+    left: 20,
+    zIndex: 10,
+    width: 36,
+    height: 36,
+  },
   scrollContent: {
     flexGrow: 1,
   },
@@ -212,13 +221,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
     paddingBottom: 32,
-  },
-  backBtn: {
-    marginTop: 12,
-    width: 36,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
+    paddingTop: 60,
   },
   header: {
     marginTop: 24,
@@ -232,7 +235,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 15,
-    color: 'rgba(255,255,255,0.5)',
+    color: '#FFFFFF',
   },
   nameRow: {
     flexDirection: 'row',
@@ -277,6 +280,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 6,
+  },
+  termsCheckArea: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 12,
   },
   checkbox: {
@@ -294,13 +301,7 @@ const styles = StyleSheet.create({
   },
   termsText: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.55)',
-    flex: 1,
-    flexWrap: 'wrap',
-  },
-  termsLink: {
     color: '#FFFFFF',
-    fontWeight: '500',
   },
   signupBtn: {
     height: 56,
@@ -323,7 +324,7 @@ const styles = StyleSheet.create({
   },
   loginText: {
     fontSize: 15,
-    color: 'rgba(255,255,255,0.5)',
+    color: '#FFFFFF',
   },
   loginLink: {
     fontSize: 15,

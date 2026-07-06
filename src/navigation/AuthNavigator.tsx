@@ -1,5 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
+import BrandSplashScreen from '../screens/auth/BrandSplashScreen';
 import SplashScreen from '../screens/auth/SplashScreen';
 import AuthScreen from '../screens/auth/AuthScreen';
 import SignupScreen from '../screens/auth/SignupScreen';
@@ -8,6 +9,7 @@ import VibeQuiz from '../screens/auth/VibeQuiz';
 import OnboardingLoading from '../screens/auth/OnboardingLoading';
 
 export type AuthStackParamList = {
+  BrandSplash: undefined;
   Splash: undefined;
   Auth: undefined;
   Signup: undefined;
@@ -21,21 +23,17 @@ const Stack = createStackNavigator<AuthStackParamList>();
 const AuthNavigator: React.FC = () => {
   return (
     <Stack.Navigator
+      initialRouteName="BrandSplash"
       screenOptions={{
         headerShown: false,
         cardStyle: { backgroundColor: '#000000' },
-        cardStyleInterpolator: () => ({
-          cardStyle: { opacity: 1 },
-        }),
-        transitionSpec: {
-          open: { animation: 'timing', config: { duration: 0 } },
-          close: { animation: 'timing', config: { duration: 0 } },
-        },
+        animationEnabled: false,
       }}
     >
+      <Stack.Screen name="BrandSplash" component={BrandSplashScreen} />
       <Stack.Screen name="Splash" component={SplashScreen} />
-      <Stack.Screen name="Auth" component={AuthScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Screen name="Auth" component={AuthScreen} options={{ gestureEnabled: false }} />
+      <Stack.Screen name="Signup" component={SignupScreen} options={{ gestureEnabled: false }} />
       <Stack.Screen name="LocationStep" component={LocationStep} />
       <Stack.Screen name="VibeQuiz" component={VibeQuiz} />
       <Stack.Screen name="OnboardingLoading" component={OnboardingLoading} />

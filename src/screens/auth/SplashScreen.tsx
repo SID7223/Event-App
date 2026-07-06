@@ -1,38 +1,36 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   Animated,
   StatusBar,
   TouchableOpacity,
-  ImageSourcePropType,
   Dimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { fonts } from '../../theme/fonts';
-import { colors } from '../../theme/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const IMAGES: ImageSourcePropType[] = [
-  require('../../../assets/splash/splash-1.jpg'),
-  require('../../../assets/splash/splash-2.jpg'),
-];
-
-const IMAGE_DURATION = 7000;
-const FADE_DURATION = 1200;
+// ── Image Control Constants ──
+// Tweak these numbers to control the background image appearance
+const SHADOW_ALPHA = 12;   // darkens bottom          (0–1)
+const HIGHLIGHT_ALPHA = 0.17;   // warms top               (0–1)
+const EXPOSURE_ALPHA = 0.04;   // overall mid dimming      (0–1)
+const BLUR_RADIUS = 2;      // background blur          (0–20)
 
 const GrainOverlay: React.FC = () => {
   const dots = useMemo(() => {
     const result: { x: number; y: number; opacity: number; size: number }[] = [];
-    for (let i = 0; i < 300; i++) {
+    for (let i = 0; i < 150; i++) {
       result.push({
         x: Math.random() * SCREEN_WIDTH,
         y: Math.random() * SCREEN_HEIGHT,
-        opacity: Math.random() * 0.06 + 0.01,
-        size: Math.random() * 1.5 + 0.5,
+        opacity: Math.random() * 0.03 + 0.005,
+        size: Math.random() * 1.2 + 0.3,
       });
     }
     return result;
@@ -62,37 +60,34 @@ const GrainOverlay: React.FC = () => {
 const SplashScreen: React.FC = () => {
   const navigation = useNavigation<any>();
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const img1Opacity = useRef(new Animated.Value(1)).current;
-  const img2Opacity = useRef(new Animated.Value(0)).current;
-
   const logoOpacity = useRef(new Animated.Value(0)).current;
   const logoScale = useRef(new Animated.Value(0.75)).current;
+
   const taglineOpacity = useRef(new Animated.Value(0)).current;
   const buttonOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.sequence([
-      Animated.parallel([
-        Animated.timing(logoOpacity, {
-          toValue: 1,
-          duration: 900,
-          useNativeDriver: true,
-        }),
-        Animated.spring(logoScale, {
-          toValue: 1,
-          friction: 7,
-          tension: 40,
-          useNativeDriver: true,
-        }),
-      ]),
-      Animated.timing(taglineOpacity, {
+    Animated.parallel([
+      Animated.timing(logoOpacity, {
         toValue: 1,
-        duration: 700,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.spring(logoScale, {
+        toValue: 1,
+        friction: 7,
+        tension: 40,
         useNativeDriver: true,
       }),
     ]).start();
+
+    setTimeout(() => {
+      Animated.timing(taglineOpacity, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }).start();
+    }, 1200);
 
     setTimeout(() => {
       Animated.timing(buttonOpacity, {
@@ -103,98 +98,29 @@ const SplashScreen: React.FC = () => {
     }, 1400);
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => {
-        const next = (prev + 1) % IMAGES.length;
-
-        if (prev % 2 === 0) {
-          Animated.parallel([
-            Animated.timing(img1Opacity, {
-              toValue: 0,
-              duration: FADE_DURATION,
-              useNativeDriver: true,
-            }),
-            Animated.timing(img2Opacity, {
-              toValue: 1,
-              duration: FADE_DURATION,
-              useNativeDriver: true,
-            }),
-          ]).start();
-        } else {
-          Animated.parallel([
-            Animated.timing(img1Opacity, {
-              toValue: 1,
-              duration: FADE_DURATION,
-              useNativeDriver: true,
-            }),
-            Animated.timing(img2Opacity, {
-              toValue: 0,
-              duration: FADE_DURATION,
-              useNativeDriver: true,
-            }),
-          ]).start();
-        }
-
-        return next;
-      });
-    }, IMAGE_DURATION);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
-      {/* Image 1 */}
-      <Animated.Image
-        source={IMAGES[0]}
-        style={[styles.bgImage, { opacity: img1Opacity }]}
+      {/* Background image */}
+      <Image
+        source={require('../../../assets/splash/BG_1.png')}
+        style={styles.bgImage}
         resizeMode="cover"
-        blurRadius={3}
+        blurRadius={BLUR_RADIUS}
       />
 
-      {/* Image 2 */}
-      <Animated.Image
-        source={IMAGES[1]}
-        style={[styles.bgImage, { opacity: img2Opacity }]}
-        resizeMode="cover"
-        blurRadius={3}
-      />
-
-      {/* Base dark background */}
-      <View style={styles.baseBg} />
-
-      {/* Brightness dimming overlay */}
-      <View style={styles.dimOverlay} />
-
-      {/* Gradient overlay */}
+      {/* Image control gradient */}
       <LinearGradient
         colors={[
-          'rgba(5,4,8,0.92)',
-          'rgba(10,12,25,0.45)',
-          'rgba(8,10,20,0.15)',
-          'rgba(15,10,8,0.2)',
-          'rgba(8,5,5,0.7)',
-          'rgba(2,2,4,0.96)',
+          `rgba(228,52,20,${HIGHLIGHT_ALPHA})`,
+          'rgba(0,0,0,0)',
+          `rgba(0,0,0,${EXPOSURE_ALPHA})`,
+          'rgba(0,0,0,0)',
+          `rgba(0,0,0,${SHADOW_ALPHA})`,
         ]}
-        locations={[0, 0.1, 0.25, 0.5, 0.72, 0.9]}
+        locations={[0, 0.25, 0.5, 0.75, 1]}
         style={styles.bgGradient}
-      />
-
-      {/* Halation glow */}
-      <LinearGradient
-        colors={[
-          'rgba(255,140,60,0)',
-          'rgba(255,120,40,0)',
-          'rgba(255,100,30,0.04)',
-          'rgba(255,90,25,0.06)',
-          'rgba(255,80,20,0.03)',
-          'rgba(255,60,10,0)',
-        ]}
-        locations={[0, 0.2, 0.35, 0.5, 0.65, 0.85]}
-        style={styles.halation}
       />
 
       {/* Film grain */}
@@ -208,35 +134,37 @@ const SplashScreen: React.FC = () => {
             { opacity: logoOpacity, transform: [{ scale: logoScale }] },
           ]}
         >
-          <View style={styles.logoContainer}>
-            <Text style={styles.logo}>C</Text>
-          </View>
-          <Text style={styles.appName}>Corlify</Text>
+          <Image
+            source={require('../../../assets/New Logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </Animated.View>
 
-        <Animated.View style={[styles.taglineSection, { opacity: taglineOpacity }]}>
-          <Text style={styles.tagline}>Discover events.</Text>
-          <Text style={styles.tagline}>Book experiences.</Text>
-          <Text style={styles.tagline}>Make memories.</Text>
-        </Animated.View>
+        <Animated.Text style={[styles.sloganLine1, { opacity: taglineOpacity }]}>
+          Where Moments Begin
+        </Animated.Text>
+        <Animated.Text style={[styles.sloganLine2, { opacity: taglineOpacity }]}>
+          Let It Happen
+        </Animated.Text>
       </View>
 
       {/* Buttons */}
       <Animated.View style={[styles.buttonSection, { opacity: buttonOpacity }]}>
-        <TouchableOpacity
-          onPress={() => navigation.replace('Auth')}
-          style={styles.loginBtn}
-          activeOpacity={0.88}
-        >
-          <Text style={styles.loginText}>Login</Text>
-        </TouchableOpacity>
-
         <TouchableOpacity
           onPress={() => navigation.replace('Signup')}
           style={styles.signUpBtn}
           activeOpacity={0.88}
         >
           <Text style={styles.signUpText}>Sign Up</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => navigation.replace('Auth')}
+          style={styles.loginBtn}
+          activeOpacity={0.88}
+        >
+          <Text style={styles.loginText}>Login</Text>
         </TouchableOpacity>
       </Animated.View>
     </View>
@@ -257,31 +185,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  baseBg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#0A0C12',
-    zIndex: -1,
-  },
-  dimOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.25)',
-  },
   bgGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  halation: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -305,49 +209,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
-    marginTop: -120,
   },
   logoSection: {
     alignItems: 'center',
-    marginBottom: 28,
+    marginBottom: 32,
   },
-  logoContainer: {
-    width: 84,
-    height: 84,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,80,40,0.12)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 18,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,107,74,0.35)',
+  logoImage: {
+    width: 110,
+    height: 110,
+    marginLeft: -2,
+    marginTop: 8,
   },
-  logo: {
-    fontSize: 50,
-    fontWeight: '800',
-    color: colors.accent.cyan,
-    includeFontPadding: false,
-    lineHeight: 56,
+  sloganLine1: {
+    fontSize: 28,
+    color: 'rgba(255,255,255,0.5)',
+    letterSpacing: 1,
+    fontFamily: fonts.splashSlogan,
+    marginTop: 8,
+    fontStyle: 'italic',
   },
-  appName: {
-    fontSize: 38,
-    fontWeight: '600',
-    color: '#FFFFFF',
+  sloganLine2: {
+    fontSize: 20,
+    color: 'rgba(255,255,255,0.35)',
     letterSpacing: 0.5,
-    fontFamily: fonts.heading,
-  },
-  taglineSection: {
-    alignItems: 'center',
-    gap: 5,
-    marginTop: 10,
-  },
-  tagline: {
-    fontSize: 17,
-    color: 'rgba(255,255,255,0.55)',
-    fontWeight: '400',
-    letterSpacing: 0.2,
-    textAlign: 'center',
-    fontFamily: fonts.body,
+    fontFamily: fonts.splashSlogan,
+    marginTop: 6,
+    fontStyle: 'italic',
   },
   buttonSection: {
     width: '100%',
@@ -356,30 +243,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
-  loginBtn: {
+  signUpBtn: {
     width: '100%',
     height: 54,
     borderRadius: 27,
-    backgroundColor: '#C43A11',
+    backgroundColor: '#000000',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loginText: {
+  signUpText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
     letterSpacing: 0.3,
     fontFamily: fonts.button,
   },
-  signUpBtn: {
+  loginBtn: {
     width: '100%',
     height: 54,
     borderRadius: 27,
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#888888',
   },
-  signUpText: {
+  loginText: {
     color: '#000000',
     fontSize: 16,
     fontWeight: '600',

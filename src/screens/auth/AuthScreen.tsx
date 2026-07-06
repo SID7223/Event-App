@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { fonts } from '../../theme/fonts';
+import BackButton from '../../components/BackButton';
 
 const AuthScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -67,6 +68,7 @@ const AuthScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#000000" />
+      <BackButton style={styles.backBtn} onPress={() => navigation.navigate('Splash')} />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -79,13 +81,15 @@ const AuthScreen: React.FC = () => {
           <SafeAreaView style={styles.safeArea}>
             {/* Header */}
             <View style={styles.header}>
-              <Text style={styles.title}>Welcome back</Text>
-              <Text style={styles.subtitle}>Sign in to your account</Text>
+              <Text style={styles.title}>
+                Log <Text style={styles.titleTight}>in</Text> to{' '}
+                <Text style={styles.titleTight}>your account</Text>
+              </Text>
             </View>
 
             {/* Email Input */}
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Email:</Text>
+              <Text style={styles.inputLabel}>Email</Text>
               <TextInput
                 style={styles.input}
                 placeholder="your@email.com"
@@ -101,7 +105,7 @@ const AuthScreen: React.FC = () => {
 
             {/* Password Input */}
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Password:</Text>
+              <Text style={styles.inputLabel}>Password</Text>
               <View style={styles.passwordRow}>
                 <TextInput
                   style={[styles.input, { flex: 1 }]}
@@ -141,7 +145,7 @@ const AuthScreen: React.FC = () => {
             {/* Social Login Buttons */}
             <View style={styles.socialSection}>
               <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
-                <Ionicons name="logo-apple" size={24} color="rgba(255,255,255,0.7)" />
+                <Ionicons name="logo-apple" size={24} color="#FFFFFF" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
                 <Text style={styles.googleGText}>G</Text>
@@ -170,6 +174,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
   },
+  backBtn: {
+    position: 'absolute',
+    top: 14,
+    left: 20,
+    zIndex: 10,
+    width: 36,
+    height: 36,
+  },
   scrollContent: {
     flexGrow: 1,
   },
@@ -177,19 +189,23 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
     paddingBottom: 32,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 110,
   },
   header: {
     marginBottom: 40,
     alignItems: 'center',
   },
   title: {
-    fontSize: 34,
+    fontSize: 22,
     fontWeight: '400',
     color: '#FFFFFF',
     marginBottom: 6,
     fontFamily: fonts.heading,
     letterSpacing: 0.5,
+  },
+  titleTight: {
+    letterSpacing: 0,
   },
   subtitle: {
     fontSize: 15,
@@ -200,10 +216,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   inputLabel: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.4)',
+    fontSize: 15,
+    color: '#FFFFFF',
     marginBottom: 8,
     fontFamily: fonts.body,
+    fontWeight: '600',
   },
   input: {
     backgroundColor: 'rgba(255,255,255,0.06)',
@@ -242,8 +259,8 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   forgotText: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.5)',
+    fontSize: 12,
+    color: '#FFFFFF',
     fontFamily: fonts.body,
   },
   divider: {
@@ -258,7 +275,7 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     marginHorizontal: 16,
-    color: 'rgba(255,255,255,0.35)',
+    color: '#FFFFFF',
     fontSize: 13,
     fontFamily: fonts.body,
   },
@@ -276,18 +293,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   googleGText: {
     fontSize: 22,
     fontWeight: '600',
-    color: 'rgba(255,255,255,0.7)',
+    color: '#FFFFFF',
     fontFamily: fonts.heading,
   },
   xIcon: {
     fontSize: 22,
     fontWeight: '600',
-    color: 'rgba(255,255,255,0.7)',
+    color: '#FFFFFF',
     fontFamily: fonts.heading,
   },
   signupRow: {
@@ -297,7 +314,7 @@ const styles = StyleSheet.create({
   },
   signupText: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.45)',
+    color: '#FFFFFF',
     fontFamily: fonts.body,
   },
   signupLink: {

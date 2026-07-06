@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../store';
 import AuthNavigator from './AuthNavigator';
@@ -16,6 +16,7 @@ import CinemaScreen from '../screens/main/CinemaScreen';
 import DiningScreen from '../screens/main/DiningScreen';
 import PlaySportsScreen from '../screens/main/PlaySportsScreen';
 import SettingsScreen from '../screens/main/SettingsScreen';
+import OneStepLoginSheet from '../components/OneStepLoginSheet';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -38,67 +39,112 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => {
-  const { isLoggedIn, onboardingComplete } = useAuth();
+  const { isLoggedIn, onboardingComplete, savedLogin, setSavedLogin, login, user } = useAuth();
+  const [showOneStepLogin, setShowOneStepLogin] = useState(false);
+
+  useEffect(() => {
+    if (!isLoggedIn && !onboardingComplete && savedLogin) {
+      const timer = setTimeout(() => {
+        setShowOneStepLogin(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoggedIn, onboardingComplete, savedLogin]);
+
+  const handleOneStepLogin = () => {
+    if (savedLogin && user) {
+      login(user);
+      setShowOneStepLogin(false);
+    } else if (savedLogin) {
+      const mockUser = {
+        id: Date.now().toString(),
+        firstName: savedLogin.firstName,
+        lastName: savedLogin.lastName,
+        email: savedLogin.email,
+        phone: '',
+        avatar: '',
+        interests: [],
+        notifications: true,
+      };
+      login(mockUser);
+      setShowOneStepLogin(false);
+    }
+  };
+
+  const handleDismissOneStep = () => {
+    setShowOneStepLogin(false);
+  };
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-        animation: 'fade',
-        contentStyle: { backgroundColor: '#000000' },
-      }}
-    >
-      {!isLoggedIn || !onboardingComplete ? (
-        <Stack.Screen
-          name="Auth"
-          component={AuthNavigator}
+    <>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          animation: 'fade',
+          contentStyle: { backgroundColor: '#000000' },
+        }}
+      >
+        {!isLoggedIn || !onboardingComplete ? (
+          <Stack.Screen
+            name="Auth"
+            component={AuthNavigator}
+          />
+        ) : (
+          <>
+            <Stack.Screen
+              name="Main"
+              component={MainNavigator}
+            />
+            <Stack.Screen
+              name="EventDetail"
+              component={EventDetailScreen}
+              options={{ presentation: 'card' }}
+            />
+            <Stack.Screen
+              name="VenueProfile"
+              component={VenueProfileScreen}
+              options={{ presentation: 'card' }}
+            />
+            <Stack.Screen
+              name="OrganizerProfile"
+              component={OrganizerProfileScreen}
+              options={{ presentation: 'card' }}
+            />
+            <Stack.Screen name="Booking" component={BookingScreen} />
+            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+            <Stack.Screen
+              name="Following"
+              component={FollowingScreen}
+              options={{ presentation: 'card' }}
+            />
+            <Stack.Screen
+              name="Friends"
+              component={FriendsScreen}
+              options={{ presentation: 'card' }}
+            />
+            <Stack.Screen
+              name="HostEvent"
+              component={HostEventScreen}
+              options={{ presentation: 'card', animation: 'slide_from_left' }}
+            />
+            <Stack.Screen name="Notifications" component={NotificationsScreen} />
+            <Stack.Screen name="Cinema" component={CinemaScreen} />
+            <Stack.Screen name="Dining" component={DiningScreen} />
+            <Stack.Screen name="PlaySports" component={PlaySportsScreen} />
+            <Stack.Screen name="Settings" component={SettingsScreen} />
+          </>
+        )}
+      </Stack.Navigator>
+
+      {savedLogin && (
+        <OneStepLoginSheet
+          visible={showOneStepLogin}
+          userName={`${savedLogin.firstName} ${savedLogin.lastName}`.trim() || savedLogin.email}
+          onLogin={handleOneStepLogin}
+          onDismiss={handleDismissOneStep}
         />
-      ) : (
-        <>
-          <Stack.Screen
-            name="Main"
-            component={MainNavigator}
-          />
-          <Stack.Screen
-            name="EventDetail"
-            component={EventDetailScreen}
-            options={{ presentation: 'card' }}
-          />
-          <Stack.Screen
-            name="VenueProfile"
-            component={VenueProfileScreen}
-            options={{ presentation: 'card' }}
-          />
-          <Stack.Screen
-            name="OrganizerProfile"
-            component={OrganizerProfileScreen}
-            options={{ presentation: 'card' }}
-          />
-          <Stack.Screen name="Booking" component={BookingScreen} />
-          <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-          <Stack.Screen
-            name="Following"
-            component={FollowingScreen}
-            options={{ presentation: 'card' }}
-          />
-          <Stack.Screen
-            name="Friends"
-            component={FriendsScreen}
-            options={{ presentation: 'card' }}
-          />
-          <Stack.Screen
-            name="HostEvent"
-            component={HostEventScreen}
-            options={{ presentation: 'card', animation: 'slide_from_left' }}
-          />
-          <Stack.Screen name="Notifications" component={NotificationsScreen} />
-          <Stack.Screen name="Cinema" component={CinemaScreen} />
-          <Stack.Screen name="Dining" component={DiningScreen} />
-          <Stack.Screen name="PlaySports" component={PlaySportsScreen} />
-          <Stack.Screen name="Settings" component={SettingsScreen} />
-        </>
       )}
-    </Stack.Navigator>
+    </>
   );
 };
 

@@ -17,6 +17,12 @@ import {
   pakistanShowtimes 
 } from '../services/mockData';
 
+interface SavedLogin {
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
 interface AuthState {
   isLoggedIn: boolean;
   user: User | null;
@@ -29,6 +35,7 @@ interface AuthState {
   organizerNotifications: Record<string, string>; // organizerId -> notificationId
   onboardingComplete: boolean;
   pendingEvents: AppEvent[];
+  savedLogin: SavedLogin | null;
   settings: {
     pushNotifications: boolean;
     smartReminders: boolean;
@@ -62,6 +69,8 @@ interface AuthState {
   isRSVPPrivate: (eventId: string) => boolean;
   submitEvent: (event: Omit<AppEvent, 'id' | 'attendees' | 'rating' | 'isFavorite' | 'isFeatured'>) => void;
   completeOnboarding: (data: { user: User; location: UserLocation; preferences: string[] }) => void;
+  setSavedLogin: (data: SavedLogin) => void;
+  clearSavedLogin: () => void;
   userSelectedCity: PakistanCity;
   setUserSelectedCity: (city: PakistanCity) => void;
 }
@@ -108,6 +117,7 @@ export const useAuth = create<AuthState>()(
       organizerNotifications: {},
       onboardingComplete: false,
       pendingEvents: [],
+      savedLogin: null,
       settings: {
         pushNotifications: true,
         smartReminders: true,
@@ -120,7 +130,16 @@ export const useAuth = create<AuthState>()(
       privateRSVPs: [],
       userSelectedCity: 'lahore',
       
-      login: (user: User) => set({ isLoggedIn: true, user }),
+      login: (user: User) => set({ 
+        isLoggedIn: true, 
+        onboardingComplete: true,
+        user,
+        savedLogin: {
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        },
+      }),
       
       logout: async () => { 
         // Cancel all notifications on logout
@@ -385,9 +404,18 @@ export const useAuth = create<AuthState>()(
           user: { ...data.user, location: data.location, preferences: data.preferences },
           location: data.location,
           preferences: data.preferences,
-          onboardingComplete: true 
+          onboardingComplete: true,
+          savedLogin: {
+            email: data.user.email,
+            firstName: data.user.firstName,
+            lastName: data.user.lastName,
+          },
         });
       },
+
+      setSavedLogin: (data: SavedLogin) => set({ savedLogin: data }),
+
+      clearSavedLogin: () => set({ savedLogin: null }),
     }),
     {
       name: 'auth-storage',
