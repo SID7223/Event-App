@@ -7,6 +7,7 @@ import SignupScreen from '../screens/auth/SignupScreen';
 import LocationStep from '../screens/auth/LocationStep';
 import VibeQuiz from '../screens/auth/VibeQuiz';
 import OnboardingLoading from '../screens/auth/OnboardingLoading';
+import AppGuideScreen from '../screens/auth/AppGuideScreen';
 
 export type AuthStackParamList = {
   BrandSplash: undefined;
@@ -16,6 +17,7 @@ export type AuthStackParamList = {
   LocationStep: { user: any };
   VibeQuiz: { user: any; location: any };
   OnboardingLoading: { user: any; location: any; preferences: string[] };
+  AppGuide: { user: any; location: any; preferences: string[] };
 };
 
 const Stack = createStackNavigator<AuthStackParamList>();
@@ -37,6 +39,7 @@ const AuthNavigator: React.FC = () => {
       <Stack.Screen name="LocationStep" component={LocationStep} />
       <Stack.Screen name="VibeQuiz" component={VibeQuiz} />
       <Stack.Screen name="OnboardingLoading" component={OnboardingLoading} />
+      <Stack.Screen name="AppGuide" component={AppGuideScreen} />
     </Stack.Navigator>
   );
 };

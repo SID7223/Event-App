@@ -17,6 +17,7 @@ import DiningScreen from '../screens/main/DiningScreen';
 import PlaySportsScreen from '../screens/main/PlaySportsScreen';
 import SettingsScreen from '../screens/main/SettingsScreen';
 import OneStepLoginSheet from '../components/OneStepLoginSheet';
+import AppGuideScreen from '../screens/auth/AppGuideScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -34,6 +35,7 @@ export type RootStackParamList = {
   Dining: undefined;
   PlaySports: undefined;
   Settings: undefined;
+  AppGuide: { replay: boolean };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -132,6 +134,11 @@ const AppNavigator: React.FC = () => {
             <Stack.Screen name="Dining" component={DiningScreen} />
             <Stack.Screen name="PlaySports" component={PlaySportsScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
+            <Stack.Screen
+              name="AppGuide"
+              component={AppGuideScreen}
+              options={{ presentation: 'card' }}
+            />
           </>
         )}
       </Stack.Navigator>

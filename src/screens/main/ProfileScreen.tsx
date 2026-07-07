@@ -65,6 +65,10 @@ const ProfileScreen: React.FC = () => {
     );
   };
 
+  const handleAppGuide = () => {
+    navigation.navigate('AppGuide', { replay: true });
+  };
+
   const handleShare = () => {
     Share.share({
       message: 'Hey! Check out Zyntr - discover and book amazing events. Download it now!',
@@ -328,6 +332,18 @@ const ProfileScreen: React.FC = () => {
                 <Ionicons name="chatbubble-outline" size={20} color="#FF6B4A" />
               </View>
               <Text style={styles.menuLabel}>Contact Support</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
+          </TouchableOpacity>
+
+          <View style={styles.menuDivider} />
+
+          <TouchableOpacity style={styles.menuRow} onPress={handleAppGuide} activeOpacity={0.7}>
+            <View style={styles.menuLeft}>
+              <View style={[styles.menuIcon, { backgroundColor: 'rgba(255,107,74,0.12)' }]}>
+                <Ionicons name="book-outline" size={20} color="#FF6B4A" />
+              </View>
+              <Text style={styles.menuLabel}>App Guide</Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
           </TouchableOpacity>

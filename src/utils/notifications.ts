@@ -1,22 +1,21 @@
 import { Platform } from 'react-native';
 
-let Notifications: typeof import('expo-notifications') | null = null;
+let Notifications: any = null;
 let notificationsAvailable = true;
 
-const loadNotifications = async (): Promise<typeof import('expo-notifications') | null> => {
+const loadNotifications = async (): Promise<any | null> => {
   if (Notifications) return Notifications;
   if (!notificationsAvailable) return null;
   try {
     const mod = await import('expo-notifications');
     Notifications = mod.default ?? mod;
-    // Configure notification handler
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
         shouldPlaySound: true,
         shouldSetBadge: false,
       }),
-    } as any);
+    });
     return Notifications;
   } catch (error) {
     console.warn('expo-notifications not available in this environment:', error);
@@ -25,7 +24,6 @@ const loadNotifications = async (): Promise<typeof import('expo-notifications') 
   }
 };
 
-// Request notification permissions
 export const requestNotificationPermissions = async (): Promise<boolean> => {
   const N = await loadNotifications();
   if (!N) return false;
@@ -43,7 +41,6 @@ export const requestNotificationPermissions = async (): Promise<boolean> => {
       return false;
     }
 
-    // Configure for Android
     if (Platform.OS === 'android') {
       await N.setNotificationChannelAsync('event-reminders', {
         name: 'Event Reminders',
@@ -60,7 +57,6 @@ export const requestNotificationPermissions = async (): Promise<boolean> => {
   }
 };
 
-// Schedule a reminder notification for an event
 export const scheduleEventReminder = async (
   eventId: string,
   eventTitle: string,
@@ -76,15 +72,12 @@ export const scheduleEventReminder = async (
     const N = await loadNotifications();
     if (!N) return null;
 
-    // Parse event date and time
     const [hours, minutes] = eventTime.split(':').map(Number);
     const eventDateTime = new Date(eventDate);
     eventDateTime.setHours(hours, minutes, 0, 0);
 
-    // Set reminder 2 hours before event
     const reminderTime = new Date(eventDateTime.getTime() - 2 * 60 * 60 * 1000);
 
-    // Don't schedule if event is in the past or reminder time is in the past
     if (reminderTime <= new Date()) {
       return null;
     }
@@ -110,7 +103,6 @@ export const scheduleEventReminder = async (
   }
 };
 
-// Cancel a scheduled notification
 export const cancelEventReminder = async (notificationId: string): Promise<void> => {
   try {
     const N = await loadNotifications();
@@ -121,7 +113,6 @@ export const cancelEventReminder = async (notificationId: string): Promise<void>
   }
 };
 
-// Cancel all scheduled notifications for an event
 export const cancelAllEventReminders = async (): Promise<void> => {
   try {
     const N = await loadNotifications();
@@ -132,7 +123,6 @@ export const cancelAllEventReminders = async (): Promise<void> => {
   }
 };
 
-// Get all scheduled notifications
 export const getScheduledNotifications = async (): Promise<any[]> => {
   try {
     const N = await loadNotifications();
@@ -144,9 +134,6 @@ export const getScheduledNotifications = async (): Promise<any[]> => {
   }
 };
 
-// ==================== TOPIC / ORGANIZER NOTIFICATIONS ====================
-
-// Configure Android channel for organizer updates
 const ensureOrganizerChannel = async (): Promise<void> => {
   const N = await loadNotifications();
   if (!N) return;
@@ -160,7 +147,6 @@ const ensureOrganizerChannel = async (): Promise<void> => {
   }
 };
 
-// Subscribe to topic notifications for a venue/organizer
 export const scheduleTopicNotification = async (
   organizerId: string,
   organizerName: string
@@ -176,7 +162,6 @@ export const scheduleTopicNotification = async (
 
     await ensureOrganizerChannel();
 
-    // Schedule a confirmation notification (simulates topic subscription)
     const notificationId = await N.scheduleNotificationAsync({
       content: {
         title: `Now Following ${organizerName}`,
@@ -198,7 +183,6 @@ export const scheduleTopicNotification = async (
   }
 };
 
-// Cancel/unsubscribe from topic notifications
 export const cancelTopicNotification = async (notificationId: string): Promise<void> => {
   try {
     const N = await loadNotifications();

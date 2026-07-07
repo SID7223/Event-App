@@ -36,6 +36,7 @@ interface AuthState {
   onboardingComplete: boolean;
   pendingEvents: AppEvent[];
   savedLogin: SavedLogin | null;
+  theme: 'dark' | 'light';
   settings: {
     pushNotifications: boolean;
     smartReminders: boolean;
@@ -61,6 +62,7 @@ interface AuthState {
   isOrganizerFollowed: (organizerId: string) => boolean;
   unfollowEntity: (id: string, type: 'venue' | 'organizer') => Promise<void>;
   updateSettings: (key: keyof AuthState['settings'], value: boolean) => void;
+  setTheme: (theme: 'dark' | 'light') => void;
   addFriend: (friendId: string) => void;
   removeFriend: (friendId: string) => void;
   isFriend: (friendId: string) => boolean;
@@ -123,6 +125,7 @@ export const useAuth = create<AuthState>()(
         smartReminders: true,
         darkMode: true,
       },
+      theme: 'dark' as const,
       friendsList: ['f-001', 'f-002', 'f-003', 'f-004', 'f-005', 'f-006', 'f-007', 'f-008', 'f-009', 'f-010', 'f-011', 'f-012'],
       privacySettings: {
         hideRSVPs: false,
@@ -341,6 +344,13 @@ export const useAuth = create<AuthState>()(
       updateSettings: (key: keyof AuthState['settings'], value: boolean) => {
         const { settings } = get();
         set({ settings: { ...settings, [key]: value } });
+        if (key === 'darkMode') {
+          set({ theme: value ? 'dark' : 'light' });
+        }
+      },
+
+      setTheme: (theme: 'dark' | 'light') => {
+        set({ theme, settings: { ...get().settings, darkMode: theme === 'dark' } });
       },
 
       addFriend: (friendId: string) => {
