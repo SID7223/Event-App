@@ -4,19 +4,12 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  LayoutAnimation,
-  Platform,
-  UIManager,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { fonts } from '../../theme/fonts';
-
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 interface GlassPillProps {
   label: string;
@@ -39,7 +32,6 @@ const GlassPill: React.FC<GlassPillProps> = ({
 }) => {
   const handlePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onPress();
   };
 

@@ -8,7 +8,6 @@ import {
   StatusBar,
   Animated,
   useWindowDimensions,
-  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,23 +21,22 @@ import { fonts } from '../../theme/fonts';
 interface VibeOption {
   id: string;
   label: string;
-  icon?: string;
-  image?: any;
+  icon: string;
   categories: string[];
 }
 
 const VIBE_OPTIONS: VibeOption[] = [
   { id: 'live_music', label: 'Live Music', icon: 'musical-notes', categories: ['Music', 'Concerts', 'Qawwali'] },
   { id: 'nightlife', label: 'Nightlife & DJs', icon: 'color-wand', categories: ['Nightlife', 'DJ', 'Parties', 'Electronic'] },
-  { id: 'comedy', label: 'Comedy & Mic', image: require('../../../assets/comedy-mic.png.jpg'), categories: ['Comedy', 'Standup', 'Open Mic'] },
+  { id: 'comedy', label: 'Comedy & Mic', icon: 'mic', categories: ['Comedy', 'Standup', 'Open Mic'] },
   { id: 'tech', label: 'Tech & Startups', icon: 'briefcase', categories: ['Tech', 'Startups', 'Networking', 'Pitch Nights'] },
   { id: 'wellness', label: 'Wellness', icon: 'leaf', categories: ['Wellness', 'Yoga', 'Marathons', 'Retreats'] },
   { id: 'arts_culture', label: 'Arts & Culture', icon: 'color-palette', categories: ['Art', 'Theater', 'Heritage', 'Exhibitions'] },
-  { id: 'popups_festivals', label: 'Pop-ups & Fest', image: require('../../../assets/popups_fest.png'), categories: ['Festivals', 'Food Festivals', 'Flea Markets', 'Pop-ups'] },
+  { id: 'popups_festivals', label: 'Pop-ups & Fest', icon: 'storefront', categories: ['Festivals', 'Food Festivals', 'Flea Markets', 'Pop-ups'] },
   { id: 'workshops', label: 'Workshops', icon: 'book', categories: ['Workshops', 'Masterclasses', 'Skill Learning'] },
-  { id: 'poetry', label: 'Poetry & Literary', icon: 'document-text', categories: ['Poetry', 'Mushaira', 'Baithak', 'Storytelling'] },
+  { id: 'poetry', label: 'Poetry & Literary', icon: 'pencil', categories: ['Poetry', 'Mushaira', 'Baithak', 'Storytelling'] },
   { id: 'fashion', label: 'Fashion & Lifestyle', icon: 'shirt', categories: ['Fashion', 'Thrift', 'Brand Exhibits', 'Lifestyle'] },
-  { id: 'screenings', label: 'Match Screenings', icon: 'football', categories: ['Screenings', 'PSL', 'World Cup', 'Watch Parties'] },
+  { id: 'screenings', label: 'Screenings', icon: 'football', categories: ['Screenings', 'PSL', 'World Cup', 'Watch Parties'] },
   { id: 'gaming', label: 'Gaming & E-Sports', icon: 'game-controller', categories: ['Gaming', 'E-Sports', 'Tournaments', 'Board Games'] },
 ];
 
@@ -67,19 +65,35 @@ const VibeQuiz: React.FC = () => {
 
   const fadeIn = useRef(new Animated.Value(0)).current;
   const headerSlide = useRef(new Animated.Value(20)).current;
+  const contentFadeIn = useRef(new Animated.Value(0)).current;
+  const contentSlide = useRef(new Animated.Value(30)).current;
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeIn, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }),
-      Animated.timing(headerSlide, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }),
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(fadeIn, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(headerSlide, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.parallel([
+        Animated.timing(contentFadeIn, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(contentSlide, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
     ]).start();
   }, []);
 
@@ -169,81 +183,91 @@ const VibeQuiz: React.FC = () => {
           </Animated.View>
 
           <Text style={styles.subtitle}>
-            Select at least 3 vibes to personalize your event feed.
+            Select at least three
           </Text>
 
-          {/* Grid */}
-          <View style={styles.grid}>
-            {VIBE_OPTIONS.map((vibe, index) => {
-              const isSelected = selected.includes(vibe.id);
+          {/* Content - fades in after header */}
+          <Animated.View
+            style={{
+              opacity: contentFadeIn,
+              transform: [{ translateY: contentSlide }],
+              flex: 1,
+            }}
+          >
+            {/* Grid */}
+            <View style={styles.grid}>
+              {VIBE_OPTIONS.map((vibe, index) => {
+                const isSelected = selected.includes(vibe.id);
 
-              return (
-                <TouchableOpacity
-                  key={vibe.id}
-                  onPress={() => toggleItem(vibe.id)}
-                  activeOpacity={0.8}
-                  style={[styles.gridItem, { width: itemSize }]}
-                >
-                  <Animated.View
-                    style={[
-                      styles.circle,
-                      {
-                        width: itemSize - 30,
-                        height: itemSize - 30,
-                        borderRadius: (itemSize - 30) / 2,
-                        transform: [{ scale: itemAnims[index].scale }],
-                      },
-                    ]}
+                return (
+                  <TouchableOpacity
+                    key={vibe.id}
+                    onPress={() => toggleItem(vibe.id)}
+                    activeOpacity={0.8}
+                    style={[styles.gridItem, { width: itemSize }]}
                   >
-                    {/* Green background fill */}
                     <Animated.View
                       style={[
-                        styles.circleFill,
+                        styles.circle,
                         {
-                          borderRadius: (itemSize - 8) / 2,
-                          opacity: itemAnims[index].bgOpacity,
+                          width: itemSize - 50,
+                          height: itemSize - 50,
+                          borderRadius: (itemSize - 50) / 2,
+                          transform: [{ scale: itemAnims[index].scale }],
                         },
                       ]}
-                    />
-                    {/* Icon */}
-                    {vibe.image ? (
-                      <Image source={vibe.image} style={{ width: 24, height: 24, zIndex: 1 }} resizeMode="contain" />
-                    ) : (
+                    >
+                      {/* Green background fill */}
+                      <Animated.View
+                        style={[
+                          styles.circleFill,
+                          {
+                            borderRadius: (itemSize - 8) / 2,
+                            opacity: itemAnims[index].bgOpacity,
+                          },
+                        ]}
+                      />
+                      {/* Icon */}
                       <Ionicons name={vibe.icon as any} size={24} color="#FFFFFF" style={{ zIndex: 1 }} />
-                    )}
-                  </Animated.View>
-                  <Text
-                    style={[
-                      styles.itemLabel,
-                      isSelected && styles.itemLabelActive,
-                    ]}
-                    numberOfLines={1}
-                  >
-                    {vibe.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+                    </Animated.View>
+                    <Text
+                      style={[
+                        styles.itemLabel,
+                        isSelected && styles.itemLabelActive,
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {vibe.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
 
-          {/* Counter */}
-          <View style={styles.counterRow}>
-            <Text style={styles.counterText}>
-              {selected.length} of {VIBE_OPTIONS.length} selected
-            </Text>
-            {selected.length > 0 && selected.length < MIN_SELECTIONS && (
-              <Text style={styles.counterHint}>
-                Select {MIN_SELECTIONS - selected.length} more
+            {/* Counter */}
+            <View style={styles.counterRow}>
+              <Text style={styles.counterText}>
+                {selected.length} of {VIBE_OPTIONS.length} selected
               </Text>
-            )}
-          </View>
-          <Text style={styles.hintText}>
-            (You can change interests in profile section also.)
-          </Text>
+              {selected.length > 0 && selected.length < MIN_SELECTIONS && (
+                <Text style={styles.counterHint}>
+                  Select {MIN_SELECTIONS - selected.length} more
+                </Text>
+              )}
+            </View>
+            <Text style={styles.hintText}>
+              (You can change interests in profile section also.)
+            </Text>
+          </Animated.View>
         </ScrollView>
 
         {/* Continue Button */}
-        <View style={styles.bottomContainer}>
+        <Animated.View
+          style={[
+            styles.bottomContainer,
+            { opacity: contentFadeIn, transform: [{ translateY: contentSlide }] },
+          ]}
+        >
           <TouchableOpacity
             onPress={handleContinue}
             disabled={!canContinue}
@@ -256,7 +280,7 @@ const VibeQuiz: React.FC = () => {
               </View>
             </View>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </SafeAreaView>
     </View>
   );
@@ -287,18 +311,18 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   header: {
-    marginTop: 16,
+    marginTop: 46,
     marginBottom: 16,
   },
   titleRegular: {
-    fontSize: 24,
+    fontSize: 21,
     fontWeight: '500',
     color: '#FFFFFF',
     fontFamily: fonts.heading,
     letterSpacing: -0.3,
   },
   titleBold: {
-    fontSize: 26,
+    fontSize: 23,
     fontWeight: '500',
     color: '#FFFFFF',
     fontFamily: fonts.heading,
@@ -308,8 +332,8 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#FFFFFF',
     fontFamily: fonts.body,
-    marginTop: 8,
-    marginBottom: 16,
+    marginTop: 10,
+    marginBottom: 26,
   },
   grid: {
     flexDirection: 'row',
@@ -318,7 +342,7 @@ const styles = StyleSheet.create({
   },
   gridItem: {
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 5,
   },
   circle: {
     backgroundColor: 'rgba(255,255,255,0.08)',
@@ -348,7 +372,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: 36,
   },
   counterText: {
     fontSize: 13,

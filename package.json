@@ -48,6 +48,9 @@
     "typescript": "~6.0.3"
   },
   "scripts": {
+    "prestart": "node copy-mask.js",
+    "preandroid": "node copy-mask.js",
+    "preios": "node copy-mask.js",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
