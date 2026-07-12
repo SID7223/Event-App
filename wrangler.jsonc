@@ -3,9 +3,7 @@
   "name": "image-worker",
   "main": "workers/image-worker/src/index.ts",
   "compatibility_date": "2026-07-01",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
+  "compatibility_flags": ["nodejs_compat"],
   "routes": [
     { "pattern": "media.corlify.com/*", "zone_name": "corlify.com" }
   ],
