@@ -1,0 +1,17 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "event-cleanup",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "triggers": {
+    "crons": ["0 0 * * *"]
+  },
+  "d1_databases": [
+    {
+      "binding": "chillingz_db",
+      "database_name": "chillingz-db",
+      "database_id": "1d0f38e8-09f3-4348-8150-30c485e5bd7f"
+    }
+  ]
+}

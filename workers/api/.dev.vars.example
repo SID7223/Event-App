@@ -1,0 +1,5 @@
+# Copy this file to .dev.vars and fill in values
+# Used by wrangler dev for local development
+
+# No required secrets for the API worker currently
+# Auth is validated against the D1 auth_sessions table

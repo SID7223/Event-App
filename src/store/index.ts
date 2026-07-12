@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, UserLocation, Event as AppEvent, Friend, PakistanCity, Movie, Restaurant, Cinema, MovieShowtime } from '../types';
 import { scheduleEventReminder, cancelEventReminder, scheduleTopicNotification, cancelTopicNotification } from '../utils/notifications';
 import { WeatherData } from '../utils/weather';
+import { API_BASE_URL } from '../constants/config';
 
 
 interface SavedLogin {
@@ -163,7 +164,7 @@ export const useAuth = create<AuthState>()(
         const { authToken } = get();
         if (authToken) {
           try {
-            await fetch('https://auth-api.roadrunnerllc-bpo.workers.dev/auth/logout', {
+            await fetch(`${API_BASE_URL}/auth/logout`, {
               method: 'POST',
               headers: { 'Authorization': `Bearer ${authToken}` },
             });
