@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useApp } from '../../store';
+import { useApp, useAuth } from '../../store';
 
 const { width } = Dimensions.get('window');
 const SIDEBAR_WIDTH = width * 0.78;
@@ -38,6 +38,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ visible, onClose }) => {
   const navigation = useNavigation<any>();
   const setActiveTab = useApp((s) => s.setActiveTab);
+  const { user } = useAuth();
   const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
 
@@ -98,11 +99,11 @@ const Sidebar: React.FC<SidebarProps> = ({ visible, onClose }) => {
         {/* Header */}
         <View style={styles.header}>
           <Image
-            source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }}
+            source={{ uri: user?.avatar || 'https://randomuser.me/api/portraits/men/32.jpg' }}
             style={styles.avatar}
           />
-          <Text style={styles.userName}>John Doe</Text>
-          <Text style={styles.userEmail}>john.doe@email.com</Text>
+          <Text style={styles.userName}>{user?.firstName || 'User'} {user?.lastName || ''}</Text>
+          <Text style={styles.userEmail}>{user?.email || ''}</Text>
         </View>
 
         {/* Menu items */}

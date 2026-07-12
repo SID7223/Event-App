@@ -25,17 +25,7 @@ import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
 
-// Mock location suggestions
-const LOCATION_SUGGESTIONS = [
-  { id: '1', city: 'Lahore', neighborhood: 'Gulberg', full: 'Gulberg, Lahore, Pakistan' },
-  { id: '2', city: 'Lahore', neighborhood: 'DHA', full: 'DHA, Lahore, Pakistan' },
-  { id: '3', city: 'Lahore', neighborhood: 'Johar Town', full: 'Johar Town, Lahore, Pakistan' },
-  { id: '4', city: 'Karachi', neighborhood: 'DHA', full: 'DHA, Karachi, Pakistan' },
-  { id: '5', city: 'Karachi', neighborhood: 'Clifton', full: 'Clifton, Karachi, Pakistan' },
-  { id: '6', city: 'Islamabad', neighborhood: 'F-8', full: 'F-8, Islamabad, Pakistan' },
-  { id: '7', city: 'Islamabad', neighborhood: 'F-10', full: 'F-10, Islamabad, Pakistan' },
-  { id: '8', city: 'Rawalpindi', neighborhood: 'Saddar', full: 'Saddar, Rawalpindi, Pakistan' },
-];
+const LocationSuggestion = [];
 
 const LocationStep: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -45,7 +35,7 @@ const LocationStep: React.FC = () => {
   const user = route.params?.user;
 
   const [manualInput, setManualInput] = useState('');
-  const [suggestions, setSuggestions] = useState<typeof LOCATION_SUGGESTIONS>([]);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<UserLocation | null>(null);
   const [isDetecting, setIsDetecting] = useState(false);
   const [isManualMode, setIsManualMode] = useState(false);
@@ -231,13 +221,7 @@ const LocationStep: React.FC = () => {
 
   useEffect(() => {
     if (manualInput.length > 0) {
-      const filtered = LOCATION_SUGGESTIONS.filter(
-        (loc) =>
-          loc.city.toLowerCase().includes(manualInput.toLowerCase()) ||
-          loc.neighborhood.toLowerCase().includes(manualInput.toLowerCase()) ||
-          loc.full.toLowerCase().includes(manualInput.toLowerCase())
-      );
-      setSuggestions(filtered);
+      setSuggestions([]);
     } else {
       setSuggestions([]);
     }
@@ -286,7 +270,7 @@ const LocationStep: React.FC = () => {
     }
   };
 
-  const selectSuggestion = (suggestion: typeof LOCATION_SUGGESTIONS[0]) => {
+  const selectSuggestion = (suggestion: any) => {
     const location: UserLocation = {
       city: suggestion.city,
       neighborhood: suggestion.neighborhood,
@@ -311,7 +295,7 @@ const LocationStep: React.FC = () => {
     }
   };
 
-  const renderSuggestion = ({ item }: { item: typeof LOCATION_SUGGESTIONS[0] }) => (
+  const renderSuggestion = ({ item }: { item: any }) => (
     <TouchableOpacity
       style={styles.suggestionItem}
       onPress={() => selectSuggestion(item)}

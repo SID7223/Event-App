@@ -22,7 +22,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../store';
-import { allVibes } from '../../services/mockData';
+import { allVibes } from '../../constants/vibes';
 import { resolveImage, UPLOAD_API_URL } from '../../utils/images';
 import { fonts } from '../../theme/fonts';
 
@@ -150,7 +150,7 @@ const HostEventScreen: React.FC = () => {
       const uploadResponse = await fetch(`${UPLOAD_API_URL}/api/images/upload`, {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer placeholder_token',
+          'Authorization': `Bearer ${useAuth.getState().user?.id || ''}`,
         },
         body: formData,
       });

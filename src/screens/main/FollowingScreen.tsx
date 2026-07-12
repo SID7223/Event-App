@@ -13,7 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store';
 import GlassPill from '../../components/ui/GlassPill';
 import { fonts } from '../../theme/fonts';
-import { getVenueById, getOrganizerById } from '../../services/mockData';
+
 import FollowingRow, { FollowingEntity } from '../../components/ui/FollowingRow';
 
 type TabKey = 'all' | 'venues' | 'organizers';
@@ -35,15 +35,11 @@ const FollowingScreen: React.FC = () => {
   // Build unified list
   const allEntities: FollowingEntity[] = useMemo(() => {
     const venues: FollowingEntity[] = followedVenues.map(id => {
-      const v = getVenueById(id);
-      return v ? { id: v.id, name: v.name, avatar: v.logo, type: 'venue' as const } : null;
-    }).filter(Boolean) as FollowingEntity[];
-
+      return { id, name: id, avatar: '', type: 'venue' as const };
+    });
     const organizers: FollowingEntity[] = followedOrganizers.map(id => {
-      const o = getOrganizerById(id);
-      return o ? { id: o.id, name: o.name, avatar: o.avatar, type: 'organizer' as const } : null;
-    }).filter(Boolean) as FollowingEntity[];
-
+      return { id, name: id, avatar: '', type: 'organizer' as const };
+    });
     return [...venues, ...organizers].sort((a, b) => a.name.localeCompare(b.name));
   }, [followedVenues, followedOrganizers]);
 

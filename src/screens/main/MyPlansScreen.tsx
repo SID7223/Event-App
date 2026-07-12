@@ -10,8 +10,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../../store';
-import { mockEvents } from '../../services/mockData';
+import { useAuth, useApp } from '../../store';
+
 import { Event } from '../../types';
 import GlassPill from '../../components/ui/GlassPill';
 import { fonts } from '../../theme/fonts';
@@ -83,7 +83,7 @@ const MyPlansScreen: React.FC = () => {
 
   // Build plans from saved events
   const plans = useMemo<PlanEvent[]>(() => {
-    const saved = mockEvents.filter(e => savedEvents.includes(e.id));
+    const saved = useApp.getState().events.filter(e => savedEvents.includes(e.id));
     return saved.map(event => ({
       event,
       isPast: isEventPast(event),

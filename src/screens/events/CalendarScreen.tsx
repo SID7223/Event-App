@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { resolveImage } from '../../utils/images';
-import { mockEvents } from '../../services/mockData';
+
 
 const { width } = Dimensions.get('window');
 
@@ -51,10 +51,7 @@ const CalendarScreen: React.FC = () => {
   };
 
   const eventsForDate = (date: Date) =>
-    mockEvents.filter((e) => {
-      const ed = new Date(e.date);
-      return ed.toDateString() === date.toDateString();
-    });
+    [] as any[];
 
   const renderCalendar = () => {
     const daysInMonth = getDaysInMonth(currentMonth, currentYear);
@@ -69,7 +66,7 @@ const CalendarScreen: React.FC = () => {
       const date = new Date(currentYear, currentMonth, day);
       const isSelected = date.toDateString() === selectedDate.toDateString();
       const isToday = date.toDateString() === new Date().toDateString();
-      const hasEvent = EVENT_DAYS.includes(day);
+      const hasEvent = false;
       const isEventDay2 = day === 2;  // Today-style blue
       const isEventDay12 = day === 12; // Teal
       const isEventDay21 = day === 21; // Selected orange
@@ -115,8 +112,7 @@ const CalendarScreen: React.FC = () => {
   };
 
   const selectedEvents = eventsForDate(selectedDate);
-  // Fallback to first event for demo
-  const displayEvents = selectedEvents.length > 0 ? selectedEvents : [mockEvents[0]];
+  const displayEvents = selectedEvents;
 
   const selLabel = `${FULL_DAYS[selectedDate.getDay()]}, ${SHORT_MONTHS[selectedDate.getMonth()]} ${selectedDate.getDate()}, ${selectedDate.getFullYear()}`;
 

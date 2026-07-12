@@ -16,7 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store';
-import { mockUser } from '../../services/mockData';
+
 
 const { width } = Dimensions.get('window');
 
@@ -39,7 +39,16 @@ const LoginScreen: React.FC = () => {
 
   const handleLogin = () => {
     if (validate()) {
-      login(mockUser);
+      login({
+        id: '1',
+        firstName: email.split('@')[0] || 'User',
+        lastName: '',
+        email,
+        phone: '',
+        avatar: '',
+        interests: [],
+        notifications: true,
+      });
     }
   };
 

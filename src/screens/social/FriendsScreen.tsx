@@ -21,7 +21,7 @@ import { useAuth } from '../../store';
 import { fonts } from '../../theme/fonts';
 import { resolveImage } from '../../utils/images';
 import { Friend } from '../../types';
-import { mockFriends } from '../../services/mockData';
+
 
 const FriendsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -52,11 +52,11 @@ const FriendsScreen: React.FC = () => {
   }, [deleteModal]);
 
   const friends = useMemo(() => {
-    return mockFriends.filter(f => friendsList.includes(f.id));
+    return [] as any[];
   }, [friendsList]);
 
   const suggestedUsers = useMemo(() => {
-    return mockFriends.filter(f => !friendsList.includes(f.id));
+    return [] as any[];
   }, [friendsList]);
 
   const filteredFriends = useMemo(() => {

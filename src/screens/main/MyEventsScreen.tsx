@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { resolveImage } from '../../utils/images';
-import { mockEvents, mockTickets } from '../../services/mockData';
+
 
 const TABS = ['Upcoming', 'Past', 'Saved'];
 
@@ -50,18 +50,16 @@ const MyEventsScreen: React.FC = () => {
     }).start();
   }, [activeTab]);
 
-  const upcomingTickets = mockTickets.filter(t => t.status === 'upcoming');
-  const pastTickets = mockTickets.filter(t => t.status === 'past');
+  const upcomingTickets: any[] = [];
+  const pastTickets: any[] = [];
 
-  const getEventById = (id: string) => mockEvents.find(e => e.id === id) || mockEvents[0];
+  const getEventById = (id: string) => undefined;
 
   const getListData = () => {
-    if (activeTab === 0) return upcomingTickets.map(t => ({ ticket: t, event: getEventById(t.eventId) }));
-    if (activeTab === 1) return pastTickets.map(t => ({ ticket: t, event: getEventById(t.eventId) }));
-    return mockEvents.slice(0, 3).map(e => ({ ticket: null, event: e }));
+    return [];
   };
 
-  const renderEventItem = ({ item, index }: { item: { ticket: any; event: typeof mockEvents[0] }; index: number }) => {
+  const renderEventItem = ({ item, index }: { item: { ticket: any; event: any }; index: number }) => {
     const status = getStatusForIndex(index, activeTab);
 
     return (

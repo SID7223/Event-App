@@ -4,18 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, UserLocation, Event as AppEvent, Friend, PakistanCity, Movie, Restaurant, Cinema, MovieShowtime } from '../types';
 import { scheduleEventReminder, cancelEventReminder, scheduleTopicNotification, cancelTopicNotification } from '../utils/notifications';
 import { WeatherData } from '../utils/weather';
-import { 
-  getTaggedEvents, 
-  getTaggedCinemas, 
-  getTaggedRestaurants, 
-  getTaggedMovies, 
-  getTaggedShowtimes, 
-  pakistanEvents, 
-  pakistanMovies, 
-  pakistanRestaurants, 
-  pakistanCinemas, 
-  pakistanShowtimes 
-} from '../services/mockData';
+
 
 interface SavedLogin {
   email: string;
@@ -126,7 +115,7 @@ export const useAuth = create<AuthState>()(
         darkMode: true,
       },
       theme: 'dark' as const,
-      friendsList: ['f-001', 'f-002', 'f-003', 'f-004', 'f-005', 'f-006', 'f-007', 'f-008', 'f-009', 'f-010', 'f-011', 'f-012'],
+      friendsList: [],
       privacySettings: {
         hideRSVPs: false,
       },
@@ -454,11 +443,11 @@ export const useApp = create<AppState>()(
       isSearching: false,
       userSelectedCity: 'lahore',
       weather: null,
-      events: [...getTaggedEvents(), ...pakistanEvents],
-      movies: [...getTaggedMovies(), ...pakistanMovies],
-      restaurants: [...getTaggedRestaurants(), ...pakistanRestaurants],
-      cinemas: [...getTaggedCinemas(), ...pakistanCinemas],
-      showtimes: [...getTaggedShowtimes(), ...pakistanShowtimes],
+      events: [],
+      movies: [],
+      restaurants: [],
+      cinemas: [],
+      showtimes: [],
       
       setActiveTab: (tab) => set({ activeTab: tab }),
       setActiveVibe: (vibe: string | null) => set({ activeVibe: vibe }),
@@ -472,15 +461,7 @@ export const useApp = create<AppState>()(
       setCinemas: (cinemas: Cinema[]) => set({ cinemas }),
       setShowtimes: (showtimes: MovieShowtime[]) => set({ showtimes }),
       addEvent: (event: AppEvent) => set({ events: [event, ...get().events] }),
-      seedPakistanData: () => {
-        set({
-          events: [...getTaggedEvents(), ...pakistanEvents],
-          movies: [...getTaggedMovies(), ...pakistanMovies],
-          restaurants: [...getTaggedRestaurants(), ...pakistanRestaurants],
-          cinemas: [...getTaggedCinemas(), ...pakistanCinemas],
-          showtimes: [...getTaggedShowtimes(), ...pakistanShowtimes],
-        });
-      },
+      seedPakistanData: () => {},
     }),
     {
       name: 'app-storage',

@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth, useApp } from '../../store';
-import { sortVibesByPreferences, getAttendingFriends } from '../../services/mockData';
+import { sortVibesByPreferences, getAttendingFriends } from '../../constants/vibes';
 import { Event, VibeCategory } from '../../types';
 import { resolveImage } from '../../utils/images';
 import GlassPill from '../../components/ui/GlassPill';

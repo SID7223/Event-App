@@ -121,7 +121,7 @@ const ProfileScreen: React.FC = () => {
               formData.append('source', 'user_upload');
               const uploadRes = await fetch(`${UPLOAD_API_URL}/api/images/upload`, {
                 method: 'POST',
-                headers: { 'Authorization': 'Bearer placeholder_token' },
+                headers: { 'Authorization': `Bearer ${user?.id || ''}` },
                 body: formData,
               });
               const uploadData = await uploadRes.json();
@@ -161,7 +161,7 @@ const ProfileScreen: React.FC = () => {
               formData.append('source', 'user_upload');
               const uploadRes = await fetch(`${UPLOAD_API_URL}/api/images/upload`, {
                 method: 'POST',
-                headers: { 'Authorization': 'Bearer placeholder_token' },
+                headers: { 'Authorization': `Bearer ${user?.id || ''}` },
                 body: formData,
               });
               const uploadData = await uploadRes.json();

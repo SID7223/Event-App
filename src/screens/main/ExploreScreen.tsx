@@ -35,23 +35,7 @@ const formatDateRange = (dateStr: string) => {
 const getDay = (dateStr: string) => new Date(dateStr).getDate();
 const getMonth = (dateStr: string) => MONTHS[new Date(dateStr).getMonth()].toUpperCase();
 
-// Fake attendee counts for display
-const FAKE_COUNTS = [170, 169, 70, 10, 104, 106, 204, 150, 200, 40, 80, 99];
 
-const LOCATION_SHORT: Record<string, string> = {
-  'Gelora Bung Karno, Jakarta': 'Jakarta, Indonesia',
-  'Jakarta Convention Center': 'Jakarta, Indonesia',
-  'Museum MACAN, Bali': 'Bali, Indonesia',
-  'Balai Kartini, Jakarta': 'Jakarta, Indonesia',
-  'Ancol, Jakarta': 'Jakarta, Indonesia',
-  'The Ritz-Carlton, Jakarta': 'Jakarta, Indonesia',
-  'Dago Pakar, Bandung': 'Bandung, Indonesia',
-  'GoWork, Jakarta': 'Jakarta, Indonesia',
-  'Nusa Penida, Bali': 'Bali, Indonesia',
-  'CGV Grand Indonesia, Jakarta': 'Jakarta, Indonesia',
-  'Gedung Sate, Bandung': 'Bandung, Indonesia',
-  'The Mulia, Bali': 'Bali, Indonesia',
-};
 
 const ExploreScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -77,8 +61,8 @@ const ExploreScreen: React.FC = () => {
   });
 
   const renderItem = ({ item, index }: { item: typeof filteredEventsList[0]; index: number }) => {
-    const count = FAKE_COUNTS[index % FAKE_COUNTS.length];
-    const location = LOCATION_SHORT[item.location] ?? item.location;
+    const count = item.attendees;
+    const location = item.location;
 
     return (
       <TouchableOpacity

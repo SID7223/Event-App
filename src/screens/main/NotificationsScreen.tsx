@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../theme/useTheme';
 import { fonts } from '../../theme/fonts';
-import { mockNotifications } from '../../services/mockData';
+
 import type { Notification } from '../../types';
 
 const ICON_MAP: Record<string, keyof typeof Ionicons.glyphMap> = {
@@ -46,7 +46,7 @@ const groupByTime = (items: Notification[]) => {
 const NotificationsScreen: React.FC = () => {
   const navigation = useNavigation();
   const t = useTheme();
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.read).length,

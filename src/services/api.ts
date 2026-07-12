@@ -1,10 +1,3 @@
-import {
-  mockEvents,
-  mockUser,
-  mockTickets,
-  mockNotifications,
-  mockBookings,
-} from './mockData';
 import { Event, User, Ticket, Notification, Booking } from '../types';
 
 const simulateDelay = (min: number = 500, max: number = 800): Promise<void> => {
@@ -14,73 +7,66 @@ const simulateDelay = (min: number = 500, max: number = 800): Promise<void> => {
 
 export const getEvents = async (): Promise<Event[]> => {
   await simulateDelay();
-  return [...mockEvents];
+  return [];
 };
 
 export const getEventById = async (id: string): Promise<Event | undefined> => {
   await simulateDelay();
-  return mockEvents.find((event) => event.id === id);
+  return undefined;
 };
 
 export const getEventsByCategory = async (
   category: string
 ): Promise<Event[]> => {
   await simulateDelay();
-  return mockEvents.filter(
-    (event) => event.category.toLowerCase() === category.toLowerCase()
-  );
+  return [];
 };
 
 export const searchEvents = async (query: string): Promise<Event[]> => {
   await simulateDelay();
-  const lowerQuery = query.toLowerCase();
-  return mockEvents.filter(
-    (event) =>
-      event.title.toLowerCase().includes(lowerQuery) ||
-      event.description.toLowerCase().includes(lowerQuery)
-  );
+  return [];
 };
 
 export const getPopularEvents = async (): Promise<Event[]> => {
   await simulateDelay();
-  const featured = mockEvents.filter((event) => event.isFeatured);
-  return featured.length > 0 ? featured : mockEvents.slice(0, 5);
+  return [];
 };
 
 export const getUpcomingEvents = async (): Promise<Event[]> => {
   await simulateDelay();
-  const now = new Date().toISOString().split('T')[0];
-  return [...mockEvents]
-    .filter((event) => event.date >= now)
-    .sort((a, b) => a.date.localeCompare(b.date));
+  return [];
 };
 
 export const getUser = async (): Promise<User> => {
   await simulateDelay();
-  return { ...mockUser };
+  return {
+    id: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    avatar: '',
+    interests: [],
+    notifications: true,
+  };
 };
 
 export const getTickets = async (): Promise<Ticket[]> => {
   await simulateDelay();
-  return [...mockTickets];
+  return [];
 };
 
 export const getNotifications = async (): Promise<Notification[]> => {
   await simulateDelay();
-  return [...mockNotifications];
+  return [];
 };
 
 export const getBookings = async (): Promise<Booking[]> => {
   await simulateDelay();
-  return [...mockBookings];
+  return [];
 };
 
 export const toggleFavorite = async (eventId: string): Promise<Event> => {
   await simulateDelay();
-  const event = mockEvents.find((e) => e.id === eventId);
-  if (!event) {
-    throw new Error(`Event with id ${eventId} not found`);
-  }
-  event.isFavorite = !event.isFavorite;
-  return { ...event };
+  throw new Error(`Event with id ${eventId} not found`);
 };

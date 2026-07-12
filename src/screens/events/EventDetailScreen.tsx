@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { getOrganizerById, getAttendingFriends } from '../../services/mockData';
+import { getOrganizerById, getAttendingFriends } from '../../constants/vibes';
 import { useAuth, useApp } from '../../store';
 import { requestNotificationPermissions } from '../../utils/notifications';
 import { handleVenueBooking, getBookingButtonLabel } from '../../utils/booking';

@@ -17,7 +17,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../../store';
 import { fonts } from '../../theme/fonts';
 import { resolveImage } from '../../utils/images';
-import { getVenueById, getEventsByVenue } from '../../services/mockData';
+import { getVenueById, getEventsByVenue } from '../../constants/vibes';
 import { Event } from '../../types';
 import ClaimVenueModal from '../../components/ui/ClaimVenueModal';
 import MatteGlassCard from '../../components/ui/MatteGlassCard';
