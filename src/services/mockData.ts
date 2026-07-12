@@ -1513,71 +1513,29 @@ export const getTaggedShowtimes = (): MovieShowtime[] => {
   return mockShowtimes.map(s => ({ ...s, city: 'lahore' as PakistanCity }));
 };
 
-export const getTaggedVenues = (): Venue[] => {
-  return mockVenues.map(v => {
-    const loc = (v.address + ' ' + (v.neighborhood || '')).toLowerCase();
-    let city: PakistanCity = 'lahore';
-    if (loc.includes('bali') || loc.includes('kuta') || loc.includes('nusa')) city = 'karachi' as PakistanCity;
-    else if (loc.includes('bandung') || loc.includes('dago') || loc.includes('gedung sate')) city = 'islamabad' as PakistanCity;
-    return { ...v, city };
-  });
-};
-
-
-// ============================================================
-// SOCIAL: Mock Friends & Attendance
-// ============================================================
+// ==================== FRIENDS DATA ====================
 
 export const mockFriends: Friend[] = [
-  { id: 'f-001', name: 'Andi Pratama', handle: '@andi.pratama', avatar: 'https://randomuser.me/api/portraits/men/41.jpg', mutualFriends: 5, isOnline: true },
-  { id: 'f-002', name: 'Sari Dewi', handle: '@sari.dewi', avatar: 'https://randomuser.me/api/portraits/women/44.jpg', mutualFriends: 3, isOnline: true },
-  { id: 'f-003', name: 'Rizky Ramadhan', handle: '@rizky.r', avatar: 'https://randomuser.me/api/portraits/men/42.jpg', mutualFriends: 8, isOnline: false },
-  { id: 'f-004', name: 'Putri Ayu', handle: '@putri.ayu', avatar: 'https://randomuser.me/api/portraits/women/45.jpg', mutualFriends: 2, isOnline: true },
-  { id: 'f-005', name: 'Dimas Saputra', handle: '@dimas.sap', avatar: 'https://randomuser.me/api/portraits/men/43.jpg', mutualFriends: 6, isOnline: false },
-  { id: 'f-006', name: 'Nadia Putri', handle: '@nadia.putri', avatar: 'https://randomuser.me/api/portraits/women/46.jpg', mutualFriends: 4, isOnline: true },
-  { id: 'f-007', name: 'Fajar Nugroho', handle: '@fajar.n', avatar: 'https://randomuser.me/api/portraits/men/44.jpg', mutualFriends: 1, isOnline: false },
-  { id: 'f-008', name: 'Maya Anggraeni', handle: '@maya.a', avatar: 'https://randomuser.me/api/portraits/women/47.jpg', mutualFriends: 7, isOnline: true },
-  { id: 'f-009', name: 'Budi Santoso', handle: '@budi.s', avatar: 'https://randomuser.me/api/portraits/men/45.jpg', mutualFriends: 3, isOnline: false },
-  { id: 'f-010', name: 'Rina Wulandari', handle: '@rina.w', avatar: 'https://randomuser.me/api/portraits/women/48.jpg', mutualFriends: 2, isOnline: true },
-  { id: 'f-011', name: 'Yoga Firmansyah', handle: '@yoga.f', avatar: 'https://randomuser.me/api/portraits/men/46.jpg', mutualFriends: 5, isOnline: false },
-  { id: 'f-012', name: 'Lestari Budiman', handle: '@lestari.b', avatar: 'https://randomuser.me/api/portraits/women/49.jpg', mutualFriends: 4, isOnline: true },
+  { id: 'f-001', name: 'Rina Sari', handle: '@rinasari', avatar: 'https://picsum.photos/seed/friend1/200/200', mutualFriends: 12, isOnline: true },
+  { id: 'f-002', name: 'Ahmad Fauzi', handle: '@ahmadfauzi', avatar: 'https://picsum.photos/seed/friend2/200/200', mutualFriends: 8, isOnline: false },
+  { id: 'f-003', name: 'Dewi Lestari', handle: '@dewilestari', avatar: 'https://picsum.photos/seed/friend3/200/200', mutualFriends: 15, isOnline: true },
+  { id: 'f-004', name: 'Budi Santoso', handle: '@budisantoso', avatar: 'https://picsum.photos/seed/friend4/200/200', mutualFriends: 6, isOnline: false },
+  { id: 'f-005', name: 'Maya Putri', handle: '@mayaputri', avatar: 'https://picsum.photos/seed/friend5/200/200', mutualFriends: 10, isOnline: true },
+  { id: 'f-006', name: 'Rizky Pratama', handle: '@rizkypratama', avatar: 'https://picsum.photos/seed/friend6/200/200', mutualFriends: 4, isOnline: false },
+  { id: 'f-007', name: 'Sari Dewi', handle: '@saridewi', avatar: 'https://picsum.photos/seed/friend7/200/200', mutualFriends: 9, isOnline: true },
+  { id: 'f-008', name: 'Andi Wijaya', handle: '@andiwijaya', avatar: 'https://picsum.photos/seed/friend8/200/200', mutualFriends: 7, isOnline: false },
+  { id: 'f-009', name: 'Lestari Putri', handle: '@lestariputri', avatar: 'https://picsum.photos/seed/friend9/200/200', mutualFriends: 5, isOnline: true },
+  { id: 'f-010', name: 'Fajar Nugroho', handle: '@fajarnugroho', avatar: 'https://picsum.photos/seed/friend10/200/200', mutualFriends: 3, isOnline: false },
+  { id: 'f-011', name: 'Indah Permata', handle: '@indahpermata', avatar: 'https://picsum.photos/seed/friend11/200/200', mutualFriends: 11, isOnline: true },
+  { id: 'f-012', name: 'Yusuf Hakim', handle: '@yusufhakim', avatar: 'https://picsum.photos/seed/friend12/200/200', mutualFriends: 6, isOnline: false },
 ];
 
-// Which friends are attending which events (event ID → array of friend IDs)
-export const friendAttendees: Record<string, string[]> = {
-  '1': ['f-001', 'f-002', 'f-005', 'f-008', 'f-011'],  // Jakarta Music Festival
-  '3': ['f-003', 'f-006'],                                // Comedy Night Live
-  '4': ['f-001', 'f-004', 'f-007', 'f-010'],             // Jakarta Food Festival
-  '6': ['f-002', 'f-009'],                                // Nusa Penida Beach Party
-  '7': ['f-005', 'f-012'],                                // Indonesian Indie Film Festival
-  '9': ['f-001', 'f-003', 'f-008'],                       // Bandung Jazz Festival
-  '11': ['f-006', 'f-010'],                               // Tech Startup Summit
-  '13': ['f-002', 'f-004', 'f-007', 'f-011', 'f-012'],  // Sunset Yoga & Sound
-};
-
-// Helper: Get attending friends for an event (respects privacy)
 export const getAttendingFriends = (
   eventId: string,
-  friendsList: string[],
+  friendIds: string[],
   privateRSVPs: string[],
-  privacyHideRSVPs: boolean
+  hideRSVPs: boolean
 ): Friend[] => {
-  if (privacyHideRSVPs) return [];
-  const attendingIds = friendAttendees[eventId] || [];
-  return mockFriends.filter(
-    f => attendingIds.includes(f.id) && friendsList.includes(f.id) && !privateRSVPs.includes(eventId)
-  );
-};
-
-// Helper: Get events where friends have RSVP'd
-export const getEventsWithFriendAttendance = (
-  friendsList: string[],
-  privateRSVPs: string[],
-  privacyHideRSVPs: boolean
-): Event[] => {
-  if (privacyHideRSVPs) return [];
-  return mockEvents.filter(event => {
-    const attendingIds = friendAttendees[event.id] || [];
-    return attendingIds.some(id => friendsList.includes(id) && !privateRSVPs.includes(event.id));
-  });
+  if (hideRSVPs && privateRSVPs.includes(eventId)) return [];
+  return mockFriends.filter(f => friendIds.includes(f.id));
 };
