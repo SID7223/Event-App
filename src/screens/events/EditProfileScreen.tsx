@@ -15,7 +15,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../store';
+import { uploadAvatar } from '../../services/api';
 
 const INTERESTS = ['Music', 'Art', 'Tech', 'Festival'];
 
@@ -37,6 +39,65 @@ const EditProfileScreen: React.FC = () => {
     setSelectedInterests((prev) =>
       prev.includes(label) ? prev.filter((i) => i !== label) : [...prev, label]
     );
+  };
+
+  const handleCameraPress = () => {
+    Alert.alert('Change Photo', 'Choose an option', [
+      {
+        text: 'Gallery',
+        onPress: async () => {
+          const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('Permission Required', 'Please allow access to your photos in Settings.');
+            return;
+          }
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+          });
+          if (!result.canceled && result.assets[0]) {
+            const localUri = result.assets[0].uri;
+            try {
+              const avatarUrl = await uploadAvatar(localUri);
+              if (user) {
+                useAuth.getState().setUser({ ...user, avatar: avatarUrl, avatarUrl: avatarUrl });
+              }
+            } catch (err: any) {
+              Alert.alert('Upload Failed', err.message);
+            }
+          }
+        },
+      },
+      {
+        text: 'Camera',
+        onPress: async () => {
+          const { status } = await ImagePicker.requestCameraPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('Permission Required', 'Please allow camera access in Settings.');
+            return;
+          }
+          const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+          });
+          if (!result.canceled && result.assets[0]) {
+            const localUri = result.assets[0].uri;
+            try {
+              const avatarUrl = await uploadAvatar(localUri);
+              if (user) {
+                useAuth.getState().setUser({ ...user, avatar: avatarUrl, avatarUrl: avatarUrl });
+              }
+            } catch (err: any) {
+              Alert.alert('Upload Failed', err.message);
+            }
+          }
+        },
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
   };
 
   const validate = (): boolean => {
@@ -128,7 +189,7 @@ const EditProfileScreen: React.FC = () => {
                 source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }}
                 style={styles.avatar}
               />
-              <TouchableOpacity style={styles.cameraBtn}>
+              <TouchableOpacity style={styles.cameraBtn} onPress={handleCameraPress}>
                 <Ionicons name="camera" size={14} color="#fff" />
               </TouchableOpacity>
             </View>

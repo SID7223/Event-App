@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,8 +9,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '../../theme/useTheme';
 import { fonts } from '../../theme/fonts';
+import { useNotifications } from '../../hooks/useApi';
+import { markNotificationRead, markAllNotificationsRead } from '../../services/api';
 
 import type { Notification } from '../../types';
 
@@ -22,6 +25,8 @@ const ICON_MAP: Record<string, keyof typeof Ionicons.glyphMap> = {
   error: 'alert-circle-outline',
   recommendation: 'compass-outline',
   feedback: 'chatbubble-outline',
+  event_approved: 'checkmark-circle-outline',
+  event_rejected: 'close-circle-outline',
 };
 
 const groupByTime = (items: Notification[]) => {
@@ -46,7 +51,10 @@ const groupByTime = (items: Notification[]) => {
 const NotificationsScreen: React.FC = () => {
   const navigation = useNavigation();
   const t = useTheme();
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const queryClient = useQueryClient();
+  const { data } = useNotifications();
+
+  const notifications: Notification[] = (data as { items: Notification[] } | undefined)?.items ?? [];
 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.read).length,
@@ -55,14 +63,18 @@ const NotificationsScreen: React.FC = () => {
 
   const groups = useMemo(() => groupByTime(notifications), [notifications]);
 
-  const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  const markAllRead = async () => {
+    try {
+      await markAllNotificationsRead();
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    } catch {}
   };
 
-  const handlePress = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+  const handlePress = async (id: string) => {
+    try {
+      await markNotificationRead(id);
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    } catch {}
   };
 
   const renderGroup = (title: string, items: Notification[]) => {

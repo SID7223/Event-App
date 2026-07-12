@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { getOrganizerById, getAttendingFriends } from '../../constants/vibes';
+import { getOrganizerById } from '../../services/api';
 import { getFriendsAttendingEvent } from '../../services/api';
 import { useAuth, useApp } from '../../store';
 import { requestNotificationPermissions } from '../../utils/notifications';
@@ -58,7 +58,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
   const { eventId } = route.params;
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  const { savedEvents, toggleRSVP, friendsList, privateRSVPs, privacySettings } = useAuth();
+  const { savedEvents, toggleRSVP } = useAuth();
   const isSaved = savedEvents.includes(eventId);
 
   const events = useApp((state) => state.events);
@@ -71,7 +71,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
       getFriendsAttendingEvent(eventId).then(setFriendAttendees).catch(() => setFriendAttendees([]));
     }
   }, [eventId]);
-  const attendingFriends = getAttendingFriends(event.id, friendsList, privateRSVPs, privacySettings.hideRSVPs, friendAttendees);
+  const attendingFriends = friendAttendees;
   const friendsGoing = attendingFriends.length;
   const localsInterested = Math.floor(event.attendees * 0.12) + 100;
 
@@ -142,7 +142,12 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
   };
 
   // Look up organizer data for "Hosted By" row
-  const organizerData = event.organizerId ? getOrganizerById(event.organizerId) : null;
+  const [organizerData, setOrganizerData] = useState<any>(null);
+  useEffect(() => {
+    if (event?.organizerId) {
+      getOrganizerById(event.organizerId).then((data) => setOrganizerData(data.organizer)).catch(() => setOrganizerData(null));
+    }
+  }, [event?.organizerId]);
 
   const isFreeEvent = event.price === 0;
 
@@ -330,7 +335,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
                 onPress={handleOrganizerPress}
                 activeOpacity={0.85}
               >
-                <Image source={{ uri: resolveImage(organizerData.avatarId, organizerData.avatar, 'thumbnail') }} style={styles.hostedByAvatar} />
+                <Image source={{ uri: resolveImage(undefined, organizerData.avatar, 'thumbnail') }} style={styles.hostedByAvatar} />
                 <View style={styles.hostedByInfo}>
                   <Text style={styles.hostedByName}>{organizerData.name}</Text>
                   <Text style={styles.hostedByFollowers}>

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   Dimensions,
   Image,
   Linking,
-  FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,7 +17,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../../store';
 import { fonts } from '../../theme/fonts';
 import { resolveImage } from '../../utils/images';
-import { getVenueById, getEventsByVenue } from '../../constants/vibes';
+import { getVenueById, getVenueEvents } from '../../services/api';
 import { Event } from '../../types';
 import ClaimVenueModal from '../../components/ui/ClaimVenueModal';
 import MatteGlassCard from '../../components/ui/MatteGlassCard';
@@ -55,10 +55,31 @@ const VenueProfileScreen: React.FC = () => {
   const isFollowed = followedVenues.includes(venueId);
   const [showClaimModal, setShowClaimModal] = useState(false);
 
-  const venue = useMemo(() => getVenueById(venueId), [venueId]);
-  const venueEvents = useMemo(() => getEventsByVenue(venueId), [venueId]);
+  const [venue, setVenue] = useState<any>(null);
+  const [venueEvents, setVenueEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Separate upcoming and past events
+  useEffect(() => {
+    loadData();
+  }, [venueId]);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [venueData, eventsData] = await Promise.all([
+        getVenueById(venueId),
+        getVenueEvents(venueId),
+      ]);
+      setVenue(venueData.venue);
+      setVenueEvents(eventsData);
+    } catch (_) {
+      setVenue(null);
+      setVenueEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const now = new Date();
   const upcomingEvents = venueEvents
     .filter(e => new Date(e.date) >= now)
@@ -110,7 +131,7 @@ const VenueProfileScreen: React.FC = () => {
         </View>
         <View style={styles.eventMeta}>
           <Ionicons name="location-outline" size={12} color="rgba(255,255,255,0.6)" />
-          <Text style={styles.eventMetaText} numberOfLines={1}>{event.venue}</Text>
+          <Text style={styles.eventMetaText} numberOfLines={1}>{event.venue || event.venue_name}</Text>
         </View>
       </View>
       <View style={styles.eventPriceTag}>
@@ -118,6 +139,21 @@ const VenueProfileScreen: React.FC = () => {
       </View>
     </TouchableOpacity>
   );
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7}>
+            <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.emptyState}>
+          <ActivityIndicator size="large" color="#E43414" />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (!venue) {
     return (
@@ -240,7 +276,7 @@ const VenueProfileScreen: React.FC = () => {
         {/* Tags */}
         <View style={styles.tagsSection}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tagsList}>
-            {venue.tags.map((tag, index) => (
+            {venue.tags?.map((tag, index) => (
               <View key={index} style={styles.tag}>
                 <Text style={styles.tagText}>{tag}</Text>
               </View>
@@ -277,32 +313,16 @@ const VenueProfileScreen: React.FC = () => {
           <View style={styles.emptyEvents}>
             <Ionicons name="calendar-outline" size={48} color="rgba(255,255,255,0.15)" />
             <Text style={styles.emptyEventsTitle}>No events yet</Text>
-            <Text style={styles.emptyEventsSubtitle}>
-              Follow {venue.name} to get notified about new events
-            </Text>
           </View>
         )}
 
-        {/* Claim This Venue */}
-        <View style={styles.claimSection}>
-          <TouchableOpacity
-            style={styles.claimLink}
-            onPress={() => setShowClaimModal(true)}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="shield-checkmark-outline" size={16} color="rgba(255,255,255,0.35)" />
-            <Text style={styles.claimText}>Do you own this business? <Text style={styles.claimHighlight}>Claim this page.</Text></Text>
-          </TouchableOpacity>
-        </View>
+        {/* Claim Venue */}
+        <TouchableOpacity style={styles.claimLink} onPress={() => setShowClaimModal(true)} activeOpacity={0.7}>
+          <Text style={styles.claimLinkText}>Claim this page</Text>
+        </TouchableOpacity>
 
-        <View style={{ height: 40 }} />
+        <ClaimVenueModal visible={showClaimModal} onClose={() => setShowClaimModal(false)} />
       </ScrollView>
-
-      <ClaimVenueModal
-        visible={showClaimModal}
-        onClose={() => setShowClaimModal(false)}
-        venueName={venue?.name || ''}
-      />
     </SafeAreaView>
   );
 };
@@ -310,184 +330,186 @@ const VenueProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 100,
+    backgroundColor: '#0A0C12',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 100,
+  },
+  emptyText: {
+    fontFamily: fonts.medium,
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.4)',
   },
   coverContainer: {
-    height: 200,
+    width: width,
+    height: 260,
     position: 'relative',
   },
   coverImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
   },
   coverGradient: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: '60%',
+    height: 200,
   },
   backBtn: {
     position: 'absolute',
-    top: 12,
+    top: 16,
     left: 16,
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 10,
   },
   profileHeader: {
+    alignItems: 'center',
+    marginTop: -50,
     paddingHorizontal: 20,
-    marginTop: -40,
   },
   logo: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
+    width: 90,
+    height: 90,
+    borderRadius: 24,
     borderWidth: 3,
-    borderColor: '#000000',
+    borderColor: 'rgba(255,255,255,0.15)',
     marginBottom: 12,
   },
   nameSection: {
+    alignItems: 'center',
     marginBottom: 16,
   },
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 4,
   },
   venueName: {
-    fontSize: 24,
-    fontWeight: '500',
+    fontFamily: fonts.semiBold,
+    fontSize: 22,
     color: '#FFFFFF',
-    fontFamily: fonts.heading,
+    textAlign: 'center',
   },
   organizerBadge: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     backgroundColor: 'rgba(255,215,0,0.15)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   venueType: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.5)',
-    fontFamily: fonts.body,
+    fontFamily: fonts.regular,
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.4)',
+    marginTop: 2,
   },
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 16,
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    width: '100%',
     marginBottom: 16,
-    gap: 16,
   },
   statItem: {
-    flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
+    gap: 4,
   },
   statNumber: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '500',
     color: '#FFFFFF',
-    fontFamily: fonts.bodyBold,
   },
   statLabel: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.5)',
-    fontFamily: fonts.body,
+    fontFamily: fonts.regular,
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.4)',
   },
   statDivider: {
     width: 1,
-    height: 24,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    height: 30,
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   actionRow: {
     flexDirection: 'row',
     gap: 10,
-    marginBottom: 20,
+    marginBottom: 8,
   },
   followBtn: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 8,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 28,
+    backgroundColor: '#E43414',
   },
   followBtnActive: {
     backgroundColor: 'rgba(228,52,20,0.15)',
+    borderWidth: 1,
     borderColor: 'rgba(228,52,20,0.3)',
   },
   followBtnText: {
-    fontSize: 15,
-    fontWeight: '500',
+    fontFamily: fonts.semiBold,
+    fontSize: 14,
     color: '#FFFFFF',
-    fontFamily: fonts.bodyBold,
   },
   followBtnTextActive: {
     color: '#E43414',
-    fontFamily: fonts.bodyBold,
   },
   mapBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 6,
-    height: 48,
+    paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 14,
+    borderRadius: 28,
     backgroundColor: 'rgba(255,107,74,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(255,107,74,0.2)',
+    borderColor: 'rgba(255,107,74,0.25)',
   },
   mapBtnText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontFamily: fonts.medium,
+    fontSize: 13,
     color: '#FF6B4A',
-    fontFamily: fonts.bodyBold,
   },
   websiteBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 28,
     backgroundColor: 'rgba(255,107,74,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(255,107,74,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderColor: 'rgba(255,107,74,0.25)',
   },
   bioSection: {
     paddingHorizontal: 20,
-    marginBottom: 16,
+    marginBottom: 20,
   },
   bioText: {
+    fontFamily: fonts.regular,
     fontSize: 14,
-    lineHeight: 22,
     color: 'rgba(255,255,255,0.7)',
-    fontFamily: fonts.body,
+    lineHeight: 22,
   },
   tagsSection: {
     marginBottom: 24,
@@ -497,180 +519,155 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   tag: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    paddingVertical: 6,
     paddingHorizontal: 14,
-    paddingVertical: 8,
     borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
   },
   tagText: {
-    fontSize: 13,
+    fontFamily: fonts.medium,
+    fontSize: 12,
     color: 'rgba(255,255,255,0.6)',
-    fontWeight: '500',
-    fontFamily: fonts.bodyBold,
   },
   eventsSection: {
+    marginBottom: 20,
     paddingHorizontal: 20,
-    marginBottom: 24,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    marginBottom: 16,
+    gap: 8,
+    marginBottom: 14,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '500',
+    fontFamily: fonts.semiBold,
+    fontSize: 16,
     color: '#FFFFFF',
     flex: 1,
-    fontFamily: fonts.subheading,
   },
   sectionTitleMuted: {
     color: 'rgba(255,255,255,0.4)',
   },
   sectionCount: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontFamily: fonts.medium,
+    fontSize: 12,
     color: '#E43414',
+    backgroundColor: 'rgba(228,52,20,0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    overflow: 'hidden',
   },
   sectionCountMuted: {
     color: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   eventCard: {
-    height: 120,
+    width: '100%',
+    height: 180,
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 12,
+    backgroundColor: '#14161E',
     position: 'relative',
+  },
+  eventCardPast: {
+    opacity: 0.7,
   },
   eventImage: {
     width: '100%',
     height: '100%',
     position: 'absolute',
-    resizeMode: 'cover',
   },
   eventGradient: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: '70%',
+    height: 140,
   },
   eventDateBadge: {
     position: 'absolute',
     top: 12,
     left: 12,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    width: 52,
+    height: 56,
+    borderRadius: 12,
+    backgroundColor: 'rgba(10,12,18,0.8)',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   eventDay: {
+    fontFamily: fonts.semiBold,
     fontSize: 18,
-    fontWeight: '500',
     color: '#FFFFFF',
-    lineHeight: 22,
+    marginTop: 2,
   },
   eventMonth: {
+    fontFamily: fonts.medium,
     fontSize: 10,
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.6)',
-    textTransform: 'uppercase',
+    color: '#E43414',
+    letterSpacing: 1,
   },
   eventInfo: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 80,
-    padding: 14,
+    bottom: 12,
+    left: 12,
+    right: 70,
   },
   eventTitle: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: fonts.semiBold,
+    fontSize: 15,
     color: '#FFFFFF',
     marginBottom: 6,
-    fontFamily: fonts.subheading,
   },
   eventMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 2,
+    gap: 4,
+    marginTop: 2,
   },
   eventMetaText: {
-    fontSize: 12,
+    fontFamily: fonts.regular,
+    fontSize: 11,
     color: 'rgba(255,255,255,0.6)',
-    fontFamily: fonts.body,
   },
   eventPriceTag: {
     position: 'absolute',
-    bottom: 14,
-    right: 14,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderRadius: 8,
+    bottom: 12,
+    right: 12,
+    paddingVertical: 4,
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   eventPrice: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#000000',
-    fontFamily: fonts.bodyBold,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.5)',
+    fontFamily: fonts.semiBold,
+    fontSize: 12,
+    color: '#FFFFFF',
   },
   emptyEvents: {
     alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 60,
     gap: 12,
   },
   emptyEventsTitle: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.5)',
-  },
-  emptyEventsSubtitle: {
-    fontSize: 14,
+    fontFamily: fonts.medium,
+    fontSize: 15,
     color: 'rgba(255,255,255,0.3)',
-    textAlign: 'center',
-    paddingHorizontal: 40,
-  },
-  // Claim Section
-  claimSection: {
-    paddingHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 8,
   },
   claimLink: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 14,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
+    paddingVertical: 20,
+    marginTop: 10,
   },
-  claimText: {
+  claimLinkText: {
+    fontFamily: fonts.regular,
     fontSize: 13,
-    color: 'rgba(255,255,255,0.35)',
-    fontFamily: fonts.body,
-  },
-  claimHighlight: {
-    color: 'rgba(255,107,74,0.7)',
-    fontWeight: '500',
-    fontFamily: fonts.bodyBold,
+    color: 'rgba(255,255,255,0.25)',
   },
 });
 

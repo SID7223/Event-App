@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { Notification } from '../types';
 import {
   getEvents,
   getEventById,
@@ -72,7 +73,7 @@ export const useTickets = () => {
 };
 
 export const useNotifications = () => {
-  return useQuery({
+  return useQuery<{ items: Notification[]; unreadCount: number }>({
     queryKey: ['notifications'],
     queryFn: getNotifications,
   });

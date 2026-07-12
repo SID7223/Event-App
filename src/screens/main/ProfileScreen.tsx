@@ -114,7 +114,9 @@ const ProfileScreen: React.FC = () => {
               if (user) {
                 useAuth.getState().setUser({ ...user, avatar: avatarUrl, avatarUrl: avatarUrl });
               }
-            } catch (_) {}
+            } catch (err: any) {
+              Alert.alert('Upload Failed', err.message);
+            }
           }
         },
       },
@@ -139,7 +141,9 @@ const ProfileScreen: React.FC = () => {
               if (user) {
                 useAuth.getState().setUser({ ...user, avatar: avatarUrl, avatarUrl: avatarUrl });
               }
-            } catch (_) {}
+            } catch (err: any) {
+              Alert.alert('Upload Failed', err.message);
+            }
           }
         },
       },

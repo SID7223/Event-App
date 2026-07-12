@@ -38,7 +38,15 @@
         }
       ],
       "expo-status-bar",
-      "expo-image"
+      "expo-image",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#E43414",
+          "iosDisplayInForeground": true
+        }
+      ]
     ],
     "extra": {
       "eas": {

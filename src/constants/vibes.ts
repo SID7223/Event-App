@@ -36,20 +36,11 @@ export const sortVibesByPreferences = (userPreferences: string[]): VibeCategory[
 };
 
 export const getAttendingFriends = (
-  eventId: string,
-  friendsList: string[],
-  privateRSVPs: string[],
-  hideRSVPs: boolean,
+  _eventId: string,
+  _friendsList: string[],
+  _privateRSVPs: string[],
+  _hideRSVPs: boolean,
   friendAttendees?: Friend[]
 ): Friend[] => {
-  if (friendAttendees) return friendAttendees;
-  return [];
+  return friendAttendees || [];
 };
-
-export const getVenueById = (id: string): any => null;
-
-export const getOrganizerById = (id: string): any => null;
-
-export const getEventsByVenue = (venueId: string): any[] => [];
-
-export const getEventsByOrganizer = (organizerId: string): any[] => [];
