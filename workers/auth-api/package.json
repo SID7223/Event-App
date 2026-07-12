@@ -1,0 +1,12 @@
+{
+  "name": "auth-api",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250701.0",
+    "wrangler": "^4.110.0"
+  }
+}

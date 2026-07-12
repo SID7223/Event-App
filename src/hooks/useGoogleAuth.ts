@@ -1,0 +1,60 @@
+import { useState } from 'react';
+import * as WebBrowser from 'expo-web-browser';
+import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
+import { useAuth } from '../store';
+
+WebBrowser.maybeCompleteAuthSession();
+
+const DISCOVERY = {
+  authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
+  tokenEndpoint: 'https://oauth2.googleapis.com/token',
+};
+
+export function useGoogleAuth() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { login, setUser } = useAuth();
+
+  const [request, response, promptAsync] = useAuthRequest(
+    {
+      clientId: '1016005422620-455ef36nor6tfh6ffimrs2fe5uqpkjlh.apps.googleusercontent.com',
+      scopes: ['openid', 'profile', 'email'],
+      redirectUri: makeRedirectUri({ useProxy: false }),
+    },
+    DISCOVERY
+  );
+
+  const signIn = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await promptAsync();
+      if (result.type !== 'success') {
+        setIsLoading(false);
+        return;
+      }
+
+      const { idToken } = result.params;
+
+      const res = await fetch('https://auth-api.roadrunnerllc-bpo.workers.dev/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Login failed');
+
+      await loginWithToken(data.token, data.user);
+      return data.user;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { signIn, isLoading, error };
+}

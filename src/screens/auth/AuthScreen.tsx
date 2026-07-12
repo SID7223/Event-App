@@ -14,11 +14,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useGoogleAuth } from '../../hooks/useGoogleAuth';
 import { fonts } from '../../theme/fonts';
 import BackButton from '../../components/BackButton';
 
 const AuthScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { signIn, isLoading: googleLoading, error: googleError } = useGoogleAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -144,8 +146,17 @@ const AuthScreen: React.FC = () => {
               <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
                 <Ionicons name="logo-apple" size={24} color="#FFFFFF" />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
-                <Text style={styles.googleGText}>G</Text>
+              <TouchableOpacity
+                style={styles.socialBtn}
+                activeOpacity={0.85}
+                onPress={() => signIn().catch(() => {})}
+                disabled={googleLoading}
+              >
+                {googleLoading ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <Text style={styles.googleGText}>G</Text>
+                )}
               </TouchableOpacity>
               <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
                 <Text style={styles.xIcon}>X</Text>

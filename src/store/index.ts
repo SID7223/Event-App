@@ -15,6 +15,7 @@ interface SavedLogin {
 interface AuthState {
   isLoggedIn: boolean;
   user: User | null;
+  authToken: string | null;
   location: UserLocation | null;
   preferences: string[];
   savedEvents: string[];
@@ -37,6 +38,7 @@ interface AuthState {
   };
   privateRSVPs: string[]; // event IDs marked private
   login: (user: User) => void;
+  loginWithToken: (token: string, userData: any) => void;
   logout: () => void;
   setUser: (user: User) => void;
   setLocation: (location: UserLocation) => void;
@@ -99,6 +101,7 @@ export const useAuth = create<AuthState>()(
     (set, get) => ({
       isLoggedIn: false,
       user: null,
+      authToken: null,
       location: null,
       preferences: [],
       savedEvents: [],
@@ -132,9 +135,41 @@ export const useAuth = create<AuthState>()(
           lastName: user.lastName,
         },
       }),
-      
+
+      loginWithToken: (token: string, userData: any) => set({
+        isLoggedIn: true,
+        onboardingComplete: true,
+        authToken: token,
+        user: {
+          id: userData.id,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          email: userData.email,
+          phone: userData.phone || '',
+          avatar: userData.avatar || '',
+          avatarId: userData.avatarId,
+          interests: userData.preferences || [],
+          notifications: true,
+          plan: userData.plan || 'basic',
+        },
+        savedLogin: {
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+        },
+      }),
+
       logout: async () => { 
-        // Cancel all notifications on logout
+        const { authToken } = get();
+        if (authToken) {
+          try {
+            await fetch('https://auth-api.roadrunnerllc-bpo.workers.dev/auth/logout', {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${authToken}` },
+            });
+          } catch (_) {}
+        }
+
         const { eventNotifications, organizerNotifications } = get();
         for (const notificationId of Object.values(eventNotifications)) {
           await cancelEventReminder(notificationId);
@@ -146,6 +181,7 @@ export const useAuth = create<AuthState>()(
         set({ 
           isLoggedIn: false, 
           user: null, 
+          authToken: null,
           location: null, 
           preferences: [],
           savedEvents: [],
