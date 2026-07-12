@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Event } from '../../types';
+import { resolveImage } from '../../utils/images';
 import { colors } from '../../theme/colors';
 import { spacing, borderRadius, fontSizes, fontWeights } from '../../theme/spacing';
 import PriceBadge from '../ui/PriceBadge';
@@ -117,7 +118,7 @@ const EventCard: React.FC<EventCardProps> = ({
 
   const renderHorizontal = () => (
     <View style={styles.horizontalContainer}>
-      <Image source={{ uri: event.image }} style={styles.horizontalImage} />
+      <Image source={{ uri: resolveImage(event.imageId, event.image, 'small') }} style={styles.horizontalImage} />
       <LinearGradient
         colors={['transparent', 'rgba(0,0,0,0.6)']}
         style={styles.horizontalImageOverlay}
@@ -129,7 +130,7 @@ const EventCard: React.FC<EventCardProps> = ({
 
   const renderVertical = () => (
     <View style={styles.verticalContainer}>
-      <Image source={{ uri: event.image }} style={styles.verticalImage} />
+      <Image source={{ uri: resolveImage(event.imageId, event.image, 'medium') }} style={styles.verticalImage} />
       <LinearGradient
         colors={['transparent', 'rgba(0,0,0,0.7)']}
         style={styles.verticalImageOverlay}
@@ -144,7 +145,7 @@ const EventCard: React.FC<EventCardProps> = ({
 
   const renderFeatured = () => (
     <View style={styles.featuredContainer}>
-      <Image source={{ uri: event.image }} style={styles.featuredImage} />
+      <Image source={{ uri: resolveImage(event.imageId, event.image, 'large') }} style={styles.featuredImage} />
       <LinearGradient
         colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.9)']}
         locations={[0, 0.4, 1]}

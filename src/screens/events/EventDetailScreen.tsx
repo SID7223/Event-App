@@ -20,6 +20,7 @@ import { getOrganizerById, getAttendingFriends } from '../../services/mockData';
 import { useAuth, useApp } from '../../store';
 import { requestNotificationPermissions } from '../../utils/notifications';
 import { handleVenueBooking, getBookingButtonLabel } from '../../utils/booking';
+import { resolveImage } from '../../utils/images';
 import { fonts } from '../../theme/fonts';
 
 const { width, height } = Dimensions.get('window');
@@ -144,7 +145,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
       <Animated.View
         style={[styles.heroContainer, { transform: [{ translateY: imageTranslateY }] }]}
       >
-        <Image source={{ uri: event.image }} style={styles.heroImage} />
+        <Image source={{ uri: resolveImage(event.imageId, event.image, 'large') }} style={styles.heroImage} />
         <LinearGradient
           colors={['rgba(10,12,18,0.2)', 'rgba(10,12,18,0.4)', 'rgba(10,12,18,0.95)']}
           locations={[0, 0.5, 1]}
@@ -240,7 +241,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
                   {attendingFriends.slice(0, 3).map((friend, idx) => (
                     <Image
                       key={friend.id}
-                      source={{ uri: friend.avatar }}
+                      source={{ uri: resolveImage(friend.avatarId, friend.avatar, 'thumbnail') }}
                       style={[styles.socialProofAvatar, { marginLeft: idx > 0 ? -8 : 0, zIndex: 3 - idx }]}
                     />
                   ))}
@@ -322,7 +323,7 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
                 onPress={handleOrganizerPress}
                 activeOpacity={0.85}
               >
-                <Image source={{ uri: organizerData.avatar }} style={styles.hostedByAvatar} />
+                <Image source={{ uri: resolveImage(organizerData.avatarId, organizerData.avatar, 'thumbnail') }} style={styles.hostedByAvatar} />
                 <View style={styles.hostedByInfo}>
                   <Text style={styles.hostedByName}>{organizerData.name}</Text>
                   <Text style={styles.hostedByFollowers}>

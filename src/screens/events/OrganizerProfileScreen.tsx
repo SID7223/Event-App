@@ -15,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../../store';
 import { fonts } from '../../theme/fonts';
+import { resolveImage } from '../../utils/images';
 import { getOrganizerById, getEventsByOrganizer } from '../../services/mockData';
 import { Event } from '../../types';
 import ClaimVenueModal from '../../components/ui/ClaimVenueModal';
@@ -97,7 +98,7 @@ const OrganizerProfileScreen: React.FC = () => {
       onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
       activeOpacity={0.88}
     >
-      <Image source={{ uri: event.image }} style={styles.eventImage} />
+      <Image source={{ uri: resolveImage(event.imageId, event.image, 'medium') }} style={styles.eventImage} />
       <LinearGradient
         colors={['transparent', 'rgba(10,12,18,0.85)']}
         style={styles.eventGradient}
@@ -146,7 +147,7 @@ const OrganizerProfileScreen: React.FC = () => {
       >
         {/* Cover Image */}
         <View style={styles.coverContainer}>
-          <Image source={{ uri: organizer.coverImage }} style={styles.coverImage} />
+          <Image source={{ uri: resolveImage(organizer.coverId, organizer.coverImage, 'large') }} style={styles.coverImage} />
           <LinearGradient
             colors={['rgba(10,12,18,0.2)', 'rgba(10,12,18,0.95)']}
             style={styles.coverGradient}
@@ -166,7 +167,7 @@ const OrganizerProfileScreen: React.FC = () => {
         <View style={styles.profileHeader}>
           {/* Centered Circular Avatar */}
           <View style={styles.avatarContainer}>
-            <Image source={{ uri: organizer.avatar }} style={styles.avatar} />
+            <Image source={{ uri: resolveImage(organizer.avatarId, organizer.avatar, 'thumbnail') }} style={styles.avatar} />
             <View style={styles.avatarBadge}>
               <Ionicons name="star" size={12} color="#FFD700" />
             </View>

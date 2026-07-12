@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import GlassPill from '../../components/ui/GlassPill';
+import { resolveImage } from '../../utils/images';
 import { fonts } from '../../theme/fonts';
 
 interface PlayVenue {
@@ -20,6 +21,7 @@ interface PlayVenue {
   type: string;
   icon: string;
   image: string;
+  imageId?: string;
   address: string;
   neighborhood: string;
   distance: string;
@@ -237,7 +239,7 @@ const PlaySportsScreen: React.FC = () => {
     <View style={styles.venueCard}>
       {/* Image */}
       <View style={styles.imageContainer}>
-        <Image source={{ uri: item.image }} style={styles.venueImage} />
+        <Image source={{ uri: resolveImage(item.imageId, item.image, 'medium') }} style={styles.venueImage} />
         <View style={styles.imageOverlay} />
         {/* Status Badge */}
         <View style={[styles.statusBadge, item.isOpen ? styles.statusOpen : styles.statusClosed]}>

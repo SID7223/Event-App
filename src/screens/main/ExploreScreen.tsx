@@ -16,6 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useFilteredContent } from '../../hooks/useFilteredContent';
 import GlassPill from '../../components/ui/GlassPill';
 import { BlurView } from 'expo-blur';
+import { resolveImage } from '../../utils/images';
 import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
@@ -87,7 +88,7 @@ const ExploreScreen: React.FC = () => {
       >
         {/* Thumbnail with date badge overlay */}
         <View style={styles.thumbContainer}>
-          <Image source={{ uri: item.image }} style={styles.thumb} />
+          <Image source={{ uri: resolveImage(item.imageId, item.image, 'medium') }} style={styles.thumb} />
           {/* Date badge overlaid top-left of image */}
           <View style={styles.dateBadge}>
             <Text style={styles.badgeDay}>{getDay(item.date)}</Text>

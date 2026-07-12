@@ -1,0 +1,20 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "upload-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "chillingz_db",
+      "database_name": "chillingz-db",
+      "database_id": "1d0f38e8-09f3-4348-8150-30c485e5bd7f"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "chillingz_media",
+      "bucket_name": "chillingz-media"
+    }
+  ],
+}

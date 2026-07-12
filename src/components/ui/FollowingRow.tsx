@@ -8,11 +8,13 @@ import {
   Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { resolveImage } from '../../utils/images';
 
 export interface FollowingEntity {
   id: string;
   name: string;
   avatar: string;
+  avatarId?: string;
   type: 'venue' | 'organizer';
 }
 
@@ -54,7 +56,7 @@ const FollowingRow: React.FC<FollowingRowProps> = ({ item, onPress, onUnfollow }
     <Animated.View style={[styles.container, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
       <TouchableOpacity style={styles.row} onPress={onPress} activeOpacity={0.7}>
         <Image
-          source={{ uri: item.avatar }}
+          source={{ uri: resolveImage(item.avatarId, item.avatar, 'thumbnail') }}
           style={[styles.avatar, item.type === 'venue' && styles.venueAvatar]}
         />
         <View style={styles.info}>

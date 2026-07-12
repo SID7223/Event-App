@@ -8,6 +8,7 @@ export interface Event {
   description: string;
   category: string;
   image: string;
+  imageId?: string;
   price: number;
   location: string;
   date: string;
@@ -59,6 +60,7 @@ export interface User {
   email: string;
   phone: string;
   avatar: string;
+  avatarId?: string;
   interests: string[];
   notifications: boolean;
   location?: UserLocation;
@@ -113,6 +115,7 @@ export interface Movie {
   duration: number; // minutes
   rating: number; // 1-5
   poster: string;
+  posterId?: string;
   releaseDate: string;
   synopsis: string;
   director: string;
@@ -163,6 +166,7 @@ export interface Restaurant {
   name: string;
   cuisine: string;
   image: string;
+  imageId?: string;
   priceRange: string; // '$', '$$', '$$$', '$$$$'
   rating: number;
   reviewCount: number;
@@ -189,6 +193,8 @@ export interface Venue {
   type: 'venue' | 'organizer';
   logo: string;
   coverImage: string;
+  logoId?: string;
+  coverId?: string;
   bio: string;
   address: string;
   neighborhood: string;
@@ -206,6 +212,8 @@ export interface Organizer {
   name: string;
   avatar: string;
   coverImage: string;
+  avatarId?: string;
+  coverId?: string;
   bio: string;
   website: string;
   instagram: string;
@@ -222,6 +230,7 @@ export interface Friend {
   name: string;
   handle: string;
   avatar: string;
+  avatarId?: string;
   mutualFriends: number;
   isOnline: boolean;
 }

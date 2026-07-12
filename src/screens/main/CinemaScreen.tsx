@@ -17,6 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { useFilteredContent } from '../../hooks/useFilteredContent';
 import { handleVenueBooking } from '../../utils/booking';
+import { resolveImage } from '../../utils/images';
 import { MovieWithShowtimes, Cinema, MovieShowtime } from '../../types';
 import { fonts } from '../../theme/fonts';
 
@@ -69,7 +70,7 @@ const CinemaScreen: React.FC = () => {
       onPress={() => handleMoviePress(item)}
       activeOpacity={0.9}
     >
-      <Image source={{ uri: item.poster }} style={styles.posterImage} />
+      <Image source={{ uri: resolveImage(item.posterId, item.poster, 'medium') }} style={styles.posterImage} />
       <LinearGradient
         colors={['transparent', 'rgba(10,12,18,0.9)']}
         locations={[0, 0.6]}
@@ -182,7 +183,7 @@ const CinemaScreen: React.FC = () => {
               >
                 {/* Movie Hero */}
                 <View style={styles.movieHero}>
-                  <Image source={{ uri: selectedMovie.poster }} style={styles.heroPoster} />
+                  <Image source={{ uri: resolveImage(selectedMovie.posterId, selectedMovie.poster, 'large') }} style={styles.heroPoster} />
                   <LinearGradient
                     colors={['rgba(10,12,18,0.3)', 'rgba(10,12,18,0.95)']}
                     style={styles.heroGradient}

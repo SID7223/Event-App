@@ -19,6 +19,7 @@ import { Restaurant } from '../../types';
 import GlassPill from '../../components/ui/GlassPill';
 import { useFilteredContent } from '../../hooks/useFilteredContent';
 import { handleVenueBooking } from '../../utils/booking';
+import { resolveImage } from '../../utils/images';
 import { fonts } from '../../theme/fonts';
 
 const { width } = Dimensions.get('window');
@@ -80,7 +81,7 @@ const DiningScreen: React.FC = () => {
       <View style={styles.restaurantCard}>
         {/* Image */}
         <View style={styles.imageContainer}>
-          <Image source={{ uri: item.image }} style={styles.restaurantImage} />
+          <Image source={{ uri: resolveImage(item.imageId, item.image, 'medium') }} style={styles.restaurantImage} />
           <LinearGradient
             colors={['transparent', 'rgba(10,12,18,0.85)']}
             style={styles.imageGradient}
