@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store';
 import { fonts } from '../../theme/fonts';
+import { resolveImage } from '../../utils/images';
 import { Friend } from '../../types';
 import { mockFriends } from '../../services/mockData';
 
@@ -149,7 +150,7 @@ const FriendsScreen: React.FC = () => {
               data={suggestedUsers}
               renderItem={({ item }) => (
                 <View style={styles.suggestedCard}>
-                  <Image source={{ uri: item.avatar }} style={styles.suggestedAvatar} />
+                  <Image source={{ uri: resolveImage(item.avatarId, item.avatar, 'thumbnail') }} style={styles.suggestedAvatar} />
                   <Text style={styles.suggestedName} numberOfLines={1}>{item.name.split(' ')[0]}</Text>
                   <Text style={styles.suggestedHandle} numberOfLines={1}>{item.handle}</Text>
                   <Animated.View style={{ transform: [{ scale: getAddScale(item.id) }] }}>
@@ -199,7 +200,7 @@ const FriendsScreen: React.FC = () => {
                 >
                   <View style={styles.friendLeft}>
                     <View style={styles.avatarContainer}>
-                      <Image source={{ uri: item.avatar }} style={styles.friendAvatar} />
+                      <Image source={{ uri: resolveImage(item.avatarId, item.avatar, 'thumbnail') }} style={styles.friendAvatar} />
                       {item.isOnline && <View style={styles.onlineDot} />}
                     </View>
                     <View style={styles.friendInfo}>

@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { resolveImage } from '../../utils/images';
 import { mockEvents, mockTickets } from '../../services/mockData';
 
 const TABS = ['Upcoming', 'Past', 'Saved'];
@@ -76,7 +77,7 @@ const MyEventsScreen: React.FC = () => {
         </View>
 
         {/* Thumbnail */}
-        <Image source={{ uri: item.event.image }} style={styles.thumbnail} />
+        <Image source={{ uri: resolveImage(item.event.imageId, item.event.image, 'thumbnail') }} style={styles.thumbnail} />
 
         {/* Info */}
         <View style={styles.eventInfo}>

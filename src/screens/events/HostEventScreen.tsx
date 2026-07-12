@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Modal,
   FlatList,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,8 +20,10 @@ import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../store';
 import { allVibes } from '../../services/mockData';
+import { resolveImage, UPLOAD_API_URL } from '../../utils/images';
 import { fonts } from '../../theme/fonts';
 
 interface HostEventFormData {
@@ -32,7 +35,6 @@ interface HostEventFormData {
   location: string;
   venue: string;
   neighborhood: string;
-  imageUrl: string;
   link: string;
   price: string;
 }
@@ -46,7 +48,6 @@ const schema = yup.object().shape({
   location: yup.string().required('Location is required'),
   venue: yup.string().required('Venue name is required'),
   neighborhood: yup.string().required('Neighborhood is required'),
-  imageUrl: yup.string().url('Must be a valid URL').optional(),
   link: yup.string().url('Must be a valid URL').optional(),
   price: yup.string().optional(),
 });
@@ -59,6 +60,9 @@ const HostEventScreen: React.FC = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Generate date options (next 30 days)
   const dateOptions = Array.from({ length: 30 }, (_, i) => {
@@ -92,7 +96,6 @@ const HostEventScreen: React.FC = () => {
       location: location?.fullAddress || '',
       venue: '',
       neighborhood: location?.neighborhood || '',
-      imageUrl: '',
       link: '',
       price: '',
     },
@@ -110,16 +113,75 @@ const HostEventScreen: React.FC = () => {
     }).start();
   }, []);
 
+  const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Required', 'Please allow access to your photos in Settings.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.8,
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    if (result.canceled || !result.assets[0]) return;
+
+    const localUri = result.assets[0].uri;
+    setSelectedImageUri(localUri);
+    setIsUploading(true);
+
+    try {
+      const response = await fetch(localUri);
+      const blob = await response.blob();
+      const formData = new FormData();
+      formData.append('file', {
+        uri: localUri,
+        name: `event_${Date.now()}.jpg`,
+        type: blob.type || 'image/jpeg',
+      } as any);
+      formData.append('entity_type', 'event');
+      formData.append('entity_id', `pending_${Date.now()}`);
+      formData.append('usage_type', 'cover');
+      formData.append('source', 'user_upload');
+
+      const uploadResponse = await fetch(`${UPLOAD_API_URL}/api/images/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer placeholder_token',
+        },
+        body: formData,
+      });
+
+      const resultData = await uploadResponse.json();
+      if (resultData.image_id) {
+        setSelectedImageId(resultData.image_id);
+      }
+    } catch (err) {
+      Alert.alert('Upload Failed', 'Could not upload image. Please try again.');
+      setSelectedImageUri(null);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const onSubmit = (data: HostEventFormData) => {
+    if (!selectedImageId) {
+      Alert.alert('Image Required', 'Please select a cover image for your event.');
+      return;
+    }
+
     setIsSubmitting(true);
-    
-    // Simulate submission delay
+
     setTimeout(() => {
       submitEvent({
         title: data.title,
         description: data.description,
         category: data.category,
-        image: data.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
+        imageId: selectedImageId,
+        image: resolveImage(selectedImageId, undefined, 'medium'),
         price: data.price ? parseFloat(data.price) : 0,
         location: data.location,
         date: data.date,
@@ -139,6 +201,8 @@ const HostEventScreen: React.FC = () => {
             text: 'OK',
             onPress: () => {
               reset();
+              setSelectedImageId(null);
+              setSelectedImageUri(null);
               navigation.goBack();
             },
           },
@@ -456,15 +520,30 @@ const HostEventScreen: React.FC = () => {
                 />
               </View>
 
-              {/* Image URL */}
-              {renderField(
-                'Image URL (optional)',
-                watch('imageUrl'),
-                (t) => setValue('imageUrl', t),
-                'https://example.com/event-image.jpg',
-                errors.imageUrl?.message,
-                'url'
-              )}
+              {/* Cover Image Picker */}
+              <View style={styles.fieldGroup}>
+                <Text style={styles.fieldLabel}>Cover Image</Text>
+                <TouchableOpacity
+                  style={styles.imagePickerBtn}
+                  onPress={handlePickImage}
+                  activeOpacity={0.7}
+                  disabled={isUploading}
+                >
+                  {isUploading ? (
+                    <View style={styles.imagePickerContent}>
+                      <Ionicons name="hourglass-outline" size={28} color="rgba(255,255,255,0.4)" />
+                      <Text style={styles.imagePickerText}>Uploading...</Text>
+                    </View>
+                  ) : selectedImageUri ? (
+                    <Image source={{ uri: selectedImageUri }} style={styles.imagePreview} />
+                  ) : (
+                    <View style={styles.imagePickerContent}>
+                      <Ionicons name="image-outline" size={28} color="rgba(255,255,255,0.4)" />
+                      <Text style={styles.imagePickerText}>Tap to select cover image</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
 
               {/* External Link */}
               {renderField(
@@ -665,6 +744,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     color: '#000000',
+  },
+  // Image Picker
+  imagePickerBtn: {
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderRadius: 12,
+    height: 160,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    borderStyle: 'dashed',
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imagePickerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+  },
+  imagePickerText: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.4)',
+  },
+  imagePreview: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
   retroSubmitOuter: {
     marginHorizontal: 20,

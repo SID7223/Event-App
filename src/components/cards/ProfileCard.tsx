@@ -9,6 +9,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { User } from '../../types';
+import { resolveImage } from '../../utils/images';
 import { colors } from '../../theme/colors';
 import { spacing, borderRadius, fontSizes, fontWeights } from '../../theme/spacing';
 
@@ -27,7 +28,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ user, style }) => {
     >
       <View style={styles.card}>
         <View style={styles.avatarContainer}>
-          <Image source={{ uri: user.avatar }} style={styles.avatar} />
+          <Image source={{ uri: resolveImage(user.avatarId, user.avatar, 'thumbnail') }} style={styles.avatar} />
           <View style={styles.onlineIndicator} />
         </View>
 

@@ -20,6 +20,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../store';
 import GlassToggle from '../../components/ui/GlassToggle';
 import { fonts } from '../../theme/fonts';
+import { resolveImage, UPLOAD_API_URL } from '../../utils/images';
 
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -105,7 +106,29 @@ const ProfileScreen: React.FC = () => {
             quality: 0.8,
           });
           if (!result.canceled && result.assets[0]) {
-            setProfileImage(result.assets[0].uri);
+            const localUri = result.assets[0].uri;
+            setProfileImage(localUri);
+            try {
+              const formData = new FormData();
+              formData.append('file', {
+                uri: localUri,
+                name: `avatar_${Date.now()}.jpg`,
+                type: 'image/jpeg',
+              } as any);
+              formData.append('entity_type', 'user');
+              formData.append('entity_id', user?.id || '');
+              formData.append('usage_type', 'avatar');
+              formData.append('source', 'user_upload');
+              const uploadRes = await fetch(`${UPLOAD_API_URL}/api/images/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer placeholder_token' },
+                body: formData,
+              });
+              const uploadData = await uploadRes.json();
+              if (uploadData.image_id && user) {
+                useAuth.getState().setUser({ ...user, avatarId: uploadData.image_id, avatar: uploadData.url });
+              }
+            } catch (_) {}
           }
         },
       },
@@ -123,7 +146,29 @@ const ProfileScreen: React.FC = () => {
             quality: 0.8,
           });
           if (!result.canceled && result.assets[0]) {
-            setProfileImage(result.assets[0].uri);
+            const localUri = result.assets[0].uri;
+            setProfileImage(localUri);
+            try {
+              const formData = new FormData();
+              formData.append('file', {
+                uri: localUri,
+                name: `avatar_${Date.now()}.jpg`,
+                type: 'image/jpeg',
+              } as any);
+              formData.append('entity_type', 'user');
+              formData.append('entity_id', user?.id || '');
+              formData.append('usage_type', 'avatar');
+              formData.append('source', 'user_upload');
+              const uploadRes = await fetch(`${UPLOAD_API_URL}/api/images/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer placeholder_token' },
+                body: formData,
+              });
+              const uploadData = await uploadRes.json();
+              if (uploadData.image_id && user) {
+                useAuth.getState().setUser({ ...user, avatarId: uploadData.image_id, avatar: uploadData.url });
+              }
+            } catch (_) {}
           }
         },
       },
@@ -176,7 +221,7 @@ const ProfileScreen: React.FC = () => {
           <View style={[styles.avatarRing, user?.plan === 'premium' && styles.avatarRingPremium]}>
             <View style={styles.avatarInner}>
               <Image
-                source={{ uri: profileImage || 'https://randomuser.me/api/portraits/men/32.jpg' }}
+                source={{ uri: profileImage || resolveImage(user?.avatarId, user?.avatar, 'thumbnail') || 'https://randomuser.me/api/portraits/men/32.jpg' }}
                 style={styles.avatar}
               />
             </View>

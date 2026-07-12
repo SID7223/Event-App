@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../../store';
 import { fonts } from '../../theme/fonts';
+import { resolveImage } from '../../utils/images';
 import { getVenueById, getEventsByVenue } from '../../services/mockData';
 import { Event } from '../../types';
 import ClaimVenueModal from '../../components/ui/ClaimVenueModal';
@@ -92,7 +93,7 @@ const VenueProfileScreen: React.FC = () => {
       onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
       activeOpacity={0.88}
     >
-      <Image source={{ uri: event.image }} style={styles.eventImage} />
+      <Image source={{ uri: resolveImage(event.imageId, event.image, 'medium') }} style={styles.eventImage} />
       <LinearGradient
         colors={['transparent', 'rgba(10,12,18,0.85)']}
         style={styles.eventGradient}
@@ -141,7 +142,7 @@ const VenueProfileScreen: React.FC = () => {
       >
         {/* Cover Image */}
         <View style={styles.coverContainer}>
-          <Image source={{ uri: venue.coverImage }} style={styles.coverImage} />
+          <Image source={{ uri: resolveImage(venue.coverId, venue.coverImage, 'large') }} style={styles.coverImage} />
           <LinearGradient
             colors={['rgba(10,12,18,0.3)', 'rgba(10,12,18,0.95)']}
             style={styles.coverGradient}
@@ -159,7 +160,7 @@ const VenueProfileScreen: React.FC = () => {
 
         {/* Profile Header */}
         <View style={styles.profileHeader}>
-          <Image source={{ uri: venue.logo }} style={styles.logo} />
+          <Image source={{ uri: resolveImage(venue.logoId, venue.logo, 'thumbnail') }} style={styles.logo} />
           
           <View style={styles.nameSection}>
             <View style={styles.nameRow}>
