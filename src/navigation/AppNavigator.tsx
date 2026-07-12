@@ -18,6 +18,13 @@ import PlaySportsScreen from '../screens/main/PlaySportsScreen';
 import SettingsScreen from '../screens/main/SettingsScreen';
 import OneStepLoginSheet from '../components/OneStepLoginSheet';
 import AppGuideScreen from '../screens/auth/AppGuideScreen';
+import AdminDashboardScreen from '../screens/admin/AdminDashboardScreen';
+import AdminUsersScreen from '../screens/admin/AdminUsersScreen';
+import AdminUserDetailScreen from '../screens/admin/AdminUserDetailScreen';
+import AdminEventsScreen from '../screens/admin/AdminEventsScreen';
+import AdminBillboardsScreen from '../screens/admin/AdminBillboardsScreen';
+import AdminAnalyticsScreen from '../screens/admin/AdminAnalyticsScreen';
+import AdminScrapperScreen from '../screens/admin/AdminScrapperScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -36,6 +43,13 @@ export type RootStackParamList = {
   PlaySports: undefined;
   Settings: undefined;
   AppGuide: { replay: boolean };
+  AdminDashboard: undefined;
+  AdminUsers: undefined;
+  AdminUserDetail: { userId: string };
+  AdminEvents: undefined;
+  AdminBillboards: undefined;
+  AdminAnalytics: undefined;
+  AdminScrapper: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -139,6 +153,13 @@ const AppNavigator: React.FC = () => {
               component={AppGuideScreen}
               options={{ presentation: 'card' }}
             />
+            <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="AdminUsers" component={AdminUsersScreen} options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="AdminUserDetail" component={AdminUserDetailScreen} options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="AdminEvents" component={AdminEventsScreen} options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="AdminBillboards" component={AdminBillboardsScreen} options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="AdminAnalytics" component={AdminAnalyticsScreen} options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="AdminScrapper" component={AdminScrapperScreen} options={{ animation: 'slide_from_right' }} />
           </>
         )}
       </Stack.Navigator>

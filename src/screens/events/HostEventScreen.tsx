@@ -23,7 +23,8 @@ import * as yup from 'yup';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../store';
 import { allVibes } from '../../constants/vibes';
-import { resolveImage, UPLOAD_API_URL } from '../../utils/images';
+import { resolveImage } from '../../utils/images';
+import { uploadEventImage } from '../../services/api';
 import { fonts } from '../../theme/fonts';
 
 interface HostEventFormData {
@@ -134,31 +135,8 @@ const HostEventScreen: React.FC = () => {
     setIsUploading(true);
 
     try {
-      const response = await fetch(localUri);
-      const blob = await response.blob();
-      const formData = new FormData();
-      formData.append('file', {
-        uri: localUri,
-        name: `event_${Date.now()}.jpg`,
-        type: blob.type || 'image/jpeg',
-      } as any);
-      formData.append('entity_type', 'event');
-      formData.append('entity_id', `pending_${Date.now()}`);
-      formData.append('usage_type', 'cover');
-      formData.append('source', 'user_upload');
-
-      const uploadResponse = await fetch(`${UPLOAD_API_URL}/api/images/upload`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${useAuth.getState().user?.id || ''}`,
-        },
-        body: formData,
-      });
-
-      const resultData = await uploadResponse.json();
-      if (resultData.image_id) {
-        setSelectedImageId(resultData.image_id);
-      }
+      const imageUrl = await uploadEventImage(localUri);
+      setSelectedImageId(imageUrl);
     } catch (err) {
       Alert.alert('Upload Failed', 'Could not upload image. Please try again.');
       setSelectedImageUri(null);

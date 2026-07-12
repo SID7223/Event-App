@@ -39,8 +39,10 @@ export const getAttendingFriends = (
   eventId: string,
   friendsList: string[],
   privateRSVPs: string[],
-  hideRSVPs: boolean
+  hideRSVPs: boolean,
+  friendAttendees?: Friend[]
 ): Friend[] => {
+  if (friendAttendees) return friendAttendees;
   return [];
 };
 

@@ -1,6 +1,6 @@
 export const APP_NAME = 'chillingz';
 
-export const API_BASE_URL = 'https://api.chillingz.com/v1';
+export const API_BASE_URL = 'https://corlify-api.roadrunnerllc-bpo.workers.dev/api/v1';
 
 export const DEFAULT_AVATAR = 'https://i.pravatar.cc/150';
 

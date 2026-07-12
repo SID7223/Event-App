@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getOrganizerById, getAttendingFriends } from '../../constants/vibes';
+import { getFriendsAttendingEvent } from '../../services/api';
 import { useAuth, useApp } from '../../store';
 import { requestNotificationPermissions } from '../../utils/notifications';
 import { handleVenueBooking, getBookingButtonLabel } from '../../utils/booking';
@@ -64,7 +65,13 @@ const EventDetailScreen: React.FC<EventDetailScreenProps> = () => {
   const event = events.find((e) => e.id === eventId) || events[0];
 
   // Real social proof data from friends
-  const attendingFriends = getAttendingFriends(event.id, friendsList, privateRSVPs, privacySettings.hideRSVPs);
+  const [friendAttendees, setFriendAttendees] = useState<any[]>([]);
+  useEffect(() => {
+    if (eventId) {
+      getFriendsAttendingEvent(eventId).then(setFriendAttendees).catch(() => setFriendAttendees([]));
+    }
+  }, [eventId]);
+  const attendingFriends = getAttendingFriends(event.id, friendsList, privateRSVPs, privacySettings.hideRSVPs, friendAttendees);
   const friendsGoing = attendingFriends.length;
   const localsInterested = Math.floor(event.attendees * 0.12) + 100;
 

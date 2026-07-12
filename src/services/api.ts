@@ -1,6 +1,14 @@
 import { API_BASE_URL } from '../constants/config';
 import { useAuth } from '../store';
-import { Event, User, Ticket, Notification, Booking, SearchResult, Restaurant, MovieWithShowtimes } from '../types';
+import { Event, User, Ticket, Notification, Booking, SearchResult, Restaurant, MovieWithShowtimes, AdminAnalytics, Billboard, ScrapperEvent, ScrapperOrganizer, PaginatedResult, AdminSession } from '../types';
+
+interface AuthResponse {
+  user: any;
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresAt: number;
+  refreshTokenExpiresAt: number;
+}
 
 interface ApiResponse<T> {
   success: boolean;
@@ -22,9 +30,80 @@ interface ApiError {
   };
 }
 
+export async function login(email: string, password: string): Promise<AuthResponse> {
+  const res = await fetch(`${API_BASE_URL}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+
+  const body = await res.json();
+  if (!res.ok || !body.success) {
+    throw new Error(body.error?.message || 'Login failed');
+  }
+
+  return body.data;
+}
+
+export async function signup(data: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phone?: string;
+}): Promise<AuthResponse> {
+  const res = await fetch(`${API_BASE_URL}/auth/signup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+
+  const body = await res.json();
+  if (!res.ok || !body.success) {
+    throw new Error(body.error?.message || 'Signup failed');
+  }
+
+  return body.data;
+}
+
 function getToken(): string | null {
   const state = useAuth.getState();
   return state.authToken || null;
+}
+
+function getRefreshToken(): string | null {
+  const state = useAuth.getState();
+  return state.refreshToken || null;
+}
+
+let isRefreshing = false;
+let refreshPromise: Promise<boolean> | null = null;
+
+async function refreshTokens(): Promise<boolean> {
+  const currentRefreshToken = getRefreshToken();
+  if (!currentRefreshToken) return false;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: currentRefreshToken }),
+    });
+
+    const body = await res.json();
+    if (!res.ok || !body.success) {
+      useAuth.getState().logout();
+      return false;
+    }
+
+    const { accessToken, refreshToken, accessTokenExpiresAt } = body.data;
+    const state = useAuth.getState();
+    state.loginWithTokens(accessToken, refreshToken, accessTokenExpiresAt, state.user);
+    return true;
+  } catch {
+    useAuth.getState().logout();
+    return false;
+  }
 }
 
 async function request<T>(
@@ -41,10 +120,32 @@ async function request<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  let res = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers,
   });
+
+  if (res.status === 401 && getRefreshToken()) {
+    if (!isRefreshing) {
+      isRefreshing = true;
+      refreshPromise = refreshTokens();
+    }
+
+    const refreshed = await refreshPromise;
+    isRefreshing = false;
+    refreshPromise = null;
+
+    if (refreshed) {
+      const newToken = getToken();
+      if (newToken) {
+        headers['Authorization'] = `Bearer ${newToken}`;
+      }
+      res = await fetch(`${API_BASE_URL}${path}`, {
+        ...options,
+        headers,
+      });
+    }
+  }
 
   const body = await res.json();
 
@@ -139,7 +240,7 @@ export async function updateLocation(data: {
   latitude?: number;
   longitude?: number;
 }): Promise<{ city: string; neighborhood: string }> {
-  return request('/users/me/location', {
+  return request<{ city: string; neighborhood: string }>('/users/me', {
     method: 'PUT',
     body: JSON.stringify(data),
   });
@@ -181,13 +282,13 @@ export async function createBooking(data: {
 }
 
 export async function toggleFavorite(eventId: string): Promise<{ eventId: string; favorited: boolean }> {
-  return request<{ eventId: string; favorited: boolean }>(`/favorites/${eventId}`, {
+  return request<{ eventId: string; favorited: boolean }>(`/events/${eventId}/favorite`, {
     method: 'POST',
   });
 }
 
-export async function getFavorites(): Promise<string[]> {
-  return request<string[]>('/favorites');
+export async function getFavorites(): Promise<Event[]> {
+  return request<Event[]>('/events?favorited=true');
 }
 
 export async function getFollows(): Promise<{
@@ -202,7 +303,7 @@ export async function followVenue(id: string): Promise<void> {
 }
 
 export async function unfollowVenue(id: string): Promise<void> {
-  await request(`/follows/venue/${id}`, { method: 'DELETE' });
+  await request(`/follows/venue/${id}`, { method: 'POST' });
 }
 
 export async function followOrganizer(id: string): Promise<void> {
@@ -210,7 +311,7 @@ export async function followOrganizer(id: string): Promise<void> {
 }
 
 export async function unfollowOrganizer(id: string): Promise<void> {
-  await request(`/follows/organizer/${id}`, { method: 'DELETE' });
+  await request(`/follows/organizer/${id}`, { method: 'POST' });
 }
 
 export async function getVenues(params?: {
@@ -317,6 +418,127 @@ export async function removeFriend(id: string): Promise<void> {
   await request(`/friends/${id}`, { method: 'DELETE' });
 }
 
+export async function getFriendSuggestions(limit = 10): Promise<any[]> {
+  const res = await request<{ suggestions: any[] }>(`/friends/suggestions?limit=${limit}`);
+  return res.suggestions;
+}
+
+export async function searchUsers(query: string, limit = 10): Promise<any[]> {
+  const res = await request<{ results: any[] }>(`/friends/search?q=${encodeURIComponent(query)}&limit=${limit}`);
+  return res.results;
+}
+
+export async function getFriendsAttendingEvent(eventId: string): Promise<any[]> {
+  const res = await request<{ friends: any[] }>(`/events/${eventId}/friends-attending`);
+  return res.friends;
+}
+
+export async function uploadAvatar(localUri: string): Promise<string> {
+  const state = useAuth.getState();
+  const token = state.authToken;
+  if (!token) throw new Error('Not authenticated');
+
+  const ext = localUri.split('.').pop() || 'jpg';
+  const contentType = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+
+  const initRes = await fetch(`${API_BASE_URL}/users/me/avatar`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ contentType, extension: ext }),
+  });
+
+  const initBody = await initRes.json();
+  if (!initRes.ok || !initBody.success) {
+    throw new Error(initBody.error?.message || 'Failed to initiate avatar upload');
+  }
+
+  const { uploadUrl, key } = initBody.data;
+
+  const fileRes = await fetch(localUri);
+  const blob = await fileRes.blob();
+
+  const uploadRes = await fetch(uploadUrl, {
+    method: 'PUT',
+    body: blob,
+  });
+
+  if (!uploadRes.ok) {
+    throw new Error('Failed to upload file to storage');
+  }
+
+  const confirmRes = await fetch(`${API_BASE_URL}/users/me/avatar`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ key }),
+  });
+
+  const confirmBody = await confirmRes.json();
+  if (!confirmRes.ok || !confirmBody.success) {
+    throw new Error(confirmBody.error?.message || 'Failed to confirm avatar upload');
+  }
+
+  return confirmBody.data.avatarUrl;
+}
+
+export async function uploadEventImage(localUri: string): Promise<string> {
+  const state = useAuth.getState();
+  const token = state.authToken;
+  if (!token) throw new Error('Not authenticated');
+
+  const ext = localUri.split('.').pop() || 'jpg';
+  const contentType = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+
+  const initRes = await fetch(`${API_BASE_URL}/upload/event-image`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ contentType, extension: ext }),
+  });
+
+  const initBody = await initRes.json();
+  if (!initRes.ok || !initBody.success) {
+    throw new Error(initBody.error?.message || 'Failed to initiate event image upload');
+  }
+
+  const { uploadUrl, key } = initBody.data;
+
+  const fileRes = await fetch(localUri);
+  const blob = await fileRes.blob();
+
+  const uploadRes = await fetch(uploadUrl, {
+    method: 'PUT',
+    body: blob,
+  });
+
+  if (!uploadRes.ok) {
+    throw new Error('Failed to upload file to storage');
+  }
+
+  const confirmRes = await fetch(`${API_BASE_URL}/upload/event-image`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ key }),
+  });
+
+  const confirmBody = await confirmRes.json();
+  if (!confirmRes.ok || !confirmBody.success) {
+    throw new Error(confirmBody.error?.message || 'Failed to confirm event image upload');
+  }
+
+  return confirmBody.data.imageUrl || confirmBody.data.image_id;
+}
+
 export async function getPrivacySettings(): Promise<{ hideRSVPs: boolean }> {
   return request('/privacy');
 }
@@ -326,4 +548,84 @@ export async function updatePrivacySettings(data: { hideRSVPs: boolean }): Promi
     method: 'PUT',
     body: JSON.stringify(data),
   });
+}
+
+// ───── Admin API ─────────────────────────────────────────────────────────────
+
+export async function adminGetUsers(params?: { page?: number; limit?: number; q?: string }): Promise<PaginatedResult<User>> {
+  return request<PaginatedResult<User>>(addParams('/admin/users', params));
+}
+
+export async function adminGetUser(id: string): Promise<{ user: User; sessions: AdminSession[]; events: Event[] }> {
+  return request(`/admin/users/${id}`);
+}
+
+export async function adminUpdateUserRole(id: string, role: 'user' | 'creator' | 'admin'): Promise<void> {
+  await request(`/admin/users/${id}/role`, {
+    method: 'PUT',
+    body: JSON.stringify({ role }),
+  });
+}
+
+export async function adminGetEvents(params?: { page?: number; limit?: number; status?: string }): Promise<PaginatedResult<Event>> {
+  return request<PaginatedResult<Event>>(addParams('/admin/events', params));
+}
+
+export async function adminUpdateEventStatus(id: string, status: 'approved' | 'rejected'): Promise<void> {
+  await request(`/admin/events/${id}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function adminGetAnalytics(): Promise<AdminAnalytics> {
+  return request<AdminAnalytics>('/admin/analytics');
+}
+
+export async function adminGetAnalyticsDetail(table: string, params?: Record<string, string | number | boolean | undefined>): Promise<PaginatedResult<any>> {
+  return request<PaginatedResult<any>>(addParams(`/admin/analytics/${table}`, params));
+}
+
+export async function adminGetBillboards(params?: { status?: string }): Promise<Billboard[]> {
+  return request<Billboard[]>(addParams('/admin/billboards', params));
+}
+
+export async function adminCreateBillboard(data: { title: string; cover_url?: string; creator_id?: string; target_city: string; start_time: number; end_time: number }): Promise<{ id: string }> {
+  return request<{ id: string }>('/admin/billboards', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function adminUpdateBillboard(id: string, data: Partial<Billboard>): Promise<void> {
+  await request(`/admin/billboards/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function adminDeleteBillboard(id: string): Promise<void> {
+  await request(`/admin/billboards/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function adminGetScrapperEvents(params?: Record<string, string | number | boolean | undefined>): Promise<PaginatedResult<ScrapperEvent>> {
+  return request<PaginatedResult<ScrapperEvent>>(addParams('/admin/scrapper/events', params));
+}
+
+export async function adminMarkScrapperEventContacted(id: string): Promise<void> {
+  await request(`/admin/scrapper/events/${id}/contact`, { method: 'PUT' });
+}
+
+export async function adminGetScrapperOrganizers(params?: Record<string, string | number | boolean | undefined>): Promise<PaginatedResult<ScrapperOrganizer>> {
+  return request<PaginatedResult<ScrapperOrganizer>>(addParams('/admin/scrapper/organizers', params));
+}
+
+export async function adminGetScrapperTopOrganizers(params?: Record<string, string | number | boolean | undefined>): Promise<PaginatedResult<ScrapperOrganizer>> {
+  return request<PaginatedResult<ScrapperOrganizer>>(addParams('/admin/scrapper/top-organizers', params));
+}
+
+export async function adminMarkTopOrganizerContacted(id: string): Promise<void> {
+  await request(`/admin/scrapper/top-organizers/${id}/contact`, { method: 'PUT' });
 }

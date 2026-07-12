@@ -17,6 +17,8 @@ interface AuthState {
   isLoggedIn: boolean;
   user: User | null;
   authToken: string | null;
+  refreshToken: string | null;
+  tokenExpiresAt: number | null;
   location: UserLocation | null;
   preferences: string[];
   savedEvents: string[];
@@ -40,6 +42,7 @@ interface AuthState {
   privateRSVPs: string[]; // event IDs marked private
   login: (user: User) => void;
   loginWithToken: (token: string, userData: any) => void;
+  loginWithTokens: (accessToken: string, refreshToken: string, expiresAt: number, userData: any) => void;
   logout: () => void;
   setUser: (user: User) => void;
   setLocation: (location: UserLocation) => void;
@@ -55,6 +58,7 @@ interface AuthState {
   unfollowEntity: (id: string, type: 'venue' | 'organizer') => Promise<void>;
   updateSettings: (key: keyof AuthState['settings'], value: boolean) => void;
   setTheme: (theme: 'dark' | 'light') => void;
+  setFriendsList: (friendIds: string[]) => void;
   addFriend: (friendId: string) => void;
   removeFriend: (friendId: string) => void;
   isFriend: (friendId: string) => boolean;
@@ -103,6 +107,8 @@ export const useAuth = create<AuthState>()(
       isLoggedIn: false,
       user: null,
       authToken: null,
+      refreshToken: null,
+      tokenExpiresAt: null,
       location: null,
       preferences: [],
       savedEvents: [],
@@ -128,7 +134,6 @@ export const useAuth = create<AuthState>()(
       
       login: (user: User) => set({ 
         isLoggedIn: true, 
-        onboardingComplete: true,
         user,
         savedLogin: {
           email: user.email,
@@ -139,7 +144,6 @@ export const useAuth = create<AuthState>()(
 
       loginWithToken: (token: string, userData: any) => set({
         isLoggedIn: true,
-        onboardingComplete: true,
         authToken: token,
         user: {
           id: userData.id,
@@ -152,6 +156,31 @@ export const useAuth = create<AuthState>()(
           interests: userData.preferences || [],
           notifications: true,
           plan: userData.plan || 'basic',
+        },
+        savedLogin: {
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+        },
+      }),
+
+      loginWithTokens: (accessToken: string, refreshToken: string, expiresAt: number, userData: any) => set({
+        isLoggedIn: true,
+        authToken: accessToken,
+        refreshToken,
+        tokenExpiresAt: expiresAt,
+        user: {
+          id: userData.id,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          email: userData.email,
+          phone: userData.phone || '',
+          avatar: userData.avatarUrl || userData.avatar || '',
+          avatarId: userData.avatarId,
+          interests: userData.preferences || [],
+          notifications: userData.settings?.pushNotifications ?? true,
+          plan: 'basic',
+          role: userData.role || 'user',
         },
         savedLogin: {
           email: userData.email,
@@ -183,6 +212,8 @@ export const useAuth = create<AuthState>()(
           isLoggedIn: false, 
           user: null, 
           authToken: null,
+          refreshToken: null,
+          tokenExpiresAt: null,
           location: null, 
           preferences: [],
           savedEvents: [],
@@ -377,6 +408,10 @@ export const useAuth = create<AuthState>()(
 
       setTheme: (theme: 'dark' | 'light') => {
         set({ theme, settings: { ...get().settings, darkMode: theme === 'dark' } });
+      },
+
+      setFriendsList: (friendIds: string[]) => {
+        set({ friendsList: friendIds });
       },
 
       addFriend: (friendId: string) => {

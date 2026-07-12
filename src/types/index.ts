@@ -8,25 +8,35 @@ export interface Event {
   description: string;
   category: string;
   image: string;
+  image_url?: string;
   imageId?: string;
   price: number;
   location: string;
   date: string;
   time: string;
   organizer: string;
+  organizer_name?: string;
   organizerId?: string;
+  organizer_id?: string;
   venue: string;
+  venue_name?: string;
   venueId?: string;
+  venue_id?: string;
   attendees: number;
+  attendee_count?: number;
   rating: number;
   isFavorite: boolean;
   isFeatured: boolean;
+  is_featured?: boolean;
   neighborhood?: string;
   city?: PakistanCity;
   bookingType?: BookingType;
+  booking_type?: BookingType;
   externalLink?: string | null;
+  external_link?: string | null;
   whatsappNumber?: string | null;
   dataSource?: DataSource;
+  data_source?: DataSource;
 }
 
 export interface Category {
@@ -60,12 +70,19 @@ export interface User {
   email: string;
   phone: string;
   avatar: string;
+  avatarUrl?: string;
   avatarId?: string;
   interests: string[];
-  notifications: boolean;
-  location?: UserLocation;
   preferences?: string[];
+  notifications: boolean;
+  settings?: { pushNotifications: boolean };
+  location?: UserLocation;
   plan?: 'basic' | 'premium';
+  role?: 'user' | 'creator' | 'admin';
+  city?: string;
+  neighborhood?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface Ticket {
@@ -244,4 +261,72 @@ export interface QRCode {
   userId: string;
   handle: string;
   generatedAt: string;
+}
+
+// ─── Admin types ─────────────────────────────────────────────────────────────
+
+export interface AdminAnalytics {
+  users: number;
+  events: number;
+  bookings: number;
+  revenue: number;
+  cityStats: Array<{ city: string; count: number }>;
+}
+
+export interface Billboard {
+  id: string;
+  title: string;
+  cover_url: string | null;
+  creator_id: string | null;
+  target_city: string;
+  start_time: number;
+  end_time: number;
+  status: 'scheduled' | 'active' | 'ended';
+  created_at: number;
+}
+
+export interface ScrapperEvent {
+  id: string;
+  title: string;
+  source: string;
+  url: string;
+  image_url: string | null;
+  venue: string;
+  location: string;
+  city: string;
+  date: string;
+  time: string;
+  price: string;
+  category: string;
+  contacted: 0 | 1;
+  contacted_at: number | null;
+  scraped_at: number;
+}
+
+export interface ScrapperOrganizer {
+  id: string;
+  name: string;
+  source: string;
+  url: string;
+  city: string;
+  status: string;
+  event_count: number;
+  contacted: 0 | 1;
+  contacted_at: number | null;
+  scraped_at: number;
+}
+
+export interface AdminSession {
+  id: string;
+  device: string;
+  ip: string;
+  created_at: string;
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }

@@ -1,7 +1,5 @@
 export const MEDIA_BASE_URL = 'https://media.corlify.com';
 
-export const UPLOAD_API_URL = 'https://upload-api.roadrunnerllc-bpo.workers.dev';
-
 const VARIANT_DEFAULTS = {
   thumbnail: { w: 150, h: 150 },
   small: { w: 400, h: 300 },

@@ -16,13 +16,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store';
+import { login as apiLogin } from '../../services/api';
 
 
 const { width } = Dimensions.get('window');
 
 const LoginScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { login } = useAuth();
+  const { loginWithTokens } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -37,18 +38,14 @@ const LoginScreen: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleLogin = () => {
-    if (validate()) {
-      login({
-        id: '1',
-        firstName: email.split('@')[0] || 'User',
-        lastName: '',
-        email,
-        phone: '',
-        avatar: '',
-        interests: [],
-        notifications: true,
-      });
+  const handleLogin = async () => {
+    if (!validate()) return;
+    try {
+      const authData = await apiLogin(email, password);
+      loginWithTokens(authData.accessToken, authData.refreshToken, authData.accessTokenExpiresAt, authData.user);
+      navigation.reset({ index: 0, routes: [{ name: 'LocationStep' }] });
+    } catch (err: any) {
+      setErrors({ email: err.message || 'Login failed' });
     }
   };
 

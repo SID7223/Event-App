@@ -14,6 +14,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import BackButton from '../../components/BackButton';
+import { signup as apiSignup } from '../../services/api';
+import { useAuth } from '../../store';
 
 const SignupScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -40,20 +42,24 @@ const SignupScreen: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSignup = () => {
-    if (validate()) {
-      navigation.navigate('LocationStep', {
-        user: {
-          id: Date.now().toString(),
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-          email: email.trim(),
-          phone: phone.trim(),
-          avatar: '',
-          interests: [],
-          notifications: true,
-        },
+  const { loginWithTokens } = useAuth();
+
+  const handleSignup = async () => {
+    if (!validate()) return;
+    try {
+      const authData = await apiSignup({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim(),
+        password,
+        phone: phone.trim() || undefined,
       });
+      loginWithTokens(authData.accessToken, authData.refreshToken, authData.accessTokenExpiresAt, authData.user);
+      navigation.navigate('LocationStep', {
+        user: authData.user,
+      });
+    } catch (err: any) {
+      setErrors({ email: err.message || 'Signup failed' });
     }
   };
 

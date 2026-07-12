@@ -2,6 +2,7 @@ import { useState } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 import { useAuth } from '../store';
+import { API_BASE_URL } from '../constants/config';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -13,7 +14,7 @@ const DISCOVERY = {
 export function useGoogleAuth() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { login, setUser } = useAuth();
+  const { loginWithTokens } = useAuth();
 
   const [request, response, promptAsync] = useAuthRequest(
     {
@@ -37,17 +38,18 @@ export function useGoogleAuth() {
 
       const { idToken } = result.params;
 
-      const res = await fetch('https://auth-api.roadrunnerllc-bpo.workers.dev/auth/google', {
+      const res = await fetch(`${API_BASE_URL}/auth/social/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken }),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed');
+      if (!res.ok || !data.success) throw new Error(data.error?.message || 'Google login failed');
 
-      await loginWithToken(data.token, data.user);
-      return data.user;
+      const authData = data.data;
+      loginWithTokens(authData.accessToken, authData.refreshToken, authData.accessTokenExpiresAt, authData.user);
+      return authData.user;
     } catch (err: any) {
       setError(err.message);
       throw err;

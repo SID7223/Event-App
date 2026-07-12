@@ -20,7 +20,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../store';
 import GlassToggle from '../../components/ui/GlassToggle';
 import { fonts } from '../../theme/fonts';
-import { resolveImage, UPLOAD_API_URL } from '../../utils/images';
+import { resolveImage } from '../../utils/images';
+import { uploadAvatar } from '../../services/api';
 
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -109,24 +110,9 @@ const ProfileScreen: React.FC = () => {
             const localUri = result.assets[0].uri;
             setProfileImage(localUri);
             try {
-              const formData = new FormData();
-              formData.append('file', {
-                uri: localUri,
-                name: `avatar_${Date.now()}.jpg`,
-                type: 'image/jpeg',
-              } as any);
-              formData.append('entity_type', 'user');
-              formData.append('entity_id', user?.id || '');
-              formData.append('usage_type', 'avatar');
-              formData.append('source', 'user_upload');
-              const uploadRes = await fetch(`${UPLOAD_API_URL}/api/images/upload`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${user?.id || ''}` },
-                body: formData,
-              });
-              const uploadData = await uploadRes.json();
-              if (uploadData.image_id && user) {
-                useAuth.getState().setUser({ ...user, avatarId: uploadData.image_id, avatar: uploadData.url });
+              const avatarUrl = await uploadAvatar(localUri);
+              if (user) {
+                useAuth.getState().setUser({ ...user, avatar: avatarUrl, avatarUrl: avatarUrl });
               }
             } catch (_) {}
           }
@@ -149,24 +135,9 @@ const ProfileScreen: React.FC = () => {
             const localUri = result.assets[0].uri;
             setProfileImage(localUri);
             try {
-              const formData = new FormData();
-              formData.append('file', {
-                uri: localUri,
-                name: `avatar_${Date.now()}.jpg`,
-                type: 'image/jpeg',
-              } as any);
-              formData.append('entity_type', 'user');
-              formData.append('entity_id', user?.id || '');
-              formData.append('usage_type', 'avatar');
-              formData.append('source', 'user_upload');
-              const uploadRes = await fetch(`${UPLOAD_API_URL}/api/images/upload`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${user?.id || ''}` },
-                body: formData,
-              });
-              const uploadData = await uploadRes.json();
-              if (uploadData.image_id && user) {
-                useAuth.getState().setUser({ ...user, avatarId: uploadData.image_id, avatar: uploadData.url });
+              const avatarUrl = await uploadAvatar(localUri);
+              if (user) {
+                useAuth.getState().setUser({ ...user, avatar: avatarUrl, avatarUrl: avatarUrl });
               }
             } catch (_) {}
           }
@@ -405,6 +376,15 @@ const ProfileScreen: React.FC = () => {
             <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
           </TouchableOpacity>
         </View>
+
+        {/* Admin Panel */}
+        {user?.role === 'admin' && (
+          <TouchableOpacity style={styles.adminBtn} onPress={() => navigation.navigate('AdminDashboard')} activeOpacity={0.85}>
+            <Ionicons name="shield-checkmark-outline" size={20} color="#E43414" />
+            <Text style={styles.adminBtnText}>Admin Panel</Text>
+            <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" style={{ marginLeft: 'auto' }} />
+          </TouchableOpacity>
+        )}
 
         {/* Log Out */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.85}>
@@ -821,6 +801,26 @@ const styles = StyleSheet.create({
     color: 'rgba(255,215,0,0.6)',
     fontFamily: fonts.body,
     marginLeft: 2,
+  },
+  // Admin
+  adminBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginHorizontal: 20,
+    marginBottom: 12,
+    height: 56,
+    borderRadius: 14,
+    backgroundColor: 'rgba(228,52,20,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(228,52,20,0.2)',
+    paddingHorizontal: 16,
+  },
+  adminBtnText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#E43414',
+    fontFamily: fonts.body,
   },
   // Log Out
   logoutBtn: {
