@@ -36,7 +36,10 @@ const SignupScreen: React.FC = () => {
     else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Invalid email';
     if (!phone.trim()) newErrors.phone = 'Phone is required';
     if (!password) newErrors.password = 'Password is required';
-    else if (password.length < 6) newErrors.password = 'At least 6 characters';
+    else if (password.length < 8) newErrors.password = 'Min 8 characters';
+    else if (!/[A-Z]/.test(password)) newErrors.password = 'Must contain an uppercase letter';
+    else if (!/[a-z]/.test(password)) newErrors.password = 'Must contain a lowercase letter';
+    else if (!/[0-9]/.test(password)) newErrors.password = 'Must contain a number';
     if (!agreedToTerms) newErrors.terms = 'Please agree to the terms';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

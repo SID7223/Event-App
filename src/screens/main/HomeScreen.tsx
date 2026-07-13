@@ -125,14 +125,6 @@ const HomeScreen: React.FC = () => {
     return sortVibesByPreferences(preferences || []);
   }, [preferences]);
 
-  // Get featured events (top 5 highest rated isFeatured events)
-  const featuredEvents = useMemo(() => {
-    return filteredEventsList
-      .filter(e => e.isFeatured)
-      .sort((a, b) => b.rating - a.rating)
-      .slice(0, 5);
-  }, [filteredEventsList]);
-
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const featuredFlatListRef = useRef<FlatList<Event>>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -165,6 +157,14 @@ const HomeScreen: React.FC = () => {
 
   // Source list for sections — uses filteredEvents when a vibe filter is active
   const sectionSource = (!activeVibe || activeVibe === 'all') ? filteredEventsList : filteredEvents;
+
+  // Get featured events (top 5 highest rated isFeatured events)
+  const featuredEvents = useMemo(() => {
+    return sectionSource
+      .filter(e => e.isFeatured)
+      .sort((a, b) => b.rating - a.rating)
+      .slice(0, 5);
+  }, [sectionSource]);
 
   // Search results — filter by query across title, category, venue
   const searchResults = useMemo(() => {
