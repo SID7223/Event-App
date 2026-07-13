@@ -19,6 +19,8 @@ interface EventRow {
   time: string;
   organizer_id: string | null;
   venue_id: string | null;
+  venue_name: string | null;
+  org_name: string | null;
   attendees: number;
   rating: number;
   is_featured: number;
@@ -55,9 +57,9 @@ function mapEvent(row: EventRow, categoryName?: string, isFavorited = false) {
     location: row.location,
     date: row.date,
     time: row.time,
-    organizer: row.organizer_id || '',
+    organizer: row.org_name || row.organizer_id || '',
     organizerId: row.organizer_id || undefined,
-    venue: row.venue_id || '',
+    venue: row.venue_name || row.venue_id || '',
     venueId: row.venue_id || undefined,
     attendees: row.attendees,
     rating: row.rating,
@@ -121,7 +123,7 @@ export function register(app: Hono<{ Bindings: Env }>) {
 
     const events = await query<EventRow>(
       c.env.chillingz_db,
-      `SELECT e.* FROM events e LEFT JOIN categories c ON e.category_id = c.id ${where} ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
+      `SELECT e.*, v.name AS venue_name, org.name AS org_name FROM events e LEFT JOIN categories c ON e.category_id = c.id LEFT JOIN venues v ON e.venue_id = v.id LEFT JOIN venues org ON e.organizer_id = org.id ${where} ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
       ...params, queryParams.limit, offset
     );
 
@@ -155,7 +157,7 @@ export function register(app: Hono<{ Bindings: Env }>) {
   app.get('/events/featured', async (c) => {
     const events = await query<EventRow>(
       c.env.chillingz_db,
-      "SELECT * FROM events WHERE status = 'active' AND is_featured = 1 AND date >= date('now') AND (featured_until IS NULL OR featured_until >= date('now')) ORDER BY attendees DESC LIMIT 10"
+      "SELECT e.*, v.name AS venue_name, org.name AS org_name FROM events e LEFT JOIN venues v ON e.venue_id = v.id LEFT JOIN venues org ON e.organizer_id = org.id WHERE e.status = 'active' AND e.is_featured = 1 AND e.date >= date('now') AND (e.featured_until IS NULL OR e.featured_until >= date('now')) ORDER BY e.attendees DESC LIMIT 10"
     );
 
     const data = await Promise.all(events.map(async (event) => {
@@ -177,7 +179,7 @@ export function register(app: Hono<{ Bindings: Env }>) {
   app.get('/events/popular', async (c) => {
     const events = await query<EventRow>(
       c.env.chillingz_db,
-      "SELECT * FROM events WHERE status = 'active' ORDER BY attendees DESC LIMIT 20"
+      "SELECT e.*, v.name AS venue_name, org.name AS org_name FROM events e LEFT JOIN venues v ON e.venue_id = v.id LEFT JOIN venues org ON e.organizer_id = org.id WHERE e.status = 'active' ORDER BY e.attendees DESC LIMIT 20"
     );
 
     const data = await Promise.all(events.map(async (event) => {
@@ -199,7 +201,7 @@ export function register(app: Hono<{ Bindings: Env }>) {
   app.get('/events/upcoming', async (c) => {
     const events = await query<EventRow>(
       c.env.chillingz_db,
-      "SELECT * FROM events WHERE status = 'active' AND date >= date('now') ORDER BY date ASC LIMIT 20"
+      "SELECT e.*, v.name AS venue_name, org.name AS org_name FROM events e LEFT JOIN venues v ON e.venue_id = v.id LEFT JOIN venues org ON e.organizer_id = org.id WHERE e.status = 'active' AND e.date >= date('now') ORDER BY e.date ASC LIMIT 20"
     );
 
     const data = await Promise.all(events.map(async (event) => {
@@ -222,7 +224,7 @@ export function register(app: Hono<{ Bindings: Env }>) {
     const id = c.req.param('id');
     const event = await first<EventRow>(
       c.env.chillingz_db,
-      "SELECT * FROM events WHERE id = ? AND status = 'active'",
+      "SELECT e.*, v.name AS venue_name, org.name AS org_name FROM events e LEFT JOIN venues v ON e.venue_id = v.id LEFT JOIN venues org ON e.organizer_id = org.id WHERE e.id = ? AND e.status = 'active'",
       id
     );
 
@@ -285,7 +287,7 @@ export function register(app: Hono<{ Bindings: Env }>) {
 
     const created = await first<EventRow>(
       c.env.chillingz_db,
-      'SELECT * FROM events WHERE id = ?',
+      'SELECT e.*, v.name AS venue_name, org.name AS org_name FROM events e LEFT JOIN venues v ON e.venue_id = v.id LEFT JOIN venues org ON e.organizer_id = org.id WHERE e.id = ?',
       eventId
     );
 
@@ -344,7 +346,7 @@ export function register(app: Hono<{ Bindings: Env }>) {
 
     const updated = await first<EventRow>(
       c.env.chillingz_db,
-      'SELECT * FROM events WHERE id = ?',
+      'SELECT e.*, v.name AS venue_name, org.name AS org_name FROM events e LEFT JOIN venues v ON e.venue_id = v.id LEFT JOIN venues org ON e.organizer_id = org.id WHERE e.id = ?',
       id
     );
 

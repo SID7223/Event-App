@@ -142,52 +142,70 @@ export const useAuth = create<AuthState>()(
         },
       }),
 
-      loginWithToken: (token: string, userData: any) => set({
-        isLoggedIn: true,
-        authToken: token,
-        user: {
-          id: userData.id,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          email: userData.email,
-          phone: userData.phone || '',
-          avatar: userData.avatar || '',
-          avatarId: userData.avatarId,
-          interests: userData.preferences || [],
-          notifications: true,
-          plan: userData.plan || 'basic',
-        },
-        savedLogin: {
-          email: userData.email,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-        },
-      }),
+      loginWithToken: (token: string, userData: any) => {
+        const hasLocation = userData.location?.city || userData.city;
+        const hasPreferences = userData.preferences?.length > 0 || userData.interests?.length > 0;
+        const onboardingComplete = !!(hasLocation && hasPreferences);
 
-      loginWithTokens: (accessToken: string, refreshToken: string, expiresAt: number, userData: any) => set({
-        isLoggedIn: true,
-        authToken: accessToken,
-        refreshToken,
-        tokenExpiresAt: expiresAt,
-        user: {
-          id: userData.id,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          email: userData.email,
-          phone: userData.phone || '',
-          avatar: userData.avatarUrl || userData.avatar || '',
-          avatarId: userData.avatarId,
-          interests: userData.preferences || [],
-          notifications: userData.settings?.pushNotifications ?? true,
-          plan: 'basic',
-          role: userData.role || 'user',
-        },
-        savedLogin: {
-          email: userData.email,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-        },
-      }),
+        set({
+          isLoggedIn: true,
+          authToken: token,
+          user: {
+            id: userData.id,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            email: userData.email,
+            phone: userData.phone || '',
+            avatar: userData.avatar || '',
+            avatarId: userData.avatarId,
+            interests: userData.preferences || [],
+            notifications: true,
+            plan: userData.plan || 'basic',
+          },
+          location: userData.location || null,
+          preferences: userData.preferences || userData.interests || [],
+          onboardingComplete,
+          savedLogin: {
+            email: userData.email,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+          },
+        });
+      },
+
+      loginWithTokens: (accessToken: string, refreshToken: string, expiresAt: number, userData: any) => {
+        const hasLocation = userData.location?.city || userData.city;
+        const hasPreferences = userData.preferences?.length > 0 || userData.interests?.length > 0;
+        const onboardingComplete = !!(hasLocation && hasPreferences);
+
+        set({
+          isLoggedIn: true,
+          authToken: accessToken,
+          refreshToken,
+          tokenExpiresAt: expiresAt,
+          user: {
+            id: userData.id,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            email: userData.email,
+            phone: userData.phone || '',
+            avatar: userData.avatarUrl || userData.avatar || '',
+            avatarId: userData.avatarId,
+            interests: userData.preferences || [],
+            notifications: userData.settings?.pushNotifications ?? true,
+            plan: 'basic',
+            role: userData.role || 'user',
+          },
+          location: userData.location || null,
+          preferences: userData.preferences || userData.interests || [],
+          onboardingComplete,
+          savedLogin: {
+            email: userData.email,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+          },
+        });
+      },
 
       logout: async () => { 
         const { authToken } = get();

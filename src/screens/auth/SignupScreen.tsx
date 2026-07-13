@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import BackButton from '../../components/BackButton';
-import { signup as apiSignup } from '../../services/api';
+import { signup as apiSignup, login as apiLogin } from '../../services/api';
 import { useAuth } from '../../store';
 
 const SignupScreen: React.FC = () => {
@@ -55,11 +55,38 @@ const SignupScreen: React.FC = () => {
         phone: phone.trim() || undefined,
       });
       loginWithTokens(authData.accessToken, authData.refreshToken, authData.accessTokenExpiresAt, authData.user);
-      navigation.navigate('LocationStep', {
-        user: authData.user,
-      });
+      
+      const user = authData.user;
+      const hasLocation = user.location?.city || user.city;
+      const hasPreferences = user.preferences?.length > 0 || user.interests?.length > 0;
+      const userCompletedOnboarding = !!(hasLocation && hasPreferences);
+      if (userCompletedOnboarding) {
+        return;
+      }
+      navigation.navigate('LocationStep', { user });
+
     } catch (err: any) {
-      setErrors({ email: err.message || 'Signup failed' });
+      if (err.message?.toLowerCase().includes('already exists')) {
+        try {
+          const authData = await apiLogin(email.trim(), password);
+          loginWithTokens(authData.accessToken, authData.refreshToken, authData.accessTokenExpiresAt, authData.user);
+          
+          const existingUser = authData.user;
+          const existingHasLocation = existingUser.location?.city || existingUser.city;
+          const existingHasPrefs = existingUser.preferences?.length > 0 || existingUser.interests?.length > 0;
+          const existingCompletedOnboarding = !!(existingHasLocation && existingHasPrefs);
+          
+          if (existingCompletedOnboarding) {
+            return;
+          }
+          navigation.navigate('LocationStep', { user: existingUser });
+          return;
+        } catch {
+          setErrors({ email: 'An account with this email already exists. Please try logging in.' });
+        }
+      } else {
+        setErrors({ email: err.message || 'Signup failed' });
+      }
     }
   };
 

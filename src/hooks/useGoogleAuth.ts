@@ -3,6 +3,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 import { useAuth } from '../store';
 import { API_BASE_URL } from '../constants/config';
+import { useNavigation } from '@react-navigation/native';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -15,6 +16,7 @@ export function useGoogleAuth() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { loginWithTokens } = useAuth();
+  const navigation = useNavigation<any>();
 
   const [request, response, promptAsync] = useAuthRequest(
     {
@@ -48,8 +50,18 @@ export function useGoogleAuth() {
       if (!res.ok || !data.success) throw new Error(data.error?.message || 'Google login failed');
 
       const authData = data.data;
-      loginWithTokens(authData.accessToken, authData.refreshToken, authData.accessTokenExpiresAt, authData.user);
-      return authData.user;
+      const user = authData.user;
+      const hasLocation = user.location?.city || user.city;
+      const hasPreferences = user.preferences?.length > 0 || user.interests?.length > 0;
+      const hasCompletedOnboarding = !!(hasLocation && hasPreferences);
+      
+      loginWithTokens(authData.accessToken, authData.refreshToken, authData.accessTokenExpiresAt, user);
+      
+      if (!hasCompletedOnboarding) {
+        navigation.navigate('LocationStep', { user });
+      }
+      
+      return user;
     } catch (err: any) {
       setError(err.message);
       throw err;

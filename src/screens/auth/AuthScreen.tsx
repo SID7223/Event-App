@@ -57,9 +57,16 @@ const AuthScreen: React.FC = () => {
     try {
       const authData = await apiLogin(email, password);
       loginWithTokens(authData.accessToken, authData.refreshToken, authData.accessTokenExpiresAt, authData.user);
-      navigation.navigate('LocationStep', {
-        user: authData.user,
-      });
+      
+      const user = authData.user;
+      const hasLocation = user.location?.city || user.city;
+      const hasPreferences = user.preferences?.length > 0 || user.interests?.length > 0;
+      const userCompletedOnboarding = !!(hasLocation && hasPreferences);
+      
+      if (userCompletedOnboarding) {
+        return;
+      }
+      navigation.navigate('LocationStep', { user });
     } catch (err: any) {
       setErrors({ email: err.message || 'Login failed' });
     } finally {
