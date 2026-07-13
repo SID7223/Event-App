@@ -242,8 +242,6 @@ const CinemaScreen: React.FC = () => {
                         <View style={styles.cinemaMeta}>
                           <Ionicons name="location-outline" size={14} color="rgba(255,255,255,0.5)" />
                           <Text style={styles.cinemaDistance}>{cinema.distance}</Text>
-                          <Text style={styles.cinemaDot}>•</Text>
-                          <Text style={styles.cinemaNeighborhood}>{cinema.neighborhood}</Text>
                         </View>
                       </View>
                       

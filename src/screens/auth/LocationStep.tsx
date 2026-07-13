@@ -254,11 +254,10 @@ const LocationStep: React.FC = () => {
       if (address) {
         const detectedLocation: UserLocation = {
           city: address.city || 'Unknown City',
-          neighborhood: address.subregion || address.district || '',
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
           country: address.country || '',
-          fullAddress: `${address.subregion || address.district || ''}, ${address.city || ''}, ${address.country || ''}`.replace(/^,\s*/, ''),
+          fullAddress: `${address.city || ''}, ${address.country || ''}`.replace(/^,\s*/, ''),
         };
 
         setSelectedLocation(detectedLocation);
@@ -273,7 +272,6 @@ const LocationStep: React.FC = () => {
   const selectSuggestion = (suggestion: any) => {
     const location: UserLocation = {
       city: suggestion.city,
-      neighborhood: suggestion.neighborhood,
       latitude: 0,
       longitude: 0,
       country: 'Pakistan',
@@ -304,7 +302,6 @@ const LocationStep: React.FC = () => {
       <Ionicons name="location-outline" size={20} color="rgba(255,255,255,0.5)" />
       <View style={styles.suggestionText}>
         <Text style={styles.suggestionCity}>{item.city}</Text>
-        <Text style={styles.suggestionNeighborhood}>{item.neighborhood}</Text>
       </View>
       <Text style={styles.suggestionFull}>{item.full}</Text>
     </TouchableOpacity>
@@ -505,7 +502,7 @@ const LocationStep: React.FC = () => {
                 <TextInput
                   ref={searchInputRef}
                   style={styles.input}
-                  placeholder="Search city or neighborhood..."
+                  placeholder="Search city..."
                   placeholderTextColor="rgba(255,255,255,0.35)"
                   value={manualInput}
                   onChangeText={(text) => {
@@ -554,11 +551,10 @@ const LocationStep: React.FC = () => {
               onPress={() => {
                 const defaultLocation: UserLocation = {
                   city: 'Lahore',
-                  neighborhood: 'Gulberg',
                   latitude: 31.5204,
                   longitude: 74.3587,
                   country: 'Pakistan',
-                  fullAddress: 'Gulberg, Lahore, Pakistan',
+                  fullAddress: 'Lahore, Pakistan',
                 };
                 setLocation(defaultLocation);
                 navigation.navigate('VibeQuiz', {
@@ -826,11 +822,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     color: '#FFFFFF',
-  },
-  suggestionNeighborhood: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.5)',
-    marginTop: 2,
   },
   suggestionFull: {
     fontSize: 12,

@@ -28,7 +28,6 @@ export interface Event {
   isFavorite: boolean;
   isFeatured: boolean;
   is_featured?: boolean;
-  neighborhood?: string;
   city?: PakistanCity;
   bookingType?: BookingType;
   booking_type?: BookingType;
@@ -56,7 +55,6 @@ export interface VibeCategory {
 
 export interface UserLocation {
   city: string;
-  neighborhood: string;
   latitude: number;
   longitude: number;
   country: string;
@@ -80,7 +78,6 @@ export interface User {
   plan?: 'basic' | 'premium';
   role?: 'user' | 'creator' | 'admin';
   city?: string;
-  neighborhood?: string;
   latitude?: number;
   longitude?: number;
 }
@@ -150,7 +147,6 @@ export interface Cinema {
   name: string;
   address: string;
   distance: string; // e.g., "1.2 km"
-  neighborhood: string;
   city?: PakistanCity;
 }
 
@@ -188,7 +184,6 @@ export interface Restaurant {
   rating: number;
   reviewCount: number;
   address: string;
-  neighborhood: string;
   distance: string;
   phone: string;
   isOpen: boolean;
@@ -214,7 +209,6 @@ export interface Venue {
   coverId?: string;
   bio: string;
   address: string;
-  neighborhood: string;
   website: string;
   rating: number;
   followerCount: number;

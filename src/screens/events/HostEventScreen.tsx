@@ -35,7 +35,6 @@ interface HostEventFormData {
   time: string;
   location: string;
   venue: string;
-  neighborhood: string;
   link: string;
   price: string;
 }
@@ -48,7 +47,6 @@ const schema = yup.object().shape({
   time: yup.string().required('Time is required'),
   location: yup.string().required('Location is required'),
   venue: yup.string().required('Venue name is required'),
-  neighborhood: yup.string().required('Neighborhood is required'),
   link: yup.string().url('Must be a valid URL').optional(),
   price: yup.string().optional(),
 });
@@ -96,7 +94,6 @@ const HostEventScreen: React.FC = () => {
       time: '',
       location: location?.fullAddress || '',
       venue: '',
-      neighborhood: location?.neighborhood || '',
       link: '',
       price: '',
     },
@@ -167,7 +164,6 @@ const HostEventScreen: React.FC = () => {
         organizer: `${user?.firstName} ${user?.lastName}`,
         organizerId: user?.id,
         venue: data.venue,
-        neighborhood: data.neighborhood,
       });
 
       setIsSubmitting(false);
@@ -467,14 +463,6 @@ const HostEventScreen: React.FC = () => {
                 (t) => setValue('venue', t, { shouldValidate: true }),
                 'e.g., Jakarta Convention Center',
                 errors.venue?.message
-              )}
-
-              {renderField(
-                'Neighborhood',
-                watch('neighborhood'),
-                (t) => setValue('neighborhood', t, { shouldValidate: true }),
-                'e.g., Senayan',
-                errors.neighborhood?.message
               )}
 
               {renderField(

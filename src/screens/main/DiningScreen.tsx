@@ -118,8 +118,6 @@ const DiningScreen: React.FC = () => {
           <View style={styles.locationRow}>
             <Ionicons name="location-outline" size={14} color="rgba(255,255,255,0.5)" />
             <Text style={styles.distanceText}>{item.distance}</Text>
-            <Text style={styles.locationDot}>•</Text>
-            <Text style={styles.neighborhoodText} numberOfLines={1}>{item.neighborhood}</Text>
           </View>
 
           {/* Tags */}
@@ -405,16 +403,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#FF6B4A',
     fontWeight: '500',
-  },
-  locationDot: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.3)',
-  },
-  neighborhoodText: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.5)',
-    flex: 1,
-    fontFamily: fonts.body,
   },
   tagsContainer: {
     flexDirection: 'row',

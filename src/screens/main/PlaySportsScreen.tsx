@@ -23,7 +23,6 @@ interface PlayVenue {
   image: string;
   imageId?: string;
   address: string;
-  neighborhood: string;
   distance: string;
   rating: number;
   reviewCount: number;
@@ -43,7 +42,6 @@ const PLAY_VENUES: PlayVenue[] = [
     icon: 'tennisball',
     image: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800',
     address: 'Jl. Pintu X Senayan, Jakarta',
-    neighborhood: 'Senayan',
     distance: '0.8 km',
     rating: 4.7,
     reviewCount: 156,
@@ -60,7 +58,6 @@ const PLAY_VENUES: PlayVenue[] = [
     icon: 'tennisball',
     image: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=800',
     address: 'Kuningan City Mall, Jakarta',
-    neighborhood: 'Kuningan',
     distance: '2.1 km',
     rating: 4.5,
     reviewCount: 89,
@@ -78,7 +75,6 @@ const PLAY_VENUES: PlayVenue[] = [
     icon: 'ellipse',
     image: 'https://images.unsplash.com/photo-1529154091711-7d3d50d2f31a?w=800',
     address: 'Plaza Senayan, LG Floor',
-    neighborhood: 'Senayan',
     distance: '0.5 km',
     rating: 4.4,
     reviewCount: 203,
@@ -95,7 +91,6 @@ const PLAY_VENUES: PlayVenue[] = [
     icon: 'ellipse',
     image: 'https://images.unsplash.com/photo-1560155016-bd4879ae8f21?w=800',
     address: 'Grand Indonesia, East Mall L5',
-    neighborhood: 'Menteng',
     distance: '1.3 km',
     rating: 4.2,
     reviewCount: 134,
@@ -113,7 +108,6 @@ const PLAY_VENUES: PlayVenue[] = [
     icon: 'football',
     image: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=800',
     address: 'GBK Complex, Senayan',
-    neighborhood: 'Senayan',
     distance: '1.0 km',
     rating: 4.6,
     reviewCount: 287,
@@ -130,7 +124,6 @@ const PLAY_VENUES: PlayVenue[] = [
     icon: 'football',
     image: 'https://images.unsplash.com/photo-1459865264687-595d652de67e?w=800',
     address: 'Jl. Gatot Subroto, Jakarta',
-    neighborhood: 'Kuningan',
     distance: '2.5 km',
     rating: 4.3,
     reviewCount: 178,
@@ -148,7 +141,6 @@ const PLAY_VENUES: PlayVenue[] = [
     icon: 'game-controller',
     image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800',
     address: 'Menteng Square, L2',
-    neighborhood: 'Menteng',
     distance: '1.8 km',
     rating: 4.5,
     reviewCount: 312,
@@ -165,7 +157,6 @@ const PLAY_VENUES: PlayVenue[] = [
     icon: 'game-controller',
     image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800',
     address: 'Central Park Mall, L3',
-    neighborhood: 'Tanjung Duren',
     distance: '4.2 km',
     rating: 4.3,
     reviewCount: 198,
@@ -183,7 +174,6 @@ const PLAY_VENUES: PlayVenue[] = [
     icon: 'apps',
     image: 'https://images.unsplash.com/photo-1611891483129-793514c67171?w=800',
     address: 'Jl. Panglima Polim, Jakarta',
-    neighborhood: 'Senayan',
     distance: '1.5 km',
     rating: 4.8,
     reviewCount: 167,
@@ -200,7 +190,6 @@ const PLAY_VENUES: PlayVenue[] = [
     icon: 'apps',
     image: 'https://images.unsplash.com/photo-1606503153255-59d8b2e4b9e4?w=800',
     address: 'Kemang Timur, Jakarta',
-    neighborhood: 'Kemang',
     distance: '5.0 km',
     rating: 4.6,
     reviewCount: 94,
@@ -260,7 +249,7 @@ const PlaySportsScreen: React.FC = () => {
             <Text style={styles.venueName} numberOfLines={1}>{item.name}</Text>
             <View style={styles.locationRow}>
               <Ionicons name="location-outline" size={13} color="rgba(255,255,255,0.45)" />
-              <Text style={styles.locationText} numberOfLines={1}>{item.neighborhood}</Text>
+              <Text style={styles.locationText} numberOfLines={1}>{item.address}</Text>
               <Text style={styles.distanceText}>{item.distance}</Text>
             </View>
           </View>

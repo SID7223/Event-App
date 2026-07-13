@@ -174,7 +174,6 @@ export async function getEvents(params?: {
   category?: string;
   city?: string;
   q?: string;
-  neighborhood?: string;
   page?: number;
   limit?: number;
   sort?: 'date' | 'popular' | 'rating';
@@ -236,11 +235,10 @@ export async function updatePreferences(preferences: string[]): Promise<{ prefer
 
 export async function updateLocation(data: {
   city: string;
-  neighborhood: string;
   latitude?: number;
   longitude?: number;
-}): Promise<{ city: string; neighborhood: string }> {
-  return request<{ city: string; neighborhood: string }>('/users/me', {
+}): Promise<{ city: string }> {
+  return request<{ city: string }>('/users/me', {
     method: 'PUT',
     body: JSON.stringify(data),
   });
@@ -317,7 +315,6 @@ export async function unfollowOrganizer(id: string): Promise<void> {
 export async function getVenues(params?: {
   type?: string;
   city?: string;
-  neighborhood?: string;
 }): Promise<any[]> {
   return request(addParams('/venues', params));
 }
@@ -362,7 +359,6 @@ export async function getRestaurants(params?: {
   cuisine?: string;
   open_now?: string;
   city?: string;
-  neighborhood?: string;
   has_live_music?: string;
   q?: string;
   sort?: 'rating' | 'reviews';
@@ -389,7 +385,6 @@ export async function submitHostedEvent(data: {
   date: string;
   time?: string;
   venueName: string;
-  neighborhood: string;
   address: string;
   price?: number;
   category?: string;

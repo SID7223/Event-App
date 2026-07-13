@@ -208,7 +208,7 @@ const VenueProfileScreen: React.FC = () => {
               )}
             </View>
             <Text style={styles.venueType}>
-              {venue.type === 'venue' ? 'Venue' : 'Organizer'} • {venue.neighborhood}
+              {venue.type === 'venue' ? 'Venue' : 'Organizer'}
             </Text>
           </View>
 

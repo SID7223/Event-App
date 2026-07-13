@@ -166,7 +166,7 @@ const HomeScreen: React.FC = () => {
   // Source list for sections — uses filteredEvents when a vibe filter is active
   const sectionSource = (!activeVibe || activeVibe === 'all') ? filteredEventsList : filteredEvents;
 
-  // Search results — filter by query across title, category, venue, neighborhood
+  // Search results — filter by query across title, category, venue
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase().trim();
@@ -174,18 +174,15 @@ const HomeScreen: React.FC = () => {
       e.title.toLowerCase().includes(q) ||
       e.category.toLowerCase().includes(q) ||
       e.venue.toLowerCase().includes(q) ||
-      (e.neighborhood && e.neighborhood.toLowerCase().includes(q)) ||
       e.description.toLowerCase().includes(q)
     );
   }, [searchQuery, sectionSource]);
 
   const isSearching = searchQuery.trim().length > 0;
 
-  // Get popular events in neighborhood
+  // Get popular events in city
   const popularInArea = useMemo(() => {
-    const neighborhood = location?.neighborhood;
-    const matchingNeighborhood = sectionSource.filter(e => e.neighborhood === neighborhood);
-    const sourceList = matchingNeighborhood.length > 0 ? matchingNeighborhood : sectionSource;
+    const sourceList = sectionSource;
     return [...sourceList]
       .sort((a, b) => b.attendees - a.attendees)
       .slice(0, 5);
