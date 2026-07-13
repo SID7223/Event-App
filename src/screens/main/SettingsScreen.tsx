@@ -16,12 +16,10 @@ import GlassToggle from '../../components/ui/GlassToggle';
 
 const SettingsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { logout, privacySettings, updatePrivacySettings } = useAuth();
-  const [pushNotifs, setPushNotifs] = useState(true);
+  const { settings, updateSettings, logout, privacySettings, updatePrivacySettings } = useAuth();
   const [emailNotifs, setEmailNotifs] = useState(true);
   const [locationTracking, setLocationTracking] = useState(true);
   const [showInterested, setShowInterested] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
 
   const CustomSwitch = ({
     value,
@@ -85,7 +83,7 @@ const SettingsScreen: React.FC = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.row, styles.rowBorder]}
-            onPress={() => Alert.alert('Change Password', 'A password reset link has been sent to your email.')}
+            onPress={() => navigation.navigate('Auth')}
             activeOpacity={0.7}
           >
             <Text style={styles.rowLabel}>Change Password</Text>
@@ -93,7 +91,7 @@ const SettingsScreen: React.FC = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.row}
-            onPress={() => Alert.alert('Privacy Settings', 'Privacy settings saved.')}
+            onPress={() => navigation.navigate('EditProfile')}
             activeOpacity={0.7}
           >
             <Text style={styles.rowLabel}>Privacy Settings</Text>
@@ -104,11 +102,11 @@ const SettingsScreen: React.FC = () => {
         {/* Preferences Section */}
         <Text style={styles.sectionLabel}>Preferences</Text>
         <MatteGlassCard style={styles.card} padding={0}>
-          {renderToggleRow('Push Notifications', 'notifications-outline', pushNotifs, setPushNotifs)}
+          {renderToggleRow('Push Notifications', 'notifications-outline', settings.pushNotifications, (v) => updateSettings('pushNotifications', v))}
           {renderToggleRow('Email Notifications', 'mail-outline', emailNotifs, setEmailNotifs)}
           {renderToggleRow('Location Tracking', 'location-outline', locationTracking, setLocationTracking)}
           {renderToggleRow('Show Events I\'m Interested In', 'eye-outline', showInterested, setShowInterested)}
-          {renderToggleRow('Dark Mode', 'moon-outline', darkMode, setDarkMode, true)}
+          {renderToggleRow('Dark Mode', 'moon-outline', settings.darkMode, (v) => updateSettings('darkMode', v), true)}
         </MatteGlassCard>
 
         {/* Privacy Section */}

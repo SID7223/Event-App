@@ -165,7 +165,7 @@ const AuthScreen: React.FC = () => {
                   <Text style={styles.googleGText}>G</Text>
                 )}
               </TouchableOpacity>
-              <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
+              <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85} onPress={() => Alert.alert('Twitter/X', 'Twitter/X login coming soon!')}>
                 <Text style={styles.xIcon}>X</Text>
               </TouchableOpacity>
             </View>

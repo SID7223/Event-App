@@ -10,12 +10,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store';
+import { useGoogleAuth } from '../../hooks/useGoogleAuth';
 import { login as apiLogin } from '../../services/api';
 
 
@@ -23,6 +25,7 @@ const { width } = Dimensions.get('window');
 
 const LoginScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { signIn, isLoading: googleLoading } = useGoogleAuth();
   const { loginWithTokens } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -144,9 +147,15 @@ const LoginScreen: React.FC = () => {
 
             {/* Social Buttons — side by side */}
             <View style={styles.socialRow}>
-              <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
-                <Ionicons name="logo-google" size={20} color="#FFFFFF" />
-                <Text style={styles.socialBtnText}>Google</Text>
+              <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85} onPress={() => signIn().catch(() => {})} disabled={googleLoading}>
+                {googleLoading ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <>
+                    <Ionicons name="logo-google" size={20} color="#FFFFFF" />
+                    <Text style={styles.socialBtnText}>Google</Text>
+                  </>
+                )}
               </TouchableOpacity>
               <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
                 <Ionicons name="logo-apple" size={20} color="#FFFFFF" />
