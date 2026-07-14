@@ -263,6 +263,22 @@ const ProfileScreen: React.FC = () => {
 
           <View style={styles.menuDivider} />
 
+          <View style={styles.menuRow}>
+            <View style={styles.menuLeft}>
+              <View style={[styles.menuIcon, { backgroundColor: 'rgba(255,255,255,0.06)' }]}>
+                <Text style={styles.genderIcon}>
+                  {user?.gender === 'male' ? '♂' : user?.gender === 'female' ? '♀' : '⚧'}
+                </Text>
+              </View>
+              <Text style={styles.menuLabel}>Gender: {user?.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1) : 'Set gender'}</Text>
+            </View>
+            <TouchableOpacity onPress={handleEditProfile}>
+              <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.3)" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.menuDivider} />
+
           <TouchableOpacity style={styles.menuRow} onPress={handleFollowingPress} activeOpacity={0.7}>
             <View style={styles.menuLeft}>
               <View style={[styles.menuIcon, { backgroundColor: 'rgba(255,107,74,0.12)' }]}>
@@ -667,6 +683,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  genderIcon: {
+    fontSize: 18,
+    color: 'rgba(255,255,255,0.6)',
   },
   menuLabel: {
     fontSize: 15,

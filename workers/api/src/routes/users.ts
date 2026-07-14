@@ -34,6 +34,7 @@ interface UserProfileRow {
   latitude: number | null;
   longitude: number | null;
   full_address: string;
+  gender: string | null;
   push_notifications_enabled: number;
   email_notifications_enabled: number;
   last_login_at: string | null;
@@ -65,6 +66,7 @@ export function register(app: Hono<{ Bindings: Env }>) {
       interests: JSON.parse(user.preferences || '[]'),
       bio: user.bio,
       plan: user.plan || 'basic',
+      gender: user.gender || null,
       pushNotificationsEnabled: user.push_notifications_enabled === 1,
       emailNotificationsEnabled: user.email_notifications_enabled === 1,
       loginCount: user.login_count,
@@ -96,6 +98,7 @@ export function register(app: Hono<{ Bindings: Env }>) {
     if (body.avatarId !== undefined) { updates.push('avatar_id = ?'); params.push(body.avatarId); changed.push('avatarId'); }
     if (body.bio !== undefined) { updates.push('bio = ?'); params.push(body.bio); changed.push('bio'); }
     if (body.username !== undefined) { updates.push('username = ?'); params.push(body.username); changed.push('username'); }
+    if (body.gender !== undefined) { updates.push('gender = ?'); params.push(body.gender); changed.push('gender'); }
 
     if (updates.length === 0) {
       throw new ValidationError('No fields to update');
@@ -134,6 +137,7 @@ export function register(app: Hono<{ Bindings: Env }>) {
       interests: JSON.parse(user!.preferences || '[]'),
       bio: user!.bio,
       plan: user!.plan || 'basic',
+      gender: user!.gender || null,
       pushNotificationsEnabled: user!.push_notifications_enabled === 1,
     });
   });

@@ -28,6 +28,7 @@ const EditProfileScreen: React.FC = () => {
   const [lastName, setLastName] = useState(user?.lastName || 'Doe');
   const [email, setEmail] = useState(user?.email || 'johndoe@example.com');
   const [phone, setPhone] = useState(user?.phone || '+62 812 3455 7890');
+  const [gender, setGender] = useState(user?.gender || '');
   const [locationText, setLocationText] = useState(user?.location?.city || 'Jakarta');
   const [selectedInterests, setSelectedInterests] = useState<string[]>(
     user?.interests || ['Music', 'Art', 'Tech', 'Festival']
@@ -116,6 +117,7 @@ const EditProfileScreen: React.FC = () => {
         lastName,
         email,
         phone,
+        gender: (gender as 'male' | 'female' | 'other') || undefined,
         interests: selectedInterests,
         location: {
           city: locationText,
@@ -217,6 +219,25 @@ const EditProfileScreen: React.FC = () => {
           {renderField('Email', email, setEmail, 'email-address', errors.email)}
           {renderField('Phone Number', phone, setPhone, 'phone-pad')}
           {renderField('City', locationText, setLocationText)}
+
+          {/* Gender */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>Gender</Text>
+            <View style={styles.genderRow}>
+              {['male', 'female', 'other'].map((g) => (
+                <TouchableOpacity
+                  key={g}
+                  style={[styles.genderChip, gender === g && styles.genderChipActive]}
+                  onPress={() => setGender(gender === g ? '' : g)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.genderChipText, gender === g && styles.genderChipTextActive]}>
+                    {g === 'male' ? '♂ Male' : g === 'female' ? '♀ Female' : '⚧ Other'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
 
           {/* Interests */}
           <View style={styles.fieldGroup}>
@@ -355,6 +376,32 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#E43414',
     marginTop: 4,
+  },
+  genderRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  genderChip: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+  },
+  genderChipActive: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
+  },
+  genderChipText: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.6)',
+    fontWeight: '500',
+  },
+  genderChipTextActive: {
+    color: '#000000',
+    fontWeight: '500',
   },
   interestsRow: {
     flexDirection: 'row',

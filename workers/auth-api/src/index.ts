@@ -1,6 +1,7 @@
 interface Env {
   chillingz_db: D1Database;
   GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET?: string;
 }
 
 interface GoogleTokenPayload {
@@ -33,9 +34,22 @@ interface UserRow {
   city: string;
   neighborhood: string;
   country: string;
+  gender: string | null;
   push_notifications_enabled: number;
   created_at: string;
   updated_at: string;
+}
+
+interface GoogleUserInfo {
+  sub: string;
+  email: string;
+  email_verified: boolean;
+  name: string;
+  given_name: string;
+  family_name: string;
+  picture: string;
+  gender?: string;
+  locale?: string;
 }
 
 interface SessionRow {
@@ -135,14 +149,34 @@ export default {
   },
 };
 
+async function getGoogleUserInfo(accessToken: string): Promise<GoogleUserInfo> {
+  const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) {
+    throw new Error('Failed to fetch Google user info');
+  }
+  return res.json() as Promise<GoogleUserInfo>;
+}
+
 async function handleGoogleLogin(request: Request, env: Env): Promise<Response> {
   try {
-    const { idToken } = await request.json() as { idToken: string };
+    const { idToken, accessToken } = await request.json() as { idToken: string; accessToken?: string };
     if (!idToken) {
       return new Response(JSON.stringify({ error: 'idToken required' }), { status: 400, headers: corsHeaders });
     }
 
     const googleUser = await verifyGoogleToken(idToken, env.GOOGLE_CLIENT_ID);
+
+    let gender: string | null = null;
+    if (accessToken) {
+      try {
+        const userInfo = await getGoogleUserInfo(accessToken);
+        gender = userInfo.gender || null;
+      } catch (_) {
+        // Gender fetch is optional, continue without it
+      }
+    }
 
     const existing = await env.chillingz_db.prepare(
       'SELECT * FROM users WHERE google_id = ?'
@@ -154,18 +188,25 @@ async function handleGoogleLogin(request: Request, env: Env): Promise<Response> 
 
     if (existing) {
       userId = existing.id;
-      await env.chillingz_db.prepare(
-        `UPDATE users SET first_name = ?, last_name = ?, avatar_url = ?, email = ?,
-         last_login_at = ?, login_count = login_count + 1, updated_at = datetime('now') WHERE id = ?`
-      ).bind(googleUser.given_name, googleUser.family_name, googleUser.picture, googleUser.email, now, userId).run();
+      if (gender && !existing.gender) {
+        await env.chillingz_db.prepare(
+          `UPDATE users SET first_name = ?, last_name = ?, avatar_url = ?, email = ?,
+           last_login_at = ?, login_count = login_count + 1, gender = ?, updated_at = datetime('now') WHERE id = ?`
+        ).bind(googleUser.given_name, googleUser.family_name, googleUser.picture, googleUser.email, now, gender, userId).run();
+      } else {
+        await env.chillingz_db.prepare(
+          `UPDATE users SET first_name = ?, last_name = ?, avatar_url = ?, email = ?,
+           last_login_at = ?, login_count = login_count + 1, updated_at = datetime('now') WHERE id = ?`
+        ).bind(googleUser.given_name, googleUser.family_name, googleUser.picture, googleUser.email, now, userId).run();
+      }
     } else {
       userId = `user_${nanoid(12)}`;
       const username = `${googleUser.given_name.toLowerCase()}${googleUser.family_name.toLowerCase()}.events`;
       await env.chillingz_db.prepare(
         `INSERT INTO users (id, google_id, email, first_name, last_name, username, avatar_url,
-         last_login_at, login_count, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))`
-      ).bind(userId, googleUser.sub, googleUser.email, googleUser.given_name, googleUser.family_name, username, googleUser.picture, now).run();
+         last_login_at, login_count, gender, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, datetime('now'), datetime('now'))`
+      ).bind(userId, googleUser.sub, googleUser.email, googleUser.given_name, googleUser.family_name, username, googleUser.picture, now, gender).run();
     }
 
     const token = `sess_${nanoid(32)}`;
@@ -189,7 +230,7 @@ async function handleGoogleLogin(request: Request, env: Env): Promise<Response> 
     ).bind(activityId, userId, JSON.stringify({ method: 'google', sessionId }), ip, ua, now).run();
 
     const user = await env.chillingz_db.prepare(
-      'SELECT id, google_id, email, first_name, last_name, username, avatar_url, avatar_id, phone, preferences, plan, bio, city, neighborhood, country, push_notifications_enabled FROM users WHERE id = ?'
+      'SELECT id, google_id, email, first_name, last_name, username, avatar_url, avatar_id, phone, preferences, plan, bio, city, neighborhood, country, gender, push_notifications_enabled FROM users WHERE id = ?'
     ).bind(userId).first<UserRow>();
 
     return new Response(JSON.stringify({
@@ -210,6 +251,7 @@ async function handleGoogleLogin(request: Request, env: Env): Promise<Response> 
         city: user?.city || '',
         neighborhood: user?.neighborhood || '',
         country: user?.country || '',
+        gender: user?.gender || null,
         pushNotificationsEnabled: user?.push_notifications_enabled === 1,
       },
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
@@ -234,7 +276,7 @@ async function handleGetMe(request: Request, env: Env): Promise<Response> {
   }
 
   const user = await env.chillingz_db.prepare(
-    'SELECT id, google_id, email, first_name, last_name, username, avatar_url, avatar_id, phone, preferences, plan, bio, city, neighborhood, country, push_notifications_enabled FROM users WHERE id = ?'
+    'SELECT id, google_id, email, first_name, last_name, username, avatar_url, avatar_id, phone, preferences, plan, bio, city, neighborhood, country, gender, push_notifications_enabled FROM users WHERE id = ?'
   ).bind(session.user_id).first<UserRow>();
 
   return new Response(JSON.stringify({
@@ -254,6 +296,7 @@ async function handleGetMe(request: Request, env: Env): Promise<Response> {
       city: user?.city || '',
       neighborhood: user?.neighborhood || '',
       country: user?.country || '',
+      gender: user?.gender || null,
       pushNotificationsEnabled: user?.push_notifications_enabled === 1,
     },
   }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });

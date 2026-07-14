@@ -158,14 +158,6 @@ const HomeScreen: React.FC = () => {
   // Source list for sections — uses filteredEvents when a vibe filter is active
   const sectionSource = (!activeVibe || activeVibe === 'all') ? filteredEventsList : filteredEvents;
 
-  // Get featured events (top 5 highest rated isFeatured events)
-  const featuredEvents = useMemo(() => {
-    return sectionSource
-      .filter(e => e.isFeatured)
-      .sort((a, b) => b.rating - a.rating)
-      .slice(0, 5);
-  }, [sectionSource]);
-
   // Search results — filter by query across title, category, venue
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -180,22 +172,29 @@ const HomeScreen: React.FC = () => {
 
   const isSearching = searchQuery.trim().length > 0;
 
-  // Get popular events in city
-  const popularInArea = useMemo(() => {
-    const sourceList = sectionSource;
-    return [...sourceList]
+  // Get featured, popular, and upcoming events (deduped across sections)
+  const { featuredEvents, popularInArea, upcomingEvents } = useMemo(() => {
+    const featured = sectionSource
+      .filter(e => e.isFeatured)
+      .sort((a, b) => b.rating - a.rating)
+      .slice(0, 5);
+    const fIds = new Set(featured.map(e => e.id));
+
+    const popular = [...sectionSource]
+      .filter(e => !fIds.has(e.id))
       .sort((a, b) => b.attendees - a.attendees)
       .slice(0, 5);
-  }, [sectionSource, location]);
+    const pIds = new Set(popular.map(e => e.id));
 
-  // Get new & upcoming events (flexible date sorting)
-  const upcomingEvents = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
-    return sectionSource
+    const upcoming = sectionSource
+      .filter(e => !fIds.has(e.id) && !pIds.has(e.id))
       .filter(e => e.date >= today)
       .sort((a, b) => a.date.localeCompare(b.date))
       .slice(0, 6);
-  }, [sectionSource]);
+
+    return { featuredEvents: featured, popularInArea: popular, upcomingEvents: upcoming };
+  }, [sectionSource, location]);
 
   const handleVibePress = (vibeId: string) => {
     const newVibe = activeVibe === vibeId ? 'all' : vibeId;

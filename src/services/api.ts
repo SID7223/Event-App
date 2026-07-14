@@ -51,6 +51,7 @@ export async function signup(data: {
   email: string;
   password: string;
   phone?: string;
+  gender?: 'male' | 'female' | 'other';
 }): Promise<AuthResponse> {
   const res = await fetch(`${API_BASE_URL}/auth/signup`, {
     method: 'POST',
@@ -219,6 +220,7 @@ export async function updateProfile(data: {
   email?: string;
   phone?: string;
   avatar?: string;
+  gender?: 'male' | 'female' | 'other';
 }): Promise<User> {
   return request<User>('/users/me', {
     method: 'PUT',

@@ -9,6 +9,7 @@ export const updateProfileSchema = z.object({
   avatarId: z.string().optional(),
   bio: z.string().max(500).optional(),
   username: z.string().min(3).max(50).regex(/^[a-z0-9._]+$/, 'Username can only contain lowercase letters, numbers, dots and underscores').optional(),
+  gender: z.enum(['male', 'female', 'other']).optional(),
 });
 
 export const updatePreferencesSchema = z.object({

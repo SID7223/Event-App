@@ -77,6 +77,7 @@ export interface User {
   location?: UserLocation;
   plan?: 'basic' | 'premium';
   role?: 'user' | 'creator' | 'admin';
+  gender?: 'male' | 'female' | 'other' | null;
   city?: string;
   latitude?: number;
   longitude?: number;
@@ -242,6 +243,8 @@ export interface Friend {
   handle: string;
   avatar: string;
   avatarId?: string;
+  city?: string;
+  gender?: 'male' | 'female' | 'other' | null;
   mutualFriends: number;
   isOnline: boolean;
 }

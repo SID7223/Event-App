@@ -237,6 +237,16 @@ const FriendsScreen: React.FC = () => {
                     <Text style={styles.suggestedHandle} numberOfLines={1}>
                       {item.handle}
                     </Text>
+                    {item.city ? (
+                      <Text style={styles.suggestedHandle} numberOfLines={1}>
+                        {item.city}
+                      </Text>
+                    ) : null}
+                    {item.gender && (
+                      <Text style={styles.suggestedGender}>
+                        {item.gender === 'male' ? '♂' : item.gender === 'female' ? '♀' : '⚧'}
+                      </Text>
+                    )}
                     {item.mutualFriends > 0 && (
                       <Text style={styles.suggestedMutual}>{item.mutualFriends} mutual</Text>
                     )}
@@ -328,6 +338,9 @@ const FriendsScreen: React.FC = () => {
                     <View style={styles.friendInfo}>
                       <Text style={styles.friendName}>{item.name}</Text>
                       <Text style={styles.friendHandle}>{item.handle}</Text>
+                      {item.city ? (
+                        <Text style={styles.mutualText}>{item.city}</Text>
+                      ) : null}
                       {item.mutualFriends > 0 && (
                         <Text style={styles.mutualText}>{item.mutualFriends} mutual friends</Text>
                       )}
@@ -538,6 +551,12 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: 'rgba(255,255,255,0.3)',
     marginBottom: 6,
+    fontFamily: fonts.body,
+  },
+  suggestedGender: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.5)',
+    marginBottom: 4,
     fontFamily: fonts.body,
   },
   addBtn: {

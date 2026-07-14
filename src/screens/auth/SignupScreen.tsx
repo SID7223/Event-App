@@ -23,6 +23,7 @@ const SignupScreen: React.FC = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [gender, setGender] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -56,6 +57,7 @@ const SignupScreen: React.FC = () => {
         email: email.trim(),
         password,
         phone: phone.trim() || undefined,
+        gender: (gender as 'male' | 'female' | 'other') || undefined,
       });
       loginWithTokens(authData.accessToken, authData.refreshToken, authData.accessTokenExpiresAt, authData.user);
       
@@ -170,6 +172,25 @@ const SignupScreen: React.FC = () => {
               />
             </View>
             {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
+
+            {/* Gender */}
+            <View style={styles.fieldGroup}>
+              <Text style={styles.fieldLabel}>Gender (optional)</Text>
+              <View style={styles.genderRow}>
+                {['male', 'female', 'other'].map((g) => (
+                  <TouchableOpacity
+                    key={g}
+                    style={[styles.genderChip, gender === g && styles.genderChipActive]}
+                    onPress={() => setGender(gender === g ? '' : g)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[styles.genderChipText, gender === g && styles.genderChipTextActive]}>
+                      {g === 'male' ? '♂ Male' : g === 'female' ? '♀ Female' : '⚧ Other'}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
             {/* Password */}
             <View style={[styles.inputWrapper, errors.password ? styles.inputError : null]}>
@@ -298,6 +319,41 @@ const styles = StyleSheet.create({
   },
   eyeBtn: {
     padding: 4,
+  },
+  fieldGroup: {
+    marginBottom: 16,
+  },
+  fieldLabel: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.5)',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  genderRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  genderChip: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+  },
+  genderChipActive: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
+  },
+  genderChipText: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.6)',
+    fontWeight: '500',
+  },
+  genderChipTextActive: {
+    color: '#000000',
+    fontWeight: '500',
   },
   errorText: {
     fontSize: 12,

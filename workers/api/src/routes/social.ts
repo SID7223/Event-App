@@ -226,9 +226,9 @@ export function register(app: Hono<{ Bindings: Env }>) {
     if (friends.length === 0) return success(c, []);
 
     const friendIds = friends.map(f => f.friend_id);
-    const users = await query<{ id: string; first_name: string; last_name: string; avatar_url: string | null }>(
+    const users = await query<{ id: string; first_name: string; last_name: string; avatar_url: string | null; city: string; gender: string | null }>(
       c.env.chillingz_db,
-      `SELECT id, first_name, last_name, avatar_url FROM users WHERE id IN (${friendIds.map(() => '?').join(',')})`,
+      `SELECT id, first_name, last_name, avatar_url, city, gender FROM users WHERE id IN (${friendIds.map(() => '?').join(',')})`,
       ...friendIds
     );
 
@@ -237,9 +237,105 @@ export function register(app: Hono<{ Bindings: Env }>) {
       name: `${u.first_name} ${u.last_name}`,
       handle: `@${u.first_name.toLowerCase()}${u.last_name.toLowerCase()}.events`,
       avatar: u.avatar_url || '',
+      city: u.city || '',
+      gender: u.gender || null,
       mutualFriends: 0,
       isOnline: false,
     })));
+  });
+
+  app.get('/friends/suggestions', requireAuth, async (c) => {
+    const userId = c.get('userId');
+    const limit = Math.min(parseInt(c.req.query('limit') || '10'), 50);
+
+    const currentUser = await first<{ city: string; gender: string | null }>(
+      c.env.chillingz_db,
+      'SELECT city, gender FROM users WHERE id = ?',
+      userId
+    );
+
+    if (!currentUser || !currentUser.city) {
+      return success(c, { suggestions: [] });
+    }
+
+    const existingFriendIds = await query<{ friend_id: string }>(
+      c.env.chillingz_db,
+      'SELECT friend_id FROM friends WHERE user_id = ?',
+      userId
+    );
+
+    const excludeIds = [userId, ...existingFriendIds.map(f => f.friend_id)];
+
+    const oppositeGender = currentUser.gender === 'male' ? 'female'
+      : currentUser.gender === 'female' ? 'male'
+      : null;
+
+    let suggestions: any[];
+    if (oppositeGender) {
+      suggestions = await query(
+        c.env.chillingz_db,
+        `SELECT id, first_name, last_name, avatar_url, city, gender FROM users
+         WHERE city = ? AND (gender = ? OR gender IS NULL)
+         AND id NOT IN (${excludeIds.map(() => '?').join(',')})
+         ORDER BY CASE WHEN gender = ? THEN 0 ELSE 1 END
+         LIMIT ?`,
+        currentUser.city, oppositeGender, ...excludeIds, oppositeGender, limit
+      );
+    } else {
+      suggestions = await query(
+        c.env.chillingz_db,
+        `SELECT id, first_name, last_name, avatar_url, city, gender FROM users
+         WHERE city = ? AND id NOT IN (${excludeIds.map(() => '?').join(',')})
+         LIMIT ?`,
+        currentUser.city, ...excludeIds, limit
+      );
+    }
+
+    return success(c, {
+      suggestions: suggestions.map(u => ({
+        id: u.id,
+        name: `${u.first_name} ${u.last_name}`,
+        handle: `@${u.first_name.toLowerCase()}${u.last_name.toLowerCase()}.events`,
+        avatar: u.avatar_url || '',
+        city: u.city || '',
+        gender: u.gender || null,
+        mutualFriends: 0,
+        isOnline: false,
+      })),
+    });
+  });
+
+  app.get('/friends/search', requireAuth, async (c) => {
+    const q = c.req.query('q');
+    const limit = Math.min(parseInt(c.req.query('limit') || '10'), 50);
+
+    if (!q || q.length < 2) {
+      return success(c, { results: [] });
+    }
+
+    const userId = c.get('userId');
+    const searchTerm = `%${q}%`;
+
+    const results = await query(
+      c.env.chillingz_db,
+      `SELECT id, first_name, last_name, avatar_url, city, gender FROM users
+       WHERE id != ? AND (first_name LIKE ? OR last_name LIKE ? OR email LIKE ?)
+       LIMIT ?`,
+      userId, searchTerm, searchTerm, searchTerm, limit
+    );
+
+    return success(c, {
+      results: results.map(u => ({
+        id: u.id,
+        name: `${u.first_name} ${u.last_name}`,
+        handle: `@${u.first_name.toLowerCase()}${u.last_name.toLowerCase()}.events`,
+        avatar: u.avatar_url || '',
+        city: u.city || '',
+        gender: u.gender || null,
+        mutualFriends: 0,
+        isOnline: false,
+      })),
+    });
   });
 
   app.post('/friends/:id', requireAuth, async (c) => {

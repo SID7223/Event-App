@@ -38,12 +38,12 @@ export function useGoogleAuth() {
         return;
       }
 
-      const { idToken } = result.params;
+      const { idToken, accessToken } = result.params;
 
       const res = await fetch(`${API_BASE_URL}/auth/social/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
+        body: JSON.stringify({ idToken, accessToken }),
       });
 
       const data = await res.json();
