@@ -9,13 +9,13 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+import CachedImage from '../../components/ui/CachedImage';
 import { useAuth } from '../../store';
 import { uploadAvatar } from '../../services/api';
 
@@ -184,9 +184,10 @@ const EditProfileScreen: React.FC = () => {
           {/* Avatar */}
           <View style={styles.avatarSection}>
             <View style={styles.avatarContainer}>
-              <Image
-                source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }}
+              <CachedImage
+                uri="https://randomuser.me/api/portraits/men/32.jpg"
                 style={styles.avatar}
+                priority="high"
               />
               <TouchableOpacity style={styles.cameraBtn} onPress={handleCameraPress}>
                 <Ionicons name="camera" size={14} color="#fff" />

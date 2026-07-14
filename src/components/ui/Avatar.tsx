@@ -2,13 +2,13 @@ import React from 'react';
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   StyleSheet,
   ViewStyle,
   GestureResponderEvent,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import CachedImage from './CachedImage';
 
 interface AvatarProps {
   uri?: string;
@@ -47,8 +47,8 @@ const Avatar: React.FC<AvatarProps> = ({
       ]}
     >
       {uri ? (
-        <Image
-          source={{ uri }}
+        <CachedImage
+          uri={uri}
           style={[
             styles.image,
             {
@@ -57,6 +57,8 @@ const Avatar: React.FC<AvatarProps> = ({
               borderRadius: (size - borderWidth * 2) / 2,
             },
           ]}
+          priority="high"
+          contentFit="cover"
         />
       ) : (
         <LinearGradient

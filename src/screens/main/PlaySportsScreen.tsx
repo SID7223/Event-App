@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Image,
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import GlassPill from '../../components/ui/GlassPill';
 import { resolveImage } from '../../utils/images';
 import { fonts } from '../../theme/fonts';
+import CachedImage from '../../components/ui/CachedImage';
 
 interface PlayVenue {
   id: string;
@@ -228,7 +228,7 @@ const PlaySportsScreen: React.FC = () => {
     <View style={styles.venueCard}>
       {/* Image */}
       <View style={styles.imageContainer}>
-        <Image source={{ uri: resolveImage(item.imageId, item.image, 'medium') }} style={styles.venueImage} />
+        <CachedImage uri={resolveImage(item.imageId, item.image, 'medium')} style={styles.venueImage} />
         <View style={styles.imageOverlay} />
         {/* Status Badge */}
         <View style={[styles.statusBadge, item.isOpen ? styles.statusOpen : styles.statusClosed]}>

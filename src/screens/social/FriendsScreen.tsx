@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   Animated,
-  Image,
   ScrollView,
   Platform,
   Modal,
@@ -20,6 +19,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../store';
 import { fonts } from '../../theme/fonts';
 import { resolveImage } from '../../utils/images';
+import CachedImage from '../../components/ui/CachedImage';
 import {
   getFriends,
   addFriend as apiAddFriend,
@@ -227,8 +227,8 @@ const FriendsScreen: React.FC = () => {
                 const isFriend = friendsList.includes(item.id);
                 return (
                   <View style={styles.suggestedCard}>
-                    <Image
-                      source={{ uri: resolveImage(item.avatarId, item.avatar, 'thumbnail') }}
+                    <CachedImage
+                      uri={resolveImage(item.avatarId, item.avatar, 'thumbnail')}
                       style={styles.suggestedAvatar}
                     />
                     <Text style={styles.suggestedName} numberOfLines={1}>
@@ -272,6 +272,10 @@ const FriendsScreen: React.FC = () => {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.suggestedCardsRow}
+              windowSize={5}
+              removeClippedSubviews={true}
+              maxToRenderPerBatch={10}
+              scrollEventThrottle={16}
             />
           </View>
         )}
@@ -329,8 +333,8 @@ const FriendsScreen: React.FC = () => {
                 >
                   <View style={styles.friendLeft}>
                     <View style={styles.avatarContainer}>
-                      <Image
-                        source={{ uri: resolveImage(item.avatarId, item.avatar, 'thumbnail') }}
+                      <CachedImage
+                        uri={resolveImage(item.avatarId, item.avatar, 'thumbnail')}
                         style={styles.friendAvatar}
                       />
                       {item.isOnline && <View style={styles.onlineDot} />}

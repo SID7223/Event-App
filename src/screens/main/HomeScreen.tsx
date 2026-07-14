@@ -35,6 +35,7 @@ import {
 } from '../../utils/weather';
 import { WEATHER_ICON_MAP } from '../../assets/weatherIcons';
 import { getDynamicGreeting } from '../../utils/greetingEngine';
+import CachedImage from '../../components/ui/CachedImage';
 
 const { width } = Dimensions.get('window');
 
@@ -283,6 +284,9 @@ const HomeScreen: React.FC = () => {
           snapToAlignment="start"
           decelerationRate="fast"
           disableIntervalMomentum={true}
+          windowSize={3}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={3}
           contentContainerStyle={{ paddingHorizontal: 20, gap: 16 }}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { x: scrollX } } }],
@@ -300,7 +304,7 @@ const HomeScreen: React.FC = () => {
               onPress={() => navigation.navigate('EventDetail', { eventId: item.id })}
               activeOpacity={0.9}
             >
-              <Image source={{ uri: resolveImage((item as Event).imageId, item.image, 'large') }} style={styles.featuredImage} />
+              <CachedImage uri={resolveImage((item as Event).imageId, item.image, 'large')} style={styles.featuredImage} priority="high" />
               <LinearGradient
                 colors={['rgba(10,12,18,0.9)', 'rgba(10,12,18,0.5)', 'rgba(10,12,18,0.7)']}
                 locations={[0, 0.5, 1]}
@@ -389,7 +393,7 @@ const HomeScreen: React.FC = () => {
         onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
         activeOpacity={0.88}
       >
-        <Image source={{ uri: resolveImage(event.imageId, event.image, 'medium') }} style={styles.popularImage} />
+        <CachedImage uri={resolveImage(event.imageId, event.image, 'medium')} style={styles.popularImage} />
         <LinearGradient
           colors={['transparent', 'rgba(10,12,18,0.85)']}
           style={styles.popularGradient}
@@ -400,9 +404,9 @@ const HomeScreen: React.FC = () => {
             <View style={styles.friendAttendanceRow}>
               <View style={styles.stackedAvatars}>
                 {attendingFriends.slice(0, 3).map((friend, idx) => (
-                  <Image
+                  <CachedImage
                     key={friend.id}
-                    source={{ uri: resolveImage(friend.avatarId, friend.avatar, 'thumbnail') }}
+                    uri={resolveImage(friend.avatarId, friend.avatar, 'thumbnail')}
                     style={[styles.miniAvatar, { marginLeft: idx > 0 ? -8 : 0, zIndex: 3 - idx }]}
                   />
                 ))}
@@ -442,16 +446,16 @@ const HomeScreen: React.FC = () => {
           <Text style={styles.upcomingDay}>{getDay(event.date)}</Text>
           <Text style={styles.upcomingMonth}>{getMonth(event.date)}</Text>
         </View>
-        <Image source={{ uri: resolveImage(event.imageId, event.image, 'medium') }} style={styles.upcomingImage} />
+        <CachedImage uri={resolveImage(event.imageId, event.image, 'medium')} style={styles.upcomingImage} />
         <View style={styles.upcomingInfo}>
           <Text style={styles.upcomingTitle} numberOfLines={1}>{event.title}</Text>
           {hasFriendsAttending ? (
             <View style={styles.upcomingFriendRow}>
               <View style={styles.stackedAvatarsSmall}>
                 {attendingFriends.slice(0, 2).map((friend, idx) => (
-                  <Image
+                  <CachedImage
                     key={friend.id}
-                    source={{ uri: resolveImage(friend.avatarId, friend.avatar, 'thumbnail') }}
+                    uri={resolveImage(friend.avatarId, friend.avatar, 'thumbnail')}
                     style={[styles.miniAvatarSmall, { marginLeft: idx > 0 ? -6 : 0, zIndex: 2 - idx }]}
                   />
                 ))}
@@ -565,7 +569,7 @@ const HomeScreen: React.FC = () => {
                   onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
                   activeOpacity={0.85}
                 >
-                  <Image source={{ uri: resolveImage(event.imageId, event.image, 'medium') }} style={styles.searchResultImage} />
+                  <CachedImage uri={resolveImage(event.imageId, event.image, 'medium')} style={styles.searchResultImage} />
                   <View style={styles.searchResultInfo}>
                     <Text style={styles.searchResultTitle} numberOfLines={1}>{event.title}</Text>
                     <View style={styles.searchResultMeta}>

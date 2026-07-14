@@ -2,7 +2,6 @@ import React from 'react';
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   ViewStyle,
 } from 'react-native';
@@ -12,6 +11,7 @@ import { User } from '../../types';
 import { resolveImage } from '../../utils/images';
 import { colors } from '../../theme/colors';
 import { spacing, borderRadius, fontSizes, fontWeights } from '../../theme/spacing';
+import CachedImage from '../ui/CachedImage';
 
 interface ProfileCardProps {
   user: User;
@@ -28,7 +28,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ user, style }) => {
     >
       <View style={styles.card}>
         <View style={styles.avatarContainer}>
-          <Image source={{ uri: resolveImage(user.avatarId, user.avatar, 'thumbnail') }} style={styles.avatar} />
+          <CachedImage uri={resolveImage(user.avatarId, user.avatar, 'thumbnail')} style={styles.avatar} priority="high" />
           <View style={styles.onlineIndicator} />
         </View>
 

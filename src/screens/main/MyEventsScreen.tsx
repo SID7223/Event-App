@@ -7,12 +7,12 @@ import {
   FlatList,
   Animated,
   TouchableOpacity,
-  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { resolveImage } from '../../utils/images';
+import CachedImage from '../../components/ui/CachedImage';
 
 
 const TABS = ['Upcoming', 'Past', 'Saved'];
@@ -75,7 +75,7 @@ const MyEventsScreen: React.FC = () => {
         </View>
 
         {/* Thumbnail */}
-        <Image source={{ uri: resolveImage(item.event.imageId, item.event.image, 'thumbnail') }} style={styles.thumbnail} />
+        <CachedImage uri={resolveImage(item.event.imageId, item.event.image, 'thumbnail')} style={styles.thumbnail} />
 
         {/* Info */}
         <View style={styles.eventInfo}>
@@ -121,6 +121,10 @@ const MyEventsScreen: React.FC = () => {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
+        windowSize={5}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        scrollEventThrottle={16}
         style={{ flex: 1 }}
       />
     </SafeAreaView>

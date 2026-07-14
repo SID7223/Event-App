@@ -6,13 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
-  Image,
   Linking,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import CachedImage from '../../components/ui/CachedImage';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../../store';
 import { fonts } from '../../theme/fonts';
@@ -120,7 +120,7 @@ const OrganizerProfileScreen: React.FC = () => {
       onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
       activeOpacity={0.88}
     >
-      <Image source={{ uri: resolveImage(event.imageId, event.image, 'medium') }} style={styles.eventImage} />
+      <CachedImage uri={resolveImage(event.imageId, event.image, 'medium')} style={styles.eventImage} />
       <LinearGradient
         colors={['transparent', 'rgba(10,12,18,0.85)']}
         style={styles.eventGradient}
@@ -184,7 +184,7 @@ const OrganizerProfileScreen: React.FC = () => {
       >
         {/* Cover Image */}
         <View style={styles.coverContainer}>
-          <Image source={{ uri: resolveImage(organizer.coverId, organizer.coverImage, 'large') }} style={styles.coverImage} />
+          <CachedImage uri={resolveImage(organizer.coverId, organizer.coverImage, 'large')} style={styles.coverImage} priority="high" />
           <LinearGradient
             colors={['rgba(10,12,18,0.2)', 'rgba(10,12,18,0.95)']}
             style={styles.coverGradient}
@@ -204,7 +204,7 @@ const OrganizerProfileScreen: React.FC = () => {
         <View style={styles.profileHeader}>
           {/* Centered Circular Avatar */}
           <View style={styles.avatarContainer}>
-            <Image source={{ uri: resolveImage(organizer.avatarId, organizer.avatar, 'thumbnail') }} style={styles.avatar} />
+            <CachedImage uri={resolveImage(organizer.avatarId, organizer.avatar, 'thumbnail')} style={styles.avatar} priority="high" />
             <View style={styles.avatarBadge}>
               <Ionicons name="star" size={12} color="#FFD700" />
             </View>

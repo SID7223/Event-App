@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   Animated,
   StyleSheet,
@@ -15,6 +14,7 @@ import { resolveImage } from '../../utils/images';
 import { colors } from '../../theme/colors';
 import { spacing, borderRadius, fontSizes, fontWeights } from '../../theme/spacing';
 import PriceBadge from '../ui/PriceBadge';
+import CachedImage from '../ui/CachedImage';
 
 interface EventCardProps {
   event: Event;
@@ -118,7 +118,7 @@ const EventCard: React.FC<EventCardProps> = ({
 
   const renderHorizontal = () => (
     <View style={styles.horizontalContainer}>
-      <Image source={{ uri: resolveImage(event.imageId, event.image, 'small') }} style={styles.horizontalImage} />
+      <CachedImage uri={resolveImage(event.imageId, event.image, 'small')} style={styles.horizontalImage} priority="high" />
       <LinearGradient
         colors={['transparent', 'rgba(0,0,0,0.6)']}
         style={styles.horizontalImageOverlay}
@@ -130,7 +130,7 @@ const EventCard: React.FC<EventCardProps> = ({
 
   const renderVertical = () => (
     <View style={styles.verticalContainer}>
-      <Image source={{ uri: resolveImage(event.imageId, event.image, 'medium') }} style={styles.verticalImage} />
+      <CachedImage uri={resolveImage(event.imageId, event.image, 'medium')} style={styles.verticalImage} />
       <LinearGradient
         colors={['transparent', 'rgba(0,0,0,0.7)']}
         style={styles.verticalImageOverlay}
@@ -145,7 +145,7 @@ const EventCard: React.FC<EventCardProps> = ({
 
   const renderFeatured = () => (
     <View style={styles.featuredContainer}>
-      <Image source={{ uri: resolveImage(event.imageId, event.image, 'large') }} style={styles.featuredImage} />
+      <CachedImage uri={resolveImage(event.imageId, event.image, 'large')} style={styles.featuredImage} priority="high" />
       <LinearGradient
         colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.9)']}
         locations={[0, 0.4, 1]}

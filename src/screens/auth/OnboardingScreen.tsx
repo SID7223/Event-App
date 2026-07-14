@@ -6,13 +6,13 @@ import {
   Animated,
   StatusBar,
   TouchableOpacity,
-  ImageBackground,
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import Svg, { Path, Defs, Circle, G } from 'react-native-svg';
+import CachedImage from '../../components/ui/CachedImage';
 import { Image } from 'expo-image';
 import { Easing } from 'react-native';
 
@@ -141,11 +141,12 @@ const OnboardingScreen: React.FC = () => {
     <View style={styles.root}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
-      <ImageBackground
-        source={{ uri: slide.image }}
-        style={styles.bg}
-        resizeMode="cover"
-      >
+      <View style={styles.bg}>
+        <CachedImage
+          uri={slide.image}
+          style={StyleSheet.absoluteFill}
+          priority="high"
+        />
         <LinearGradient
           colors={[
             'rgba(10,12,18,0.25)',
@@ -256,7 +257,7 @@ const OnboardingScreen: React.FC = () => {
             </TouchableOpacity>
           )}
         </View>
-      </ImageBackground>
+      </View>
     </View>
   );
 };

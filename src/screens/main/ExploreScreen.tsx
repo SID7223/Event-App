@@ -6,7 +6,6 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
-  Image,
   Keyboard,
   Dimensions,
 } from 'react-native';
@@ -18,6 +17,7 @@ import GlassPill from '../../components/ui/GlassPill';
 import { BlurView } from 'expo-blur';
 import { resolveImage } from '../../utils/images';
 import { fonts } from '../../theme/fonts';
+import CachedImage from '../../components/ui/CachedImage';
 
 const { width } = Dimensions.get('window');
 
@@ -72,7 +72,7 @@ const ExploreScreen: React.FC = () => {
       >
         {/* Thumbnail with date badge overlay */}
         <View style={styles.thumbContainer}>
-          <Image source={{ uri: resolveImage(item.imageId, item.image, 'medium') }} style={styles.thumb} />
+          <CachedImage uri={resolveImage(item.imageId, item.image, 'medium')} style={styles.thumb} />
           {/* Date badge overlaid top-left of image */}
           <View style={styles.dateBadge}>
             <Text style={styles.badgeDay}>{getDay(item.date)}</Text>
@@ -147,6 +147,10 @@ const ExploreScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         onScrollBeginDrag={Keyboard.dismiss}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
+        windowSize={5}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        scrollEventThrottle={16}
         style={{ flex: 1 }}
         ListHeaderComponent={
           <>
@@ -160,8 +164,8 @@ const ExploreScreen: React.FC = () => {
                   onPress={() => navigation.navigate('Cinema')}
                   activeOpacity={0.85}
                 >
-                  <Image
-                    source={{ uri: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400' }}
+                  <CachedImage
+                    uri="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400"
                     style={styles.hubCardImage}
                   />
                   <View style={styles.hubCardOverlay} />
@@ -180,8 +184,8 @@ const ExploreScreen: React.FC = () => {
                   onPress={() => navigation.navigate('Dining')}
                   activeOpacity={0.85}
                 >
-                  <Image
-                    source={{ uri: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400' }}
+                  <CachedImage
+                    uri="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400"
                     style={styles.hubCardImage}
                   />
                   <View style={styles.hubCardOverlay} />
@@ -200,8 +204,8 @@ const ExploreScreen: React.FC = () => {
                   onPress={() => navigation.navigate('PlaySports')}
                   activeOpacity={0.85}
                 >
-                  <Image
-                    source={{ uri: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600&q=80' }}
+                  <CachedImage
+                    uri="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600&q=80"
                     style={styles.hubCardImage}
                   />
                   <View style={styles.hubCardOverlay} />

@@ -6,12 +6,12 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
-  Image,
   TouchableWithoutFeedback,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useApp, useAuth } from '../../store';
+import CachedImage from '../ui/CachedImage';
 
 const { width } = Dimensions.get('window');
 const SIDEBAR_WIDTH = width * 0.78;
@@ -98,9 +98,10 @@ const Sidebar: React.FC<SidebarProps> = ({ visible, onClose }) => {
       <Animated.View style={[styles.sidebar, { transform: [{ translateX: slideAnim }] }]}>
         {/* Header */}
         <View style={styles.header}>
-          <Image
-            source={{ uri: user?.avatar || 'https://randomuser.me/api/portraits/men/32.jpg' }}
+          <CachedImage
+            uri={user?.avatar || 'https://randomuser.me/api/portraits/men/32.jpg'}
             style={styles.avatar}
+            priority="high"
           />
           <Text style={styles.userName}>{user?.firstName || 'User'} {user?.lastName || ''}</Text>
           <Text style={styles.userEmail}>{user?.email || ''}</Text>

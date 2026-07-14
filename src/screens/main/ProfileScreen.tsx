@@ -6,7 +6,6 @@ import {
   ScrollView,
   Animated,
   TouchableOpacity,
-  Image,
   Alert,
   Share,
   Linking,
@@ -22,6 +21,7 @@ import GlassToggle from '../../components/ui/GlassToggle';
 import { fonts } from '../../theme/fonts';
 import { resolveImage } from '../../utils/images';
 import { uploadAvatar } from '../../services/api';
+import CachedImage from '../../components/ui/CachedImage';
 
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -195,9 +195,10 @@ const ProfileScreen: React.FC = () => {
         <Animated.View style={[styles.profileSection, { opacity: fadeAnim }]}>
           <View style={[styles.avatarRing, user?.plan === 'premium' && styles.avatarRingPremium]}>
             <View style={styles.avatarInner}>
-              <Image
-                source={{ uri: profileImage || resolveImage(user?.avatarId, user?.avatar, 'thumbnail') || 'https://randomuser.me/api/portraits/men/32.jpg' }}
+              <CachedImage
+                uri={profileImage || resolveImage(user?.avatarId, user?.avatar, 'thumbnail') || 'https://randomuser.me/api/portraits/men/32.jpg'}
                 style={styles.avatar}
+                priority="high"
               />
             </View>
             <TouchableOpacity style={styles.cameraBtn} onPress={handleCameraPress} activeOpacity={0.7}>
@@ -212,7 +213,7 @@ const ProfileScreen: React.FC = () => {
             <View style={styles.statsRow}>
               <View style={styles.statsUserInfo}>
                 <TouchableOpacity style={styles.statsAvatar} onPress={handleQRCode} activeOpacity={0.7}>
-                  <Image source={{ uri: qrCodeUrl }} style={styles.statsQrThumb} />
+                  <CachedImage uri={qrCodeUrl} style={styles.statsQrThumb} />
                 </TouchableOpacity>
                 <Text style={styles.statsUserName}>{user?.firstName} {user?.lastName}</Text>
               </View>
@@ -419,7 +420,7 @@ const ProfileScreen: React.FC = () => {
       <Modal visible={showQRModal} transparent animationType="fade" onRequestClose={() => setShowQRModal(false)}>
         <Pressable style={styles.qrOverlay} onPress={() => setShowQRModal(false)}>
           <Pressable style={styles.qrPopup} onPress={(e) => e.stopPropagation()}>
-            <Image source={{ uri: qrCodeUrl }} style={styles.qrImage} />
+            <CachedImage uri={qrCodeUrl} style={styles.qrImage} priority="high" />
             <View style={styles.qrActions}>
               <TouchableOpacity style={styles.qrActionBtn} onPress={handleDownloadQR} activeOpacity={0.7}>
                 <Ionicons name="download-outline" size={22} color="#fff" />

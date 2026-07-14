@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
-  Image,
   Linking,
   Alert,
   Platform,
@@ -21,6 +20,7 @@ import { useFilteredContent } from '../../hooks/useFilteredContent';
 import { handleVenueBooking } from '../../utils/booking';
 import { resolveImage } from '../../utils/images';
 import { fonts } from '../../theme/fonts';
+import CachedImage from '../../components/ui/CachedImage';
 
 const { width } = Dimensions.get('window');
 
@@ -81,7 +81,7 @@ const DiningScreen: React.FC = () => {
       <View style={styles.restaurantCard}>
         {/* Image */}
         <View style={styles.imageContainer}>
-          <Image source={{ uri: resolveImage(item.imageId, item.image, 'medium') }} style={styles.restaurantImage} />
+          <CachedImage uri={resolveImage(item.imageId, item.image, 'medium')} style={styles.restaurantImage} />
           <LinearGradient
             colors={['transparent', 'rgba(10,12,18,0.85)']}
             style={styles.imageGradient}

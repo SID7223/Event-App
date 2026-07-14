@@ -134,6 +134,10 @@ const FollowingScreen: React.FC = () => {
             )}
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
+            windowSize={5}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={10}
+            scrollEventThrottle={16}
             style={{ flex: 1 }}
           />
         ) : (

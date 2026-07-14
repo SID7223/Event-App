@@ -4,11 +4,11 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
   Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { resolveImage } from '../../utils/images';
+import CachedImage from './CachedImage';
 
 export interface FollowingEntity {
   id: string;
@@ -55,9 +55,10 @@ const FollowingRow: React.FC<FollowingRowProps> = ({ item, onPress, onUnfollow }
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
       <TouchableOpacity style={styles.row} onPress={onPress} activeOpacity={0.7}>
-        <Image
-          source={{ uri: resolveImage(item.avatarId, item.avatar, 'thumbnail') }}
+        <CachedImage
+          uri={resolveImage(item.avatarId, item.avatar, 'thumbnail')}
           style={[styles.avatar, item.type === 'venue' && styles.venueAvatar]}
+          priority="high"
         />
         <View style={styles.info}>
           <Text style={styles.name} numberOfLines={1}>{item.name}</Text>

@@ -7,12 +7,12 @@ import {
   Animated,
   TouchableOpacity,
   Dimensions,
-  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { resolveImage } from '../../utils/images';
+import CachedImage from '../../components/ui/CachedImage';
 
 
 const { width } = Dimensions.get('window');
@@ -165,7 +165,7 @@ const CalendarScreen: React.FC = () => {
                 <Text style={styles.eventBadgeDay}>{selectedDate.getDate()}</Text>
                 <Text style={styles.eventBadgeMonth}>{SHORT_MONTHS[selectedDate.getMonth()]}</Text>
               </View>
-              <Image source={{ uri: resolveImage(event.imageId, event.image, 'thumbnail') }} style={styles.eventThumb} />
+              <CachedImage uri={resolveImage(event.imageId, event.image, 'thumbnail')} style={styles.eventThumb} />
               <View style={styles.eventInfo}>
                 <Text style={styles.eventName} numberOfLines={2}>{event.title}</Text>
                 <Text style={styles.eventTime}>10:00 AM</Text>

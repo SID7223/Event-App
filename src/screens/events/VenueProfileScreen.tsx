@@ -6,13 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
-  Image,
   Linking,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import CachedImage from '../../components/ui/CachedImage';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../../store';
 import { fonts } from '../../theme/fonts';
@@ -114,7 +114,7 @@ const VenueProfileScreen: React.FC = () => {
       onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
       activeOpacity={0.88}
     >
-      <Image source={{ uri: resolveImage(event.imageId, event.image, 'medium') }} style={styles.eventImage} />
+      <CachedImage uri={resolveImage(event.imageId, event.image, 'medium')} style={styles.eventImage} />
       <LinearGradient
         colors={['transparent', 'rgba(10,12,18,0.85)']}
         style={styles.eventGradient}
@@ -178,7 +178,7 @@ const VenueProfileScreen: React.FC = () => {
       >
         {/* Cover Image */}
         <View style={styles.coverContainer}>
-          <Image source={{ uri: resolveImage(venue.coverId, venue.coverImage, 'large') }} style={styles.coverImage} />
+          <CachedImage uri={resolveImage(venue.coverId, venue.coverImage, 'large')} style={styles.coverImage} priority="high" />
           <LinearGradient
             colors={['rgba(10,12,18,0.3)', 'rgba(10,12,18,0.95)']}
             style={styles.coverGradient}
@@ -196,7 +196,7 @@ const VenueProfileScreen: React.FC = () => {
 
         {/* Profile Header */}
         <View style={styles.profileHeader}>
-          <Image source={{ uri: resolveImage(venue.logoId, venue.logo, 'thumbnail') }} style={styles.logo} />
+          <CachedImage uri={resolveImage(venue.logoId, venue.logo, 'thumbnail')} style={styles.logo} priority="high" />
           
           <View style={styles.nameSection}>
             <View style={styles.nameRow}>

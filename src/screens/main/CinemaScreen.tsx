@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
-  Image,
   Modal,
   FlatList,
   Platform,
@@ -18,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useFilteredContent } from '../../hooks/useFilteredContent';
 import { handleVenueBooking } from '../../utils/booking';
 import { resolveImage } from '../../utils/images';
+import CachedImage from '../../components/ui/CachedImage';
 import { MovieWithShowtimes, Cinema, MovieShowtime } from '../../types';
 import { fonts } from '../../theme/fonts';
 
@@ -70,7 +70,7 @@ const CinemaScreen: React.FC = () => {
       onPress={() => handleMoviePress(item)}
       activeOpacity={0.9}
     >
-      <Image source={{ uri: resolveImage(item.posterId, item.poster, 'medium') }} style={styles.posterImage} />
+      <CachedImage uri={resolveImage(item.posterId, item.poster, 'medium')} style={styles.posterImage} />
       <LinearGradient
         colors={['transparent', 'rgba(10,12,18,0.9)']}
         locations={[0, 0.6]}
@@ -153,6 +153,10 @@ const CinemaScreen: React.FC = () => {
         columnWrapperStyle={styles.posterRow}
         contentContainerStyle={styles.posterList}
         showsVerticalScrollIndicator={false}
+        windowSize={5}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        scrollEventThrottle={16}
         style={styles.flatList}
       />
 
@@ -183,7 +187,7 @@ const CinemaScreen: React.FC = () => {
               >
                 {/* Movie Hero */}
                 <View style={styles.movieHero}>
-                  <Image source={{ uri: resolveImage(selectedMovie.posterId, selectedMovie.poster, 'large') }} style={styles.heroPoster} />
+                  <CachedImage uri={resolveImage(selectedMovie.posterId, selectedMovie.poster, 'large')} style={styles.heroPoster} priority="high" />
                   <LinearGradient
                     colors={['rgba(10,12,18,0.3)', 'rgba(10,12,18,0.95)']}
                     style={styles.heroGradient}

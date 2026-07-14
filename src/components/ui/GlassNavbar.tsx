@@ -2,12 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import {
   View,
   TouchableOpacity,
-  Image,
   StyleSheet,
   Animated,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
+import CachedImage from './CachedImage';
 
 interface Tab {
   name: string;
@@ -60,9 +60,10 @@ const GlassNavbar: React.FC<GlassNavbarProps> = ({ tabs, activeIndex, onTabPress
                 )}
                 {tab.name === 'ProfileTab' ? (
                   <View style={[styles.avatarRing, isActive && styles.avatarRingActive]}>
-                    <Image
-                      source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }}
+                    <CachedImage
+                      uri="https://randomuser.me/api/portraits/men/32.jpg"
                       style={styles.tabAvatar}
+                      priority="high"
                     />
                   </View>
                 ) : (
