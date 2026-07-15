@@ -6,4 +6,4 @@
 #
 # Email sending (password reset, etc.) uses the SEND_EMAIL binding
 # configured in wrangler.jsonc — no env var needed for local dev.
-# The binding sends from noreply@chillingz.com.
+# The binding sends from noreply@corlify.com.

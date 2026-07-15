@@ -139,7 +139,7 @@ export function register(app: Hono<{ Bindings: Env }>) {
     });
 
     try {
-      const msg = new EmailMessage('noreply@chillingz.com', user.email, { subject, html } as any);
+      const msg = new EmailMessage('noreply@corlify.com', user.email, { subject, html } as any);
       await c.env.SEND_EMAIL.send(msg);
     } catch {
       console.error('Failed to send password reset email to', user.email);
