@@ -4,6 +4,7 @@ export interface Env {
   PUSHER_KEY?: string;
   PUSHER_SECRET?: string;
   PUSHER_CLUSTER?: string;
+  WEBSOCKET_DO?: DurableObjectNamespace;
   AI?: any;
   SEND_EMAIL: SendEmail;
 }

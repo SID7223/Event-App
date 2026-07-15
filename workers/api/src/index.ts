@@ -20,6 +20,9 @@ import { register as registerTickets } from './routes/tickets';
 import { register as registerCreator } from './routes/creator';
 import { register as registerAdmin } from './routes/admin';
 import { register as registerAuth } from './routes/auth';
+import { WebSocketDurableObject } from './durable-objects/websocket';
+
+export { WebSocketDurableObject };
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -67,4 +70,20 @@ app.notFound((c) => {
   }, 404);
 });
 
-export default app;
+export default {
+  fetch: async (request: Request, env: Env, ctx: ExecutionContext) => {
+    const url = new URL(request.url);
+    const upgradeHeader = request.headers.get('Upgrade');
+
+    // Route WebSocket connections to Durable Object
+    if (upgradeHeader?.toLowerCase() === 'websocket' && url.pathname === '/ws') {
+      const doId = env.WEBSOCKET_DO?.idFromName('websocket');
+      if (doId) {
+        const stub = env.WEBSOCKET_DO.get(doId);
+        return stub.fetch(request);
+      }
+    }
+
+    return app.fetch(request, env, ctx);
+  },
+};

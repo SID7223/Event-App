@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator,
 } from 'react-native';
@@ -6,10 +6,29 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Message } from '../../types';
-import { getMessages, sendMessage, markConversationRead, deleteMessage } from '../../services/api';
-import CachedImage from '../../components/ui/CachedImage';
-import { fonts } from '../../theme/fonts';
+import { markConversationRead } from '../../services/api';
 import { useAuth } from '../../store';
+import { useMessages } from '../../hooks/useMessages';
+import { usePresence } from '../../hooks/usePresence';
+import { fonts } from '../../theme/fonts';
+import { getConversation } from '../../services/api';
+
+function StatusIcon({ status }: { status: Message['status'] }) {
+  switch (status) {
+    case 'sending':
+      return <Ionicons name="time-outline" size={12} color="#666" />;
+    case 'sent':
+      return <Ionicons name="checkmark" size={12} color="#666" />;
+    case 'delivered':
+      return <Ionicons name="checkmark-done" size={12} color="#888" />;
+    case 'read':
+      return <Ionicons name="checkmark-done" size={12} color="#3B82F6" />;
+    case 'failed':
+      return <Ionicons name="alert-circle" size={12} color="#EF4444" />;
+    default:
+      return null;
+  }
+}
 
 const DMChatScreen: React.FC = () => {
   const route = useRoute<any>();
@@ -17,59 +36,56 @@ const DMChatScreen: React.FC = () => {
   const { user } = useAuth();
   const { conversationId, title } = route.params || {};
 
-  const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [otherUserId, setOtherUserId] = useState<string | null>(null);
   const flatListRef = useRef<FlatList>(null);
 
-  const loadMessages = useCallback(async (cursor?: string) => {
-    try {
-      const res = await getMessages(conversationId, cursor ? { cursor, limit: 30 } : { limit: 30 });
-      if (cursor) {
-        setMessages(prev => [...res.messages, ...prev]);
-      } else {
-        setMessages(res.messages);
-      }
-      setNextCursor(res.nextCursor);
-    } catch (_) {}
-    setLoading(false);
-    setLoadingMore(false);
-  }, [conversationId]);
+  const presence = usePresence(otherUserId);
 
+  const {
+    messages, loading, sending, sendMessage, deleteMessage, loadMore, hasMore, markDelivered, reload,
+  } = useMessages(conversationId);
+
+  // Get other participant for presence + title
   useEffect(() => {
-    loadMessages();
+    if (!conversationId || title) return;
+    getConversation(conversationId).then(conv => {
+      const other = conv.participants.find(p => p.userId !== user?.id);
+      if (other) setOtherUserId(other.userId);
+    }).catch(() => {});
+  }, [conversationId, title, user?.id]);
+
+  // Mark read on mount and mark delivered for incoming messages
+  useEffect(() => {
+    if (!conversationId) return;
     markConversationRead(conversationId).catch(() => {});
   }, [conversationId]);
+
+  // Mark unread incoming messages as delivered
+  const unreadIncoming = useMemo(() =>
+    messages.filter(m => m.senderId !== user?.id && m.status === 'sent'),
+  [messages, user?.id]);
+
+  useEffect(() => {
+    if (unreadIncoming.length > 0) {
+      markDelivered(unreadIncoming.map(m => m.id));
+    }
+  }, [unreadIncoming, markDelivered]);
 
   const handleSend = async () => {
     const text = inputText.trim();
     if (!text || sending) return;
-    setSending(true);
     setInputText('');
-    try {
-      const msg = await sendMessage(conversationId, { content: text });
-      setMessages(prev => [...prev, msg]);
-      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 200);
-    } catch (_) {
-      setInputText(text);
-    }
-    setSending(false);
+    await sendMessage(text);
+    setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 200);
   };
 
-  const handleLoadMore = async () => {
-    if (loadingMore || !nextCursor) return;
-    setLoadingMore(true);
-    await loadMessages(nextCursor);
+  const handleLoadMore = () => {
+    if (hasMore && !loading) loadMore();
   };
 
-  const handleDelete = async (messageId: string) => {
-    try {
-      await deleteMessage(messageId);
-      setMessages(prev => prev.filter(m => m.id !== messageId));
-    } catch (_) {}
+  const handleDelete = (messageId: string) => {
+    deleteMessage(messageId);
   };
 
   const formatTime = (iso: string) => {
@@ -84,7 +100,7 @@ const DMChatScreen: React.FC = () => {
     const isMe = item.senderId === user?.id || item.senderId === 'me';
     return (
       <TouchableOpacity
-        onLongPress={() => isMe && handleDelete(item.id)}
+        onLongPress={() => isMe && item.status !== 'sending' && handleDelete(item.id)}
         style={[styles.msgRow, isMe ? styles.msgRowMe : styles.msgRowOther]}
       >
         <View style={[styles.msgBubble, isMe ? styles.msgBubbleMe : styles.msgBubbleOther]}>
@@ -92,9 +108,7 @@ const DMChatScreen: React.FC = () => {
           <Text style={styles.msgText}>{item.content}</Text>
           <View style={styles.msgMeta}>
             <Text style={styles.msgTime}>{formatTime(item.createdAt)}</Text>
-            {isMe && (
-              <Ionicons name={item.status === 'read' ? 'checkmark-done' : 'checkmark'} size={12} color="#8B5CF6" />
-            )}
+            {isMe && <StatusIcon status={item.status} />}
           </View>
         </View>
       </TouchableOpacity>
@@ -108,8 +122,9 @@ const DMChatScreen: React.FC = () => {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Ionicons name="arrow-back" size={24} color="#FFF" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle} numberOfLines={1}>{title || 'Chat'}</Text>
-          <View style={{ width: 40 }} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.headerTitle} numberOfLines={1}>{title || 'Chat'}</Text>
+          </View>
         </View>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#8B5CF6" />
@@ -124,8 +139,15 @@ const DMChatScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={24} color="#FFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>{title || 'Chat'}</Text>
-        <View style={{ width: 40 }} />
+        <View style={{ flex: 1 }}>
+          <Text style={styles.headerTitle} numberOfLines={1}>{title || 'Chat'}</Text>
+          <View style={styles.presenceRow}>
+            <View style={[styles.presenceDot, { backgroundColor: presence.isOnline ? '#22C55E' : '#555' }]} />
+            <Text style={styles.presenceText}>
+              {presence.isOnline ? 'Online' : 'Offline'}
+            </Text>
+          </View>
+        </View>
       </View>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={0}>
         <FlatList
@@ -158,7 +180,11 @@ const DMChatScreen: React.FC = () => {
             onPress={handleSend}
             disabled={!inputText.trim() || sending}
           >
-            <Ionicons name="send" size={20} color="#FFF" />
+            {sending ? (
+              <ActivityIndicator size="small" color="#FFF" />
+            ) : (
+              <Ionicons name="send" size={20} color="#FFF" />
+            )}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -173,7 +199,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#222',
   },
   backBtn: { padding: 6, marginRight: 4 },
-  headerTitle: { flex: 1, fontSize: 18, fontFamily: fonts.sans.bold, color: '#FFF' },
+  headerTitle: { fontSize: 18, fontFamily: fonts.sans.bold, color: '#FFF' },
+  presenceRow: { flexDirection: 'row', alignItems: 'center', marginTop: 2, gap: 4 },
+  presenceDot: { width: 6, height: 6, borderRadius: 3 },
+  presenceText: { fontSize: 11, fontFamily: fonts.sans.regular, color: '#888' },
   msgList: { padding: 16, flexGrow: 1 },
   msgRow: { marginBottom: 12, flexDirection: 'row' },
   msgRowMe: { justifyContent: 'flex-end' },

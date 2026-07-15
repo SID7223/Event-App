@@ -53,7 +53,10 @@ const DMListScreen: React.FC = () => {
     >
       <View style={styles.avatarWrap}>
         {item.type === 'direct' && item.participants[0] ? (
-          <CachedImage uri={item.participants[0].user.avatar} style={styles.avatar} />
+          <>
+            <CachedImage uri={item.participants[0].user.avatar} style={styles.avatar} />
+            {item.participants[0].user.isOnline && <View style={styles.onlineDot} />}
+          </>
         ) : (
           <View style={[styles.avatar, styles.groupAvatar]}>
             <Ionicons name="people" size={22} color="#FFF" />
@@ -61,7 +64,7 @@ const DMListScreen: React.FC = () => {
         )}
         {item.unreadCount > 0 && (
           <View style={styles.unreadBadge}>
-            <Text style={styles.unreadText}>{item.unreadCount > 99 ? '99+' : item.unreadCount}</Text>
+            <Text style={styles.unreadText}>{item.unreadCount > 9 ? '9+' : item.unreadCount}</Text>
           </View>
         )}
       </View>
@@ -91,7 +94,17 @@ const DMListScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Messages</Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerTitle}>Messages</Text>
+          {(() => {
+            const total = conversations.reduce((s, c) => s + c.unreadCount, 0);
+            return total > 0 ? (
+              <View style={styles.headerBadge}>
+                <Text style={styles.headerBadgeText}>{total > 9 ? '9+' : total}</Text>
+              </View>
+            ) : null;
+          })()}
+        </View>
         <TouchableOpacity
           style={styles.newBtn}
           onPress={() => navigation.navigate('FriendPicker')}
@@ -123,7 +136,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 16, paddingVertical: 12,
   },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   headerTitle: { fontSize: 28, fontFamily: fonts.sans.bold, color: '#FFF' },
+  headerBadge: {
+    paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10,
+    backgroundColor: 'rgba(139,92,246,0.2)',
+  },
+  headerBadgeText: { fontSize: 12, fontFamily: fonts.sans.bold, color: '#8B5CF6' },
   newBtn: { padding: 6 },
   conversation: {
     flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12,
@@ -135,6 +154,10 @@ const styles = StyleSheet.create({
   unreadBadge: {
     position: 'absolute', top: -2, right: -2, backgroundColor: '#8B5CF6', borderRadius: 10,
     minWidth: 18, height: 18, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4,
+  },
+  onlineDot: {
+    position: 'absolute', bottom: 0, right: 0, width: 12, height: 12, borderRadius: 6,
+    backgroundColor: '#22C55E', borderWidth: 2, borderColor: '#000',
   },
   unreadText: { fontSize: 10, fontFamily: fonts.sans.bold, color: '#FFF' },
   conversationContent: { flex: 1, marginRight: 8 },

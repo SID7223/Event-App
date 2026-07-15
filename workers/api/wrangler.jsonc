@@ -24,7 +24,15 @@
   },
   "env": {
     "production": {
-      "vars": {
+  "durable_objects": {
+    "bindings": [
+      { "name": "WEBSOCKET_DO", "class_name": "WebSocketDurableObject" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_classes": ["WebSocketDurableObject"] }
+  ],
+  "vars": {
         "PUSHER_APP_ID": "",
         "PUSHER_KEY": "",
         "PUSHER_SECRET": "",

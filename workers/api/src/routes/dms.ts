@@ -15,6 +15,12 @@ function nanoid(size = 12): string {
   return id;
 }
 
+function getWsStub(env: Env) {
+  if (!env.WEBSOCKET_DO) return null;
+  const doId = env.WEBSOCKET_DO.idFromName('websocket');
+  return env.WEBSOCKET_DO.get(doId);
+}
+
 export function register(app: Hono<{ Bindings: Env }>) {
   // GET /conversations — list user's conversations
   app.get('/conversations', requireAuth, async (c) => {
@@ -31,7 +37,7 @@ export function register(app: Hono<{ Bindings: Env }>) {
     const results = await Promise.all(conversations.map(async (conv) => {
       const participants = await query<any>(
         c.env.chillingz_db,
-        `SELECT cp.*, u.id as uid, u.first_name, u.last_name, u.avatar_url, u.is_online
+        `SELECT cp.*, u.id as uid, u.first_name, u.last_name, u.avatar_url, u.is_online, u.last_seen
          FROM conversation_participants cp
          JOIN users u ON u.id = cp.user_id
          WHERE cp.conversation_id = ? AND cp.left_at IS NULL`,
@@ -59,6 +65,7 @@ export function register(app: Hono<{ Bindings: Env }>) {
             lastName: p.last_name,
             avatar: p.avatar_url || '',
             isOnline: p.is_online === 1,
+            lastSeen: p.last_seen,
           },
         })),
         lastMessagePreview: conv.last_message_preview,
@@ -249,6 +256,23 @@ export function register(app: Hono<{ Bindings: Env }>) {
       now, content.substring(0, 100), userId, now, conversationId
     );
 
+    // Broadcast via WebSocket DO
+    const stub = getWsStub(c.env);
+    if (stub) {
+      stub.broadcastToConversation(conversationId, 'new_message', {
+        id: msgId,
+        conversationId,
+        senderId: userId,
+        type,
+        content,
+        mediaUrl: mediaUrl || null,
+        replyToId: replyToId || null,
+        status: 'sent',
+        createdAt: now,
+      }, userId).catch(() => {});
+    }
+
+    // Return with status 'sent'; client transitions sending→sent on this response
     return created(c, {
       id: msgId,
       conversationId,
@@ -303,15 +327,32 @@ export function register(app: Hono<{ Bindings: Env }>) {
     return success(c, { id: messageId, deletedAt: now });
   });
 
-  // POST /conversations/:id/read — mark as read
+  // POST /conversations/:id/read — mark as read + broadcast via DO
   app.post('/conversations/:id/read', requireAuth, async (c) => {
     const conversationId = c.req.param('id');
     const userId = c.get('userId');
+    const now = new Date().toISOString();
 
     await run(c.env.chillingz_db,
       'UPDATE conversation_participants SET last_read_at = ? WHERE conversation_id = ? AND user_id = ?',
-      new Date().toISOString(), conversationId, userId
+      now, conversationId, userId
     );
+
+    // Update delivered messages to read
+    await run(c.env.chillingz_db,
+      "UPDATE messages SET status = 'read', updated_at = ? WHERE conversation_id = ? AND sender_id != ? AND status = 'delivered'",
+      now, conversationId, userId
+    );
+
+    // Broadcast read receipt via DO
+    const stub = getWsStub(c.env);
+    if (stub) {
+      stub.broadcastToConversation(conversationId, 'read_receipt', {
+        conversationId,
+        userId,
+        lastReadAt: now,
+      }, userId).catch(() => {});
+    }
 
     return success(c, { read: true });
   });
@@ -343,5 +384,60 @@ export function register(app: Hono<{ Bindings: Env }>) {
     );
 
     return success(c, { muted });
+  });
+
+  // POST /conversations/:id/delivered — mark messages as delivered
+  const deliveredSchema = z.object({
+    messageIds: z.array(z.string()).min(1),
+  });
+
+  app.post('/conversations/:id/delivered', requireAuth, zValidator('json', deliveredSchema), async (c) => {
+    const conversationId = c.req.param('id');
+    const userId = c.get('userId');
+    const { messageIds } = c.req.valid('json');
+    const now = new Date().toISOString();
+
+    const placeholders = messageIds.map(() => '?').join(',');
+    await run(c.env.chillingz_db,
+      `UPDATE messages SET status = 'delivered', updated_at = ? WHERE conversation_id = ? AND id IN (${placeholders}) AND sender_id != ? AND status = 'sent' AND deleted_at IS NULL`,
+      now, conversationId, ...messageIds, userId
+    );
+
+    // Notify sender via DO
+    const stub = getWsStub(c.env);
+    if (stub) {
+      stub.broadcastToConversation(conversationId, 'messages_delivered', {
+        messageIds,
+        conversationId,
+        deliveredBy: userId,
+      }, userId).catch(() => {});
+    }
+
+    return success(c, { delivered: true });
+  });
+
+  // GET /users/:id/presence — get user online status
+  app.get('/users/:id/presence', requireAuth, async (c) => {
+    const targetId = c.req.param('id');
+
+    // Try DO first
+    const stub = getWsStub(c.env);
+    if (stub) {
+      try {
+        const presence = await stub.getUserPresence(targetId) as { isOnline: boolean; lastSeen: number };
+        return success(c, presence);
+      } catch {}
+    }
+
+    // Fallback to DB
+    const user = await first<any>(c.env.chillingz_db,
+      'SELECT is_online, last_seen FROM users WHERE id = ?',
+      targetId
+    );
+
+    return success(c, {
+      isOnline: user?.is_online === 1 || false,
+      lastSeen: user?.last_seen || null,
+    });
   });
 }
