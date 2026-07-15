@@ -1,6 +1,6 @@
 import { API_BASE_URL } from '../constants/config';
 import { useAuth } from '../store';
-import { Event, User, Ticket, Notification, Booking, SearchResult, Restaurant, MovieWithShowtimes, AdminAnalytics, Billboard, ScrapperEvent, ScrapperOrganizer, PaginatedResult, AdminSession } from '../types';
+import { Event, User, Ticket, Notification, Booking, SearchResult, Restaurant, MovieWithShowtimes, AdminAnalytics, Billboard, ScrapperEvent, ScrapperOrganizer, PaginatedResult, AdminSession, Conversation, Message, CreatorDashboardData, ProfessionalApplication, FriendAttending } from '../types';
 
 interface AuthResponse {
   user: any;
@@ -547,6 +547,135 @@ export async function updatePrivacySettings(data: { hideRSVPs: boolean }): Promi
   });
 }
 
+// ───── DM / Messaging API ────────────────────────────────────────────────────
+
+export async function getConversations(): Promise<Conversation[]> {
+  return request<Conversation[]>('/conversations');
+}
+
+export async function createConversation(participantIds: string[], title?: string): Promise<{ id: string; existing: boolean }> {
+  return request<{ id: string; existing: boolean }>('/conversations', {
+    method: 'POST',
+    body: JSON.stringify({ participantIds, title }),
+  });
+}
+
+export async function getConversation(id: string): Promise<Conversation> {
+  return request<Conversation>(`/conversations/${id}`);
+}
+
+export async function getMessages(conversationId: string, params?: { cursor?: string; limit?: number }): Promise<{ messages: Message[]; nextCursor: string | null }> {
+  const res = await request<{ messages: Message[]; nextCursor: string | null }>(addParams(`/conversations/${conversationId}/messages`, params));
+  return res;
+}
+
+export async function sendMessage(conversationId: string, data: { content: string; type?: string; mediaUrl?: string; replyToId?: string }): Promise<Message> {
+  return request<Message>(`/conversations/${conversationId}/messages`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function editMessage(messageId: string, content: string): Promise<{ id: string; content: string }> {
+  return request(`/messages/${messageId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ content }),
+  });
+}
+
+export async function deleteMessage(messageId: string): Promise<{ id: string }> {
+  return request(`/messages/${messageId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function markConversationRead(conversationId: string): Promise<void> {
+  await request(`/conversations/${conversationId}/read`, { method: 'POST' });
+}
+
+export async function setConversationTyping(conversationId: string, isTyping: boolean): Promise<void> {
+  await request(`/conversations/${conversationId}/typing?isTyping=${isTyping}`, { method: 'POST' });
+}
+
+export async function muteConversation(conversationId: string, muted: boolean): Promise<void> {
+  await request(`/conversations/${conversationId}/mute?muted=${muted}`, { method: 'PUT' });
+}
+
+export async function submitProfessionalApplication(data: { businessName: string; businessType: string; phone: string; documentUrl?: string }): Promise<{ id: string }> {
+  return request<{ id: string }>('/creator/apply', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getCreatorDashboard(): Promise<CreatorDashboardData> {
+  return request<CreatorDashboardData>('/creator/dashboard');
+}
+
+export async function getCreatorEvents(params?: { page?: number; limit?: number; status?: string }): Promise<PaginatedResult<any>> {
+  return request<PaginatedResult<any>>(addParams('/creator/events', params));
+}
+
+export async function createCreatorEvent(data: any): Promise<{ id: string }> {
+  return request<{ id: string }>('/creator/events', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateCreatorEvent(id: string, data: any): Promise<{ id: string }> {
+  return request(`/creator/events/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteCreatorEvent(id: string): Promise<{ id: string }> {
+  return request(`/creator/events/${id}`, { method: 'DELETE' });
+}
+
+export async function getEventAttendees(eventId: string): Promise<any[]> {
+  return request(`/events/${eventId}/attendees`);
+}
+
+export async function getAttendeesForCreator(eventId: string): Promise<any[]> {
+  return request(`/creator/rsvps/${eventId}`);
+}
+
+export async function getFriendsAttending(eventId: string): Promise<FriendAttending[]> {
+  return request<FriendAttending[]>(`/events/${eventId}/friends-attending`);
+}
+
+export async function rsvpEvent(eventId: string, data: { status?: string; plusOne?: boolean }): Promise<void> {
+  await request(`/events/${eventId}/rsvp`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function cancelRsvp(eventId: string): Promise<void> {
+  await request(`/events/${eventId}/rsvp`, { method: 'DELETE' });
+}
+
+export async function getAdminApplications(params?: { page?: number; limit?: number; status?: string }): Promise<PaginatedResult<ProfessionalApplication>> {
+  return request<PaginatedResult<ProfessionalApplication>>(addParams('/admin/professional-applications', params));
+}
+
+export async function reviewApplication(id: string, status: 'approved' | 'rejected'): Promise<{ id: string; status: string }> {
+  return request(`/admin/professional-applications/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function getAdminShowtimes(params?: { page?: number; limit?: number }): Promise<PaginatedResult<any>> {
+  return request<PaginatedResult<any>>(addParams('/admin/showtimes', params));
+}
+
+export async function toggleFeatured(eventId: string, featured: boolean): Promise<void> {
+  await request(`/admin/showtimes/${eventId}/feature?featured=${featured}`, { method: 'PATCH' });
+}
+
 // ───── Admin API ─────────────────────────────────────────────────────────────
 
 export async function adminGetUsers(params?: { page?: number; limit?: number; q?: string }): Promise<PaginatedResult<User>> {
@@ -625,4 +754,97 @@ export async function adminGetScrapperTopOrganizers(params?: Record<string, stri
 
 export async function adminMarkTopOrganizerContacted(id: string): Promise<void> {
   await request(`/admin/scrapper/top-organizers/${id}/contact`, { method: 'PUT' });
+}
+
+// ───── Auth / Password API ───────────────────────────────────────────────────
+
+export async function signupWithEmail(data: {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  gender?: string;
+}): Promise<{ user: any; accessToken: string; expiresAt: string }> {
+  return request('/auth/signup', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function loginWithEmail(email: string, password: string): Promise<{ user: any; accessToken: string; expiresAt: string }> {
+  return request('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+export async function forgotPassword(email: string): Promise<{ sent: boolean }> {
+  return request('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function resetPassword(token: string, password: string): Promise<{ reset: boolean }> {
+  return request('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ token, password }),
+  });
+}
+
+export async function verifyEmail(token: string): Promise<{ verified: boolean }> {
+  return request('/auth/verify-email', {
+    method: 'POST',
+    body: JSON.stringify({ token }),
+  });
+}
+
+export async function resendVerification(email: string): Promise<{ sent: boolean }> {
+  return request('/auth/resend-verification', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<{ changed: boolean }> {
+  return request('/auth/change-password', {
+    method: 'POST',
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+}
+
+export async function getActiveSessions(): Promise<{ id: string; userAgent: string; ipAddress: string; createdAt: string }[]> {
+  return request('/auth/sessions');
+}
+
+export async function revokeSession(id: string): Promise<void> {
+  await request(`/auth/sessions/${id}`, { method: 'DELETE' });
+}
+
+export async function revokeAllSessions(): Promise<void> {
+  await request('/auth/logout/all', { method: 'POST' });
+}
+
+// ───── Friend Request API ────────────────────────────────────────────────────
+
+export async function sendFriendRequest(userId: string): Promise<{ userId: string; friendId: string; status: string }> {
+  return request(`/friends/request/${userId}`, { method: 'POST' });
+}
+
+export async function acceptFriendRequest(userId: string): Promise<void> {
+  await request(`/friends/accept/${userId}`, { method: 'POST' });
+}
+
+export async function rejectFriendRequest(userId: string): Promise<void> {
+  await request(`/friends/reject/${userId}`, { method: 'POST' });
+}
+
+export async function getFriendRequests(): Promise<any[]> {
+  return request('/friends?filter=requests');
+}
+
+export async function getPendingFriendCount(): Promise<number> {
+  const res = await request<{ count: number }>('/friends/pending-count');
+  return res.count;
 }

@@ -4,14 +4,32 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-07-01",
   "compatibility_flags": ["nodejs_compat"],
-  "routes": [
-    { "pattern": "api.chillingz.com/*", "zone_name": "corlify.com" }
-  ],
   "d1_databases": [
     {
       "binding": "chillingz_db",
       "database_name": "chillingz-db",
       "database_id": "1d0f38e8-09f3-4348-8150-30c485e5bd7f"
     }
-  ]
+  ],
+  "send_email": [
+    {
+      "name": "SEND_EMAIL",
+      "address": "noreply@chillingz.com"
+    }
+  ],
+  "vars": {
+    "PUSHER_APP_ID": "",
+    "PUSHER_KEY": "",
+    "PUSHER_CLUSTER": ""
+  },
+  "env": {
+    "production": {
+      "vars": {
+        "PUSHER_APP_ID": "",
+        "PUSHER_KEY": "",
+        "PUSHER_SECRET": "",
+        "PUSHER_CLUSTER": ""
+      }
+    }
+  }
 }

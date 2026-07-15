@@ -3,3 +3,7 @@
 
 # No required secrets for the API worker currently
 # Auth is validated against the D1 auth_sessions table
+#
+# Email sending (password reset, etc.) uses the SEND_EMAIL binding
+# configured in wrangler.jsonc — no env var needed for local dev.
+# The binding sends from noreply@chillingz.com.
