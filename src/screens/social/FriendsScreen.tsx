@@ -42,6 +42,7 @@ const FriendsScreen: React.FC = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [friendRequests, setFriendRequests] = useState<any[]>([]);
 
   useEffect(() => {
     loadData();
@@ -76,6 +77,11 @@ const FriendsScreen: React.FC = () => {
       setFriends(friendsData);
       setSuggestions(suggestionsData);
       setFriendsList(friendsData.map((f: any) => f.id));
+      try {
+        const { getFriendRequests } = await import('../../services/api');
+        const requests = await getFriendRequests();
+        setFriendRequests(requests);
+      } catch (_) {}
     } catch (_) {
     } finally {
       setLoading(false);
@@ -165,8 +171,11 @@ const FriendsScreen: React.FC = () => {
 
   const handleAddFriend = async (friend: any) => {
     try {
-      await apiAddFriend(friend.id);
-      addFriend(friend.id);
+      const { sendFriendRequest } = await import('../../services/api');
+      const result = await sendFriendRequest(friend.id);
+      if (result.status === 'accepted') {
+        addFriend(friend.id);
+      }
     } catch (_) {}
   };
 
@@ -184,6 +193,9 @@ const FriendsScreen: React.FC = () => {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Friends</Text>
+        <TouchableOpacity style={styles.dmBtn} onPress={() => navigation.navigate('DMList')}>
+          <Ionicons name="chatbubble-ellipses-outline" size={22} color="#FFF" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.searchSection}>
@@ -210,6 +222,43 @@ const FriendsScreen: React.FC = () => {
         {searchLoading && (
           <View style={styles.searchLoading}>
             <ActivityIndicator size="small" color="#FF6B4A" />
+          </View>
+        )}
+
+        {friendRequests.length > 0 && (
+          <View style={styles.requestsSection}>
+            <View style={styles.sectionLabel}>
+              <Ionicons name="person-add" size={16} color="#FF6B4A" />
+              <Text style={styles.sectionLabelText}>Friend Requests ({friendRequests.length})</Text>
+            </View>
+            {friendRequests.slice(0, 5).map((req: any) => (
+              <View key={req.id} style={styles.requestCard}>
+                <CachedImage uri={resolveImage(req.avatarId, req.avatar, 'thumbnail')} style={styles.requestAvatar} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.requestName}>{req.name}</Text>
+                  <Text style={styles.requestHandle}>{req.handle}</Text>
+                </View>
+                <TouchableOpacity style={styles.acceptBtn} onPress={async () => {
+                  try {
+                    const { acceptFriendRequest } = await import('../../services/api');
+                    await acceptFriendRequest(req.id);
+                    setFriendRequests(prev => prev.filter((r: any) => r.id !== req.id));
+                    addFriend(req.id);
+                  } catch (_) {}
+                }}>
+                  <Ionicons name="checkmark" size={18} color="#FFF" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.rejectBtn} onPress={async () => {
+                  try {
+                    const { rejectFriendRequest } = await import('../../services/api');
+                    await rejectFriendRequest(req.id);
+                    setFriendRequests(prev => prev.filter((r: any) => r.id !== req.id));
+                  } catch (_) {}
+                }}>
+                  <Ionicons name="close" size={18} color="#999" />
+                </TouchableOpacity>
+              </View>
+            ))}
           </View>
         )}
 
@@ -465,6 +514,9 @@ const styles = StyleSheet.create({
   },
 
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 40,
     paddingBottom: 16,
@@ -474,6 +526,14 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#FFFFFF',
     fontFamily: fonts.heading,
+  },
+  dmBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   searchSection: {
@@ -783,6 +843,25 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: 'rgba(255,255,255,0.3)',
     fontFamily: fonts.body,
+  },
+  requestsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  requestCard: {
+    flexDirection: 'row', alignItems: 'center', paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(255,255,255,0.06)',
+  },
+  requestAvatar: { width: 40, height: 40, borderRadius: 20, marginRight: 12, backgroundColor: '#222' },
+  requestName: { fontSize: 15, fontWeight: '500', color: '#FFF', fontFamily: fonts.body },
+  requestHandle: { fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: fonts.body },
+  acceptBtn: {
+    width: 34, height: 34, borderRadius: 17, backgroundColor: '#22C55E',
+    alignItems: 'center', justifyContent: 'center', marginLeft: 8,
+  },
+  rejectBtn: {
+    width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(255,255,255,0.08)',
+    alignItems: 'center', justifyContent: 'center', marginLeft: 8,
   },
 });
 

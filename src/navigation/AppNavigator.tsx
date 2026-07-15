@@ -25,10 +25,16 @@ import AdminEventsScreen from '../screens/admin/AdminEventsScreen';
 import AdminBillboardsScreen from '../screens/admin/AdminBillboardsScreen';
 import AdminAnalyticsScreen from '../screens/admin/AdminAnalyticsScreen';
 import AdminScrapperScreen from '../screens/admin/AdminScrapperScreen';
+import DMListScreen from '../screens/social/DMListScreen';
+import DMChatScreen from '../screens/social/DMChatScreen';
+import FriendPickerScreen from '../screens/social/FriendPickerScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
+  DMList: undefined;
+  DMChat: { conversationId: string; title: string };
+  FriendPicker: undefined;
   EventDetail: { eventId: string };
   VenueProfile: { venueId: string };
   OrganizerProfile: { organizerId: string };
@@ -160,6 +166,9 @@ const AppNavigator: React.FC = () => {
             <Stack.Screen name="AdminBillboards" component={AdminBillboardsScreen} options={{ animation: 'slide_from_right' }} />
             <Stack.Screen name="AdminAnalytics" component={AdminAnalyticsScreen} options={{ animation: 'slide_from_right' }} />
             <Stack.Screen name="AdminScrapper" component={AdminScrapperScreen} options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="DMList" component={DMListScreen} options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="DMChat" component={DMChatScreen} options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="FriendPicker" component={FriendPickerScreen} options={{ animation: 'slide_from_right' }} />
           </>
         )}
       </Stack.Navigator>

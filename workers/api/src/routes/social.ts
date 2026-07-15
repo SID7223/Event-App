@@ -217,15 +217,43 @@ export function register(app: Hono<{ Bindings: Env }>) {
 
   app.get('/friends', requireAuth, async (c) => {
     const userId = c.get('userId');
-    const friends = await query<{ friend_id: string; created_at: string }>(
+    const filtered = c.req.query('filter'); // 'all', 'pending', 'requests', 'accepted'
+
+    let condition = "AND f.status = 'accepted'";
+    let order = 'f.created_at DESC';
+
+    if (filtered === 'pending') { condition = "AND f.status = 'pending' AND f.requester_id = ?"; order = 'f.created_at DESC'; }
+    else if (filtered === 'requests') { condition = "AND f.status = 'pending' AND f.friend_id = ?"; order = 'f.created_at DESC'; }
+    else if (filtered === 'all') { condition = ''; }
+
+    const friends = await query<any>(
       c.env.chillingz_db,
-      'SELECT friend_id, created_at FROM friends WHERE user_id = ? ORDER BY created_at DESC',
-      userId
+      `SELECT f.friend_id, f.created_at, f.status, f.requester_id FROM friends f WHERE f.user_id = ? ${condition} ORDER BY ${order}`,
+      filtered === 'pending' || filtered === 'requests' ? userId : userId
     );
+
+    if (filtered === 'requests') {
+      const requestUsers = await query<any>(
+        c.env.chillingz_db,
+        `SELECT u.id, u.first_name, u.last_name, u.avatar_url, u.city, u.gender, f.created_at as request_date
+         FROM friends f JOIN users u ON u.id = f.requester_id
+         WHERE f.friend_id = ? AND f.status = 'pending' ORDER BY f.created_at DESC`,
+        userId
+      );
+      return success(c, requestUsers.map(u => ({
+        id: u.id,
+        name: `${u.first_name} ${u.last_name}`,
+        handle: `@${u.first_name.toLowerCase()}${u.last_name.toLowerCase()}.events`,
+        avatar: u.avatar_url || '',
+        city: u.city || '',
+        gender: u.gender || null,
+        requestDate: u.request_date,
+      })));
+    }
 
     if (friends.length === 0) return success(c, []);
 
-    const friendIds = friends.map(f => f.friend_id);
+    const friendIds = friends.map((f: any) => f.friend_id);
     const users = await query<{ id: string; first_name: string; last_name: string; avatar_url: string | null; city: string; gender: string | null }>(
       c.env.chillingz_db,
       `SELECT id, first_name, last_name, avatar_url, city, gender FROM users WHERE id IN (${friendIds.map(() => '?').join(',')})`,
@@ -338,50 +366,123 @@ export function register(app: Hono<{ Bindings: Env }>) {
     });
   });
 
-  app.post('/friends/:id', requireAuth, async (c) => {
+  // POST /friends/request/:id — send friend request
+  app.post('/friends/request/:id', requireAuth, async (c) => {
     const friendId = c.req.param('id');
     const userId = c.get('userId');
 
-    if (userId === friendId) {
-      throw new ValidationError('Cannot add yourself as a friend');
-    }
+    if (userId === friendId) throw new ValidationError('Cannot add yourself as a friend');
 
-    const user = await first<{ id: string }>(
-      c.env.chillingz_db,
-      'SELECT id FROM users WHERE id = ?',
-      friendId
-    );
+    const user = await first<{ id: string }>(c.env.chillingz_db, 'SELECT id FROM users WHERE id = ?', friendId);
     if (!user) throw new NotFoundError('User', friendId);
 
-    const existing = await first<{ id: string }>(
-      c.env.chillingz_db,
-      'SELECT id FROM friends WHERE user_id = ? AND friend_id = ?',
+    const existing = await first<any>(c.env.chillingz_db,
+      'SELECT id, status FROM friends WHERE user_id = ? AND friend_id = ?',
       userId, friendId
     );
-    if (existing) throw new ConflictError('Already friends');
+    if (existing) {
+      if (existing.status === 'accepted') throw new ConflictError('Already friends');
+      if (existing.status === 'pending') throw new ConflictError('Friend request already sent');
+    }
 
-    await run(
-      c.env.chillingz_db,
-      'INSERT INTO friends (id, user_id, friend_id, created_at) VALUES (?, ?, ?, datetime(\'now\'))',
-      nanoid(), userId, friendId
+    const reverse = await first<any>(c.env.chillingz_db,
+      'SELECT id, status FROM friends WHERE user_id = ? AND friend_id = ?',
+      friendId, userId
+    );
+    if (reverse?.status === 'pending') {
+      // Auto-accept if they already sent you a request
+      await run(c.env.chillingz_db,
+        "UPDATE friends SET status = 'accepted', responded_at = datetime('now') WHERE id = ?",
+        reverse.id
+      );
+      // Add reciprocal
+      await run(c.env.chillingz_db,
+        'INSERT INTO friends (id, user_id, friend_id, status, requester_id, created_at) VALUES (?, ?, ?, ?, ?, datetime(\'now\'))',
+        nanoid(), userId, friendId, 'accepted', userId
+      );
+      return created(c, { userId, friendId, status: 'accepted' });
+    }
+
+    await run(c.env.chillingz_db,
+      'INSERT INTO friends (id, user_id, friend_id, status, requester_id, created_at) VALUES (?, ?, ?, ?, ?, datetime(\'now\'))',
+      nanoid(), userId, friendId, 'pending', userId
     );
 
-    return created(c, { userId, friendId });
+    return created(c, { userId, friendId, status: 'pending' });
   });
 
+  // POST /friends/accept/:id — accept friend request
+  app.post('/friends/accept/:id', requireAuth, async (c) => {
+    const requesterId = c.req.param('id');
+    const userId = c.get('userId');
+
+    const request = await first<any>(c.env.chillingz_db,
+      'SELECT id FROM friends WHERE user_id = ? AND friend_id = ? AND status = ?',
+      requesterId, userId, 'pending'
+    );
+    if (!request) throw new NotFoundError('Friend request');
+
+    await run(c.env.chillingz_db,
+      "UPDATE friends SET status = 'accepted', responded_at = datetime('now') WHERE id = ?",
+      request.id
+    );
+
+    await run(c.env.chillingz_db,
+      'INSERT INTO friends (id, user_id, friend_id, status, created_at) VALUES (?, ?, ?, ?, datetime(\'now\'))',
+      nanoid(), userId, requesterId, 'accepted'
+    );
+
+    return success(c, { userId, friendId: requesterId, status: 'accepted' });
+  });
+
+  // POST /friends/reject/:id — reject friend request
+  app.post('/friends/reject/:id', requireAuth, async (c) => {
+    const requesterId = c.req.param('id');
+    const userId = c.get('userId');
+
+    const request = await first<any>(c.env.chillingz_db,
+      'SELECT id FROM friends WHERE user_id = ? AND friend_id = ? AND status = ?',
+      requesterId, userId, 'pending'
+    );
+    if (!request) throw new NotFoundError('Friend request');
+
+    await run(c.env.chillingz_db,
+      "UPDATE friends SET status = 'rejected', responded_at = datetime('now') WHERE id = ?",
+      request.id
+    );
+
+    return success(c, { userId, friendId: requesterId, status: 'rejected' });
+  });
+
+  // DELETE /friends/:id — remove friend (either direction)
   app.delete('/friends/:id', requireAuth, async (c) => {
     const friendId = c.req.param('id');
     const userId = c.get('userId');
 
     const existing = await first<{ id: string }>(
       c.env.chillingz_db,
-      'SELECT id FROM friends WHERE user_id = ? AND friend_id = ?',
-      userId, friendId
+      'SELECT id FROM friends WHERE ((user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)) AND status = ?',
+      userId, friendId, friendId, userId, 'accepted'
     );
     if (!existing) throw new NotFoundError('Friendship');
 
     await run(c.env.chillingz_db, 'DELETE FROM friends WHERE id = ?', existing.id);
+    // Also remove the reciprocal
+    await run(c.env.chillingz_db,
+      'DELETE FROM friends WHERE ((user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?))',
+      userId, friendId, friendId, userId
+    );
     return deleted(c);
+  });
+
+  // GET /friends/pending-count — count incoming friend requests
+  app.get('/friends/pending-count', requireAuth, async (c) => {
+    const userId = c.get('userId');
+    const count = await first<{ count: number }>(c.env.chillingz_db,
+      'SELECT COUNT(*) as count FROM friends WHERE friend_id = ? AND status = ?',
+      userId, 'pending'
+    );
+    return success(c, { count: count?.count || 0 });
   });
 
   const privacySchema = z.object({

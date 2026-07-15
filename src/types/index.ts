@@ -327,3 +327,83 @@ export interface PaginatedResult<T> {
   total: number;
   totalPages: number;
 }
+
+// ─── DM / Messaging types ────────────────────────────────────────────────────
+
+export interface Conversation {
+  id: string;
+  type: 'direct' | 'group';
+  title: string | null;
+  participants: ConversationParticipant[];
+  lastMessagePreview: string | null;
+  lastMessageAt: string | null;
+  unreadCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConversationParticipant {
+  userId: string;
+  role: 'admin' | 'member';
+  mutedUntil?: string | null;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    avatar: string;
+    isOnline: boolean;
+  };
+}
+
+export interface Message {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  senderName: string;
+  type: 'text' | 'image' | 'file';
+  content: string;
+  mediaUrl: string | null;
+  replyToId: string | null;
+  status: 'sent' | 'delivered' | 'read';
+  createdAt: string;
+}
+
+export interface ProfessionalApplication {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  businessName: string;
+  businessType: string;
+  phone: string;
+  documentUrl: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+}
+
+export interface CreatorDashboardData {
+  stats: {
+    totalEvents: number;
+    upcomingEvents: number;
+    totalRsvps: number;
+    totalViews: number;
+  };
+  topEvent: { id: string; title: string; rsvpCount: number } | null;
+  recentEvents: {
+    id: string;
+    title: string;
+    startTime: string;
+    rsvpCount: number;
+    isFeatured: boolean;
+    viewCount: number;
+  }[];
+}
+
+export interface FriendAttending {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  avatar: string;
+  status: string;
+  rsvpAt: string;
+}
